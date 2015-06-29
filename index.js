@@ -8,6 +8,9 @@
 global.startTime = process.hrtime();
 
 var _ = require('lodash');
+var path = require('path');
+
+var Setup = require('./lib/setup');
 
 /**
  * Modules to apply config
@@ -40,6 +43,10 @@ var Ceres = {
    * @type    {[type]}
    */
   load: function(config) {
+    if (_.isString(config)) {
+      config = require(config);
+    }
+
     this.config = require('./lib/config').extend(config);
     return this;
   },
@@ -51,9 +58,19 @@ var Ceres = {
    */
   start: function(callback) {
 
+    if (this.config.verbose > 0) {
+      console.info('Config: ', this.config);
+    }
+
+    if (this.config.folders.middleware) {
+      this.middleware = Setup.directory(this.config.folders.middleware, {
+        config: this.config
+      });
+    }
+
     // Setup Modules
-    for(var key in modules) {
-      if(modules.hasOwnProperty(key)) {
+    for (var key in modules) {
+      if (modules.hasOwnProperty(key)) {
         // Pass config to each module
         this[key] = require(modules[key]).call(this, this.config);
       }
@@ -64,27 +81,43 @@ var Ceres = {
      *
      * @type    {Object}
      */
-    var commands = require('./lib/commands')(this.config);
+    var commands = Setup.directory(path.resolve(__dirname + '/lib/commands'));
 
     /**
      * Get user commands
      *
      * @type    {Object}
      */
-    var userCommands = callback.call(this, this.config);
+    if (_.isFunction(callback)) {
+      var userCommands = callback.call(this, this.config);
+      commands = _.extend(commands, userCommands || {});
+    }
 
     /**
-     * Merge them
+     * Command to run
      *
-     * @type    {Object}
+     * @type    {String}
      */
-    var routes = _.extend(commands, userCommands);
+    var command = this.config.command;
 
-    if (_.isFunction(routes[this.config.command])) {
-      routes[this.config.command].call(this, this.config);
-    } else {
-      console.log('Unknown Command: %s', this.config.command);
+    // Did we find it? If not, is there a help command available?
+    if (!_.isFunction(commands[command]) && _.isFunction(commands.help)) {
+      command = 'help';
+    } else if (!_.isFunction(commands[command])) {
+      // Can't find anything
+      console.error('Unknown Command. Help Unavailable');
+      process.exit();
     }
+
+    // Run the command, and if we have a result, output it
+    commands[command].call(this, this.config, function(err, result) {
+      if (err) {
+        throw err;
+      } else {
+        console.log(result);
+        process.exit();
+      }
+    });
   }
 };
 
