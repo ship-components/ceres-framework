@@ -16,6 +16,7 @@
     "compression": "^1.5.0",
     "connect-redis": "^2.3.0",
     "ejs": "^2.3.1",
+    "es6-promise": "^2.3.0",
     "express": "^4.12.4",
     "express-session": "^1.11.3",
     "file-stream-rotator": "0.0.6",

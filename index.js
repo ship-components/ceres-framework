@@ -13,17 +13,6 @@ var path = require('path');
 var Setup = require('./lib/setup');
 
 /**
- * Modules to apply config
- *
- * @type    {Object}
- */
-var modules = {
-  Model: './lib/rest/Model',
-  Controller: './lib/rest/Controller',
-  Pipeline: './lib/render/Pipeline'
-};
-
-/**
  * Application Model
  *
  * @type    {Object}
@@ -38,18 +27,34 @@ var Ceres = {
   config: null,
 
   /**
-   * Bootstrap the config
+   * Base Rest Controller API
    *
-   * @type    {[type]}
+   * @type {Object}
    */
-  load: function(config) {
-    if (_.isString(config)) {
-      config = require(config);
-    }
+  Rest: {
 
-    this.config = require('./lib/config').extend(config);
-    return this;
+    /**
+     * Base Controller
+     *
+     * @type {Object}
+     */
+    Controller: require(path.resolve(__dirname + '/lib/rest/Controller')),
+
+    /**
+     * Base Model
+     *
+     * @type {Object}
+     */
+    Model: require(path.resolve(__dirname + '/lib/rest/Model')),
+
   },
+
+  /**
+   * Render Pipline
+   *
+   * @type {Object}
+   */
+  Pipeline: require(path.resolve(__dirname + '/lib/render/Pipeline')),
 
   /**
    * Load the modules and run commands from the cli
@@ -57,24 +62,21 @@ var Ceres = {
    * @param     {Function}    callback
    */
   start: function(callback) {
+    // Bootstrap config
+    this.config = Setup.config();
 
     if (this.config.verbose > 0) {
       console.info('Config: ', this.config);
     }
 
     if (this.config.folders.middleware) {
-      this.middleware = Setup.directory(this.config.folders.middleware, {
+      this.config.middleware = Setup.directory(this.config.folders.middleware, {
         config: this.config
       });
     }
 
-    // Setup Modules
-    for (var key in modules) {
-      if (modules.hasOwnProperty(key)) {
-        // Pass config to each module
-        this[key] = require(modules[key]).call(this, this.config);
-      }
-    }
+    // Bind the correct context
+    this.Pipeline.create = this.Pipeline.create.bind(this);
 
     /**
      * Default Commands
