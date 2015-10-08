@@ -75,8 +75,13 @@ var Ceres = {
       });
     }
 
+    this.Database = require(__dirname + '/lib/db')(this.config);
+
     // Bind the correct context
     this.Pipeline.create = this.Pipeline.create.bind(this);
+
+    this.Rest.Controller.extend = this.Rest.Controller.extend.bind(this);
+    this.Rest.Model.extend = this.Rest.Model.extend.bind(this);
 
     /**
      * Default Commands

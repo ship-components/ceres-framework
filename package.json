@@ -1,6 +1,6 @@
 {
-  "name": "ceres",
-  "version": "0.1.0",
+  "name": "ceres-framework",
+  "version": "0.1.1",
   "description": "Node.js Framework for React Applications",
   "main": "index.js",
   "scripts": {
@@ -8,6 +8,10 @@
   },
   "author": "Isaac Suttell",
   "license": "MIT",
+  "repository": {
+	      "type": "git",
+	          "url": "git+https://github.com/isuttell/ceres-framework.git"
+		    },
   "dependencies": {
     "api-jwt": "git://github.com/isuttell/api-jwt",
     "async": "^1.2.1",
