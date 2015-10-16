@@ -57,31 +57,54 @@ var Ceres = {
   Pipeline: require(path.resolve(__dirname + '/lib/render/Pipeline')),
 
   /**
-   * Load the modules and run commands from the cli
+   * Load the application
+   *
+   * @param  {Function} callback [description]
+   */
+  load: function(callback) {
+    try {
+      // Bootstrap config
+      this.config = Setup.config();
+
+      if (this.config.verbose > 0) {
+        console.info('Config: ', this.config);
+      }
+
+      if (this.config.folders.middleware) {
+        this.config.middleware = Setup.directory(this.config.folders.middleware, {
+          config: this.config
+        });
+      }
+
+      this.Database = require(__dirname + '/lib/db')(this.config);
+
+      // Bind the correct context
+      this.Pipeline.create = this.Pipeline.create.bind(this);
+
+      this.Rest.Controller.extend = this.Rest.Controller.extend.bind(this);
+      this.Rest.Model.extend = this.Rest.Model.extend.bind(this);
+
+      if(typeof callback === 'function') {
+        callback(null, this);
+      } else {
+        return this;
+      }
+    } catch(err) {
+      if(typeof callback === 'function') {
+        callback(err);
+      } else {
+        console.error(err);
+      }
+    }
+  },
+
+  /**
+   * Load and run commands from the cli
    *
    * @param     {Function}    callback
    */
   start: function(callback) {
-    // Bootstrap config
-    this.config = Setup.config();
-
-    if (this.config.verbose > 0) {
-      console.info('Config: ', this.config);
-    }
-
-    if (this.config.folders.middleware) {
-      this.config.middleware = Setup.directory(this.config.folders.middleware, {
-        config: this.config
-      });
-    }
-
-    this.Database = require(__dirname + '/lib/db')(this.config);
-
-    // Bind the correct context
-    this.Pipeline.create = this.Pipeline.create.bind(this);
-
-    this.Rest.Controller.extend = this.Rest.Controller.extend.bind(this);
-    this.Rest.Model.extend = this.Rest.Model.extend.bind(this);
+    this.load();
 
     /**
      * Default Commands
@@ -119,11 +142,11 @@ var Ceres = {
     // Run the command, and if we have a result, output it
     commands[command].call(this, this.config, function(err, result) {
       if (err) {
-        throw err;
+        console.error(err);
       } else {
         console.log(result);
-        process.exit();
       }
+      process.exit();
     });
   }
 };
