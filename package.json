@@ -13,7 +13,7 @@
 	          "url": "git+https://github.com/isuttell/ceres-framework.git"
 		    },
   "dependencies": {
-    "api-jwt": "git://github.com/isuttell/api-jwt",
+    "api-jwt": "git://github.com/isuttell/api-jwt#master",
     "async": "^1.2.1",
     "body-parser": "^1.13.1",
     "bookshelf": "^0.8.1",
@@ -35,7 +35,7 @@
     "pg": "^4.4.0",
     "react": "^0.13.3",
     "response-time": "^2.3.1",
-    "throttled": "git://github.com/isuttell/throttled",
-    "two-factor": "git://github.com/isuttell/two-factor"
+    "throttled": "git://github.com/isuttell/throttled#master",
+    "two-factor": "git://github.com/isuttell/two-factor#master"
   }
 }
