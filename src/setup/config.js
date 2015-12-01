@@ -13,18 +13,6 @@ var path = require('path');
 var mkdirp = require('mkdirp');
 
 /**
- * Verbose Levels
- *
- * @constants
- * @type    {Object}
- */
-var VerboseLevel = module.exports.VerboseLevel = {
-  'VERBOSE_DEFAULT': 0,
-  'VERBOSE_NORMAL': 1,
-  'VERBOSE_ALL': 2,
-};
-
-/**
  * Read the config RC File
  *
  * @param     {Object}    options
@@ -33,60 +21,20 @@ var VerboseLevel = module.exports.VerboseLevel = {
 function rcConfig(file) {
   file = path.resolve(file || '.configrc');
 
-  try {
-
-    // Must exist
-    if (!fs.existsSync(file)) {
-      throw new Error('Unable to find ' + file);
-    }
-
-    // Read
-    var rc = fs.readFileSync(file, {
-      encoding: 'utf8'
-    });
-
-    // Convert to JS
-    rc = JSON.parse(rc);
-
-    return rc;
-  } catch (err) {
-    return {};
+  // Must exist
+  if (!fs.existsSync(file)) {
+    throw new Error('Unable to find ' + file);
   }
-}
 
-/**
- * Get options from the command line
- *
- * @return {Object}
- */
-function cliConfig() {
-  /**
-   * Get options from the command line
-   *
-   * @type    {Object}
-   */
-  var cli = nopt({
-    rc: path,
-    env: String,
-    instances: Number,
-    port: Number,
-    config: path,
-    debug: Boolean,
-    verbose: [Number, Boolean]
-  }, {
-    'e': '--env',
-    'i': '--instances',
-    'p': '--port',
-    'd': '--debug',
-    'v': '--verbose',
-    'vv': '--verbose 2',
-    'c': '--rc'
-  }, process.argv, 2);
+  // Read
+  var rc = fs.readFileSync(file, {
+    encoding: 'utf8'
+  });
 
-  // Get the command
-  cli.command = cli.argv.remain[0];
+  // Convert to JS
+  rc = JSON.parse(rc);
 
-  return cli;
+  return rc;
 }
 
 /**
@@ -111,15 +59,12 @@ function getRCPath(configs) {
   return config ? path.resolve(config.rc) : void 0;
 }
 
-module.exports = function() {
+module.exports = function(cli) {
   // Framework defaults
   var defaultConfig = require('../../config/default');
 
   // Get global config
   var config = requireConfig();
-
-  // Get config from cli
-  var cli = cliConfig();
 
   // Get the environment
   var env = _.detect([cli.env, config.env, process.env.NODE_ENV, 'production'], function(env){

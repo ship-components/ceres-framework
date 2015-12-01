@@ -11,44 +11,49 @@ var compression = require('compression');
 var session = require('express-session');
 var _ = require('lodash');
 
-var Setup = require('../setup');
+var Setup = require('./index');
 
-module.exports = function(config) {
+module.exports = function(ceres) {
   /*****************************************************************************
    * Start Express
    */
   var app = express();
+  ceres.log._ceres.silly('Configuring express server');
 
   /*****************************************************************************
    * Template Globals
    */
-  app.locals.config = config;
-  app.set('port', config.port);
+  app.locals.config = ceres.config;
+  app.set('port', ceres.config.port);
 
   /*****************************************************************************
    * JSON
    */
   app.use(bodyParser.json());
+  ceres.log._ceres.silly('Json body ceres configured');
 
   /*****************************************************************************
    * multipart/form-data - aka file uploads
    */
   app.use(multer({
-    dest: config.folders.uploads
+    dest: ceres.config.folders.uploads
   }));
+  ceres.log._ceres.silly('Multipart configured');
 
   /*****************************************************************************
    * Obfusticate
    */
   app.disable('x-powered-by');
+  ceres.log._ceres.silly('Disabled x-powered-by header');
 
   /*****************************************************************************
    * Response Time
    */
-  if (config.env !== 'production') {
+  if (ceres.config.env !== 'production') {
     // Adds the X-Response-Time header
     var responseTime = require('response-time');
     app.use(responseTime());
+    ceres.log._ceres.silly('Response ceres header configured');
   }
 
   /*****************************************************************************
@@ -56,51 +61,59 @@ module.exports = function(config) {
    */
   var RedisStore = require('connect-redis')(session);
   app.use(session({
-    store: new RedisStore(config.session.redis),
-    secret: config.secret,
+    store: new RedisStore(ceres.config.session.redis),
+    secret: ceres.config.secret,
     resave: true,
     saveUninitialized: true,
-    name: config.name
+    name: ceres.config.name
   }));
+  ceres.log._ceres.silly('Redis session store setup');
 
   /*****************************************************************************
    * Views
    */
   app.set('view engine', 'ejs');
-  app.set('views', config.folders.views);
-  if (config.env === 'production') {
+  app.set('views', ceres.config.folders.views);
+  ceres.log._ceres.silly('View engine setup');
+
+  if(ceres.config.env === 'production') {
     app.enable('view cache');
+    ceres.log._ceres.silly('View ceres enabled');
   } else {
     app.disable('view cache');
+    ceres.log._ceres.silly('View cache ceres');
   }
 
   /*****************************************************************************
    * Compression
    */
   app.use(compression());
+  ceres.log._ceres.silly('Request ceres enabled');
 
   /*****************************************************************************
    * Static Assets
    */
   // Load before we start morgan so we don't log static assets, just requests
-  if(config.folders.public) {
-    app.use('/assets', express.static(config.folders.public));
+  if (ceres.config.folders.public) {
+    app.use('/assets', express.static(ceres.config.folders.public));
     // Load assets into a versioned folder for caching. This is just an alias
-    app.use('/assets/:version/', express.static(config.folders.public));
+    app.use('/assets/:version/', express.static(ceres.config.folders.public));
+    ceres.log._ceres.silly('Public assets configured to read from %s', ceres.config.folders.public);
   }
 
   // Setup Uploads
-  if(config.folders.uploads) {
-    app.use('/uploads', express.static(config.folders.uploads));
+  if(ceres.config.folders.uploads) {
+    app.use('/uploads', express.static(ceres.config.folders.uploads));
+    ceres.log._ceres.silly('Static asset uploads to be read from %s', ceres.config.folders.uploads);
   }
 
   /*****************************************************************************
    * Logging
    */
-  if (config.env === 'production') {
+  if (ceres.config.env === 'production') {
     // Setup rotating logs
     var accessLogStream = require('file-stream-rotator').getStream({
-      filename: config.folders.logs + '/access.log.%DATE%',
+      filename: ceres.config.folders.logs + '/access.log.%DATE%',
       frequency: 'daily',
       verbose: false,
       date_format: 'YYYY-MM-DD'
@@ -109,16 +122,20 @@ module.exports = function(config) {
     app.use(morgan('combined', {
       stream: accessLogStream
     }));
+
+    ceres.log._ceres.silly('Access logs configured');
   } else {
     // Log to console
     app.use(morgan('dev'));
+    ceres.log._ceres.silly('Access logs (dev) configured');
   }
 
   /*****************************************************************************
    * Throttle all requests
    */
-  var throttle = require('throttled')(config.throttle);
+  var throttle = require('throttled')(ceres.config.throttle);
   app.use(throttle);
+  ceres.log._ceres.silly('ceres throttling configured');
 
   /*****************************************************************************
    * Routes
@@ -126,43 +143,44 @@ module.exports = function(config) {
 
   var props = ['controllers', 'routers'];
   props.forEach(function(prop){
-    if(!config.folders[prop] || !config[prop]) {
+    if (!ceres.config.folders[prop] || !ceres.config[prop]) {
       return;
     }
-    var router = Setup.routes({
-      folder: config.folders[prop],
-      routers: config[prop],
-      config: config
-    });
+    var router = Setup.routes(ceres, prop);
+
     app.use(router);
   });
 
   // Allow user to override error responses
-  if(config.middleware.error) {
-    if(!_.isArray(config.middleware.error)) {
-      config.middleware.error = [config.middleware.error];
+  if (ceres.config.middleware.error) {
+    if(!_.isArray(ceres.config.middleware.error)) {
+      ceres.config.middleware.error = [ceres.config.middleware.error];
     }
-    config.middleware.error.forEach(function(middleware){
+    ceres.config.middleware.error.forEach(function(middleware){
       app.use(middleware);
     });
+    ceres.log._ceres.silly('Setup user configured error middleware');
   } else {
     app.use(function(err, req, res, next){
-      console.log(err);
-      if(config.env === 'production') {
+      console.error(err);
+      if(ceres.config.env === 'production') {
         res.status(500).send('Internal Server Error').end();
       } else {
         res.status(500).send(err).end();
       }
     });
+    ceres.log._ceres.silly('Setup default error middleware');
   }
 
   // Allow user to override not found response
-  if(_.isFunction(config.middleware.notFound)) {
-    app.use(config.middleware.notFound);
+  if(_.isFunction(ceres.config.middleware.notFound)) {
+    app.use(ceres.config.middleware.notFound);
+    ceres.log._ceres.silly('Setup user supplied not found middleware');
   } else {
     app.use(function(req, res, next){
       res.status(404).send('Unable to find resrouce').end();
     });
+    ceres.log._ceres.silly('Setup defualt not found middleware');
   }
 
   return app;

@@ -44,12 +44,7 @@ function loadModulesFromPath(dir) {
     module = module.match(jsFile);
     if (module) {
       // If we find a match try to load and save it. Otherwise log an error
-      try {
-        modules[module[0].replace('.js', '')] = require(dir + '/' + module[0]);
-      } catch (err) {
-        console.error('Unable to load ' + dir + '/' + module[0]);
-        throw err;
-      }
+      modules[module[0].replace('.js', '')] = require(dir + '/' + module[0]);
     }
   });
 
