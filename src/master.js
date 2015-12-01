@@ -5,7 +5,7 @@
 var cluster = require('cluster');
 var _ = require('lodash');
 
-module.exports.start = function(config) {
+module.exports = function(config) {
   /**
    * Keep track the number of worker's we've started
    * @type    {Number}
@@ -32,5 +32,5 @@ module.exports.start = function(config) {
   for (var i = 0; i < config.instances; i++) {
     var worker = cluster.fork(config);
   }
-  
+
 };

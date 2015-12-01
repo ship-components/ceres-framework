@@ -4,8 +4,8 @@
  * @return    {Function}
  */
 module.exports = function run(config) {
-  var master = require('../http/master');
-  var child = require('../http/child');
+  var master = require('../master');
+  var child = require('../child');
 
   // Ensure secret is present
   if (!config.secret) {
@@ -17,12 +17,12 @@ module.exports = function run(config) {
     var cluster = require('cluster');
 
     if (cluster.isMaster) {
-      master.start.call(this, config);
+      master.call(this, config);
     } else {
-      child.fork.call(this, config);
+      child.call(this, config);
     }
   } else {
     // Single Instance
-    child.fork.call(this, config);
+    child.call(this, config);
   }
 };

@@ -10,7 +10,7 @@ global.startTime = process.hrtime();
 var _ = require('lodash');
 var path = require('path');
 
-var Setup = require('./lib/setup');
+var Setup = require('./src/setup');
 
 /**
  * Application Model
@@ -38,14 +38,14 @@ var Ceres = {
      *
      * @type {Object}
      */
-    Controller: require(path.resolve(__dirname + '/lib/rest/Controller')),
+    Controller: require(path.resolve(__dirname + '/src/rest/Controller')),
 
     /**
      * Base Model
      *
      * @type {Object}
      */
-    Model: require(path.resolve(__dirname + '/lib/rest/Model')),
+    Model: require(path.resolve(__dirname + '/src/rest/Model')),
 
   },
 
@@ -54,7 +54,7 @@ var Ceres = {
    *
    * @type {Object}
    */
-  Pipeline: require(path.resolve(__dirname + '/lib/render/Pipeline')),
+  Pipeline: require(path.resolve(__dirname + '/src/render/Pipeline')),
 
   /**
    * Load the application
@@ -76,7 +76,7 @@ var Ceres = {
         });
       }
 
-      this.Database = require(__dirname + '/lib/db')(this.config);
+      this.Database = require(__dirname + '/src/db')(this.config);
 
       // Bind the correct context
       this.Pipeline.create = this.Pipeline.create.bind(this);
@@ -111,7 +111,7 @@ var Ceres = {
      *
      * @type    {Object}
      */
-    var commands = Setup.directory(path.resolve(__dirname + '/lib/commands'));
+    var commands = Setup.directory(path.resolve(__dirname + '/src/commands'));
 
     /**
      * Get user commands

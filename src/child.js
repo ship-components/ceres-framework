@@ -2,10 +2,10 @@
  * Worker Instance
  ******************************************************************************/
 var moment = require('moment');
-var Application = require('./app');
-var Setup = require('../setup');
+var Application = require('./http/app');
+var Setup = require('./setup');
 
-module.exports.fork = function(config) {
+module.exports = function(config) {
 
   // The master doesn't do very much besides load the workers so we also use it
   // handle the queues. If a queue crashes then the master will crash as well...
