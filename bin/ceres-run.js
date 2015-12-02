@@ -17,6 +17,7 @@ program
   .option('-p, --port <number>', 'Which port to listen to', parseInt)
   .option('-d, --debug', 'Enable debug logging')
   .option('-v, --verbose', 'Enable verbose output to console')
+  .option('-w, --webpack', 'Enable webpack middleware for development')
   .parse(process.argv);
 
 // Extract as key/value pairs

@@ -90,6 +90,16 @@ module.exports = function(ceres) {
   app.use(compression());
   ceres.log._ceres.silly('Request ceres enabled');
 
+
+  /*****************************************************************************
+   * Webpack middleware for dev. Needs to go before static assets to override them
+   */
+  if (ceres.config.env !== 'production' && ceres.config.webpack && ceres.config.webpackConfig) {
+    var webpackDevMiddleware = require('../middleware/webpack')(ceres);
+    app.use(webpackDevMiddleware);
+    ceres.log._ceres.silly('Webpack dev middleware configured');
+  }
+
   /*****************************************************************************
    * Static Assets
    */

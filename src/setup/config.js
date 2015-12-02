@@ -59,6 +59,17 @@ function getRCPath(configs) {
   return config ? path.resolve(config.rc) : void 0;
 }
 
+function getWebpack(env) {
+  var files = [process.cwd() + '/config/webpack' + env + '.js', process.cwd() + '/config/webpack.default.js', process.cwd() + '/config/webpack.config.js'];
+  var index = files.length;
+  while(--index > 0) {
+    if (fs.existsSync(files[index])) {
+      return require(files[index]);
+    }
+  }
+  return {};
+}
+
 module.exports = function(cli) {
   // Framework defaults
   var defaultConfig = require('../../config/default');
@@ -89,5 +100,8 @@ module.exports = function(cli) {
       config.folders[folder] = path.resolve(config.folders[folder]);
     }
   }
+
+  config.webpackConfig = getWebpack(env);
+
   return config;
 };
