@@ -147,9 +147,13 @@ module.exports = function(ceres) {
       return;
     }
     var router = Setup.routes(ceres, prop);
-
     app.use(router);
   });
+
+
+  /*****************************************************************************
+   * Error and Missing Resources
+   */
 
   // Allow user to override error responses
   if (ceres.config.middleware.error) {
@@ -161,14 +165,8 @@ module.exports = function(ceres) {
     });
     ceres.log._ceres.silly('Setup user configured error middleware');
   } else {
-    app.use(function(err, req, res, next){
-      console.error(err);
-      if(ceres.config.env === 'production') {
-        res.status(500).send('Internal Server Error').end();
-      } else {
-        res.status(500).send(err).end();
-      }
-    });
+    var errorMiddleware = require('../middleware/error')(ceres);
+    app.use(errorMiddleware);
     ceres.log._ceres.silly('Setup default error middleware');
   }
 
@@ -177,9 +175,8 @@ module.exports = function(ceres) {
     app.use(ceres.config.middleware.notFound);
     ceres.log._ceres.silly('Setup user supplied not found middleware');
   } else {
-    app.use(function(req, res, next){
-      res.status(404).send('Unable to find resrouce').end();
-    });
+    var notFound = require('../middleware/notFound')(ceres);
+    app.use(notFound);
     ceres.log._ceres.silly('Setup defualt not found middleware');
   }
 
