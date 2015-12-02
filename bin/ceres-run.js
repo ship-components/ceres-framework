@@ -6,19 +6,12 @@
  ******************************************************************************/
 
 var Ceres = require('../src/Ceres');
-var program = require('commander');
-var pkg = require(process.cwd() + '/package.json');
 
-program
-  .version(pkg.version)
-  .option('-r, --rc <path>', 'Location of the config file')
-  .option('-e, --env <string>', 'Which environment are we running in?')
-  .option('-i, --instances <number>', 'Total number of children to spawn in the cluster', parseInt)
-  .option('-p, --port <number>', 'Which port to listen to', parseInt)
-  .option('-d, --debug', 'Enable debug logging')
-  .option('-v, --verbose', 'Enable verbose output to console')
-  .option('-w, --webpack', 'Enable webpack middleware for development')
-  .parse(process.argv);
+var pkg = require(process.cwd() + '/package.json');
+var config = require('../config/cli');
+var CLI = require('../src/lib/CLI');
+
+var program = CLI(pkg.version, config.run).parse(process.argv);
 
 // Extract as key/value pairs
 var options = program.opts();
