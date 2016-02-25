@@ -215,6 +215,10 @@ var BaseController = {
 
         // Gett actual fn
         var handler = this[fnName];
+        if (typeof handler !== 'function') {
+          // Skip if we're not a function
+          continue;
+        }
 
         // Wrap and inject model
         var fn = wrapRoute(handler, this);
