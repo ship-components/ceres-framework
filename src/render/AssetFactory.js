@@ -32,7 +32,7 @@ function assetChecksums(checksums, env) {
         return file.name === name;
       });
       // Which version are we using?
-      var filename = env === 'production' ? name.replace('.', '.min.') : name;
+      var filename = name;
       // Extension for sub dir
       var ext = name.match(/.*\.(.*)$/);
 
@@ -52,17 +52,11 @@ function assetChecksums(checksums, env) {
 module.exports = function(config) {
 
   function AssetFactory(assets, checksums) {
-    var js = assets.js.map(function(name) {
-      return config.env === 'production' ? name.replace('.', '.min.') : name;
-    });
-    var css = assets.css.map(function(name) {
-      return config.env === 'production' ? name.replace('.', '.min.') : name;
-    });
     return {
       forPayload: function() {
         return {
-          js: js,
-          css: css
+          js: assets.js,
+          css: assets.css
         };
       }
     };
