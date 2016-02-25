@@ -90,21 +90,20 @@ module.exports = function(ceres) {
   app.use(compression());
   ceres.log._ceres.silly('Request ceres enabled');
 
-
-  /*****************************************************************************
-   * Webpack middleware for dev. Needs to go before static assets to override them
-   */
   if (ceres.config.env !== 'production' && ceres.config.webpack && ceres.config.webpackConfig) {
+    /*****************************************************************************
+     * Webpack middleware for dev. Needs to go before static assets to override them
+     */
     var webpackDevMiddleware = require('../middleware/webpack')(ceres);
     app.use(webpackDevMiddleware);
     ceres.log._ceres.silly('Webpack dev middleware configured');
   }
 
-  /*****************************************************************************
-   * Static Assets
-   */
-  // Load before we start morgan so we don't log static assets, just requests
   if (ceres.config.folders.public) {
+    /*****************************************************************************
+     * Static Assets
+     */
+    // Load before we start morgan so we don't log static assets, just requests
     app.use('/assets', express.static(ceres.config.folders.public));
     // Load assets into a versioned folder for caching. This is just an alias
     app.use('/assets/:version/', express.static(ceres.config.folders.public));
@@ -112,7 +111,7 @@ module.exports = function(ceres) {
   }
 
   // Setup Uploads
-  if(ceres.config.folders.uploads) {
+  if (ceres.config.folders.uploads) {
     app.use('/uploads', express.static(ceres.config.folders.uploads));
     ceres.log._ceres.silly('Static asset uploads to be read from %s', ceres.config.folders.uploads);
   }
