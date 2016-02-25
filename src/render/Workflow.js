@@ -52,7 +52,7 @@ module.exports.setup = function(config, props) {
         try {
           html = React.renderToString(React.createElement(options.component, deepClone(results.props)));
         } catch (err) { // Catch any errors in the front end so they dont' crash the backend
-          console.error('ClientError', err);
+          console.error('ReactRenderError', err, err.stack);
         } finally {
           done(null, html);
         }
