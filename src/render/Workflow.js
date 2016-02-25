@@ -1,4 +1,5 @@
 
+var ReactDOMServer = require('react-dom/server');
 var React = require('react');
 var _ = require('lodash');
 var fs = require('fs');
@@ -50,7 +51,7 @@ module.exports.setup = function(config, props) {
       return function(done, results) {
         var html = '';
         try {
-          html = React.renderToString(React.createElement(options.component, deepClone(results.props)));
+          html = ReactDOMServer.renderToString(React.createElement(options.component, deepClone(results.props)));
         } catch (err) { // Catch any errors in the front end so they dont' crash the backend
           console.error('ReactRenderError', err, err.stack);
         } finally {
@@ -122,7 +123,7 @@ module.exports.setup = function(config, props) {
       return function(done, results) {
         // Load asset information
         var payload = {
-          component: results.component,
+          component: results.react,
           props: JSON.stringify(results.props),
           version: config.version,
           title: options.title,
