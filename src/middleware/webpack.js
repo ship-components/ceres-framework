@@ -9,7 +9,9 @@ module.exports = function(ceres) {
   return webpackDevMiddleware(compiler, {
     noInfo: false,
     quiet: false,
-    publicPath: '/assets/js',
-    stats: ceres.config.webpackConfig.stats,
+    publicPath: '/assets',
+    stats: Object.assign(config.stats, {
+      cached: false
+    })
   });
 };
