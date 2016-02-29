@@ -3,6 +3,7 @@
  ******************************************************************************/
 
 var _ = require('lodash');
+var moment = require('moment');
 
 var BaseModel = require('./BaseModel');
 
@@ -151,7 +152,36 @@ module.exports.convertTimestampsToUnix = function convertTimestampsToUnix(fields
         key = _.camelCase(key);
       }
       if (val && fields.indexOf(key) > -1) {
-        memo[key] = (new Date(val)).getTime();
+        memo[key] = moment(val).format('x');
+      } else {
+        memo[key] = val;
+      }
+      return memo;
+    }, {});
+  };
+};
+
+/**
+ * Convert dates to ISO8601
+ *
+ * @param     {Array}    fields
+ */
+module.exports.convertDatesToISO8601 = function convertDatesToISO8601(fields, options) {
+  options = options || {};
+  fields = fields || ['created_at', 'updated_at'];
+
+  /**
+   * Bookshelf process function
+   *
+   * @param     {Array}    attrs
+   */
+  return function(attrs) {
+    return _.reduce(attrs, function(memo, val, key) {
+      if (options.camelCase) {
+        key = _.camelCase(key);
+      }
+      if (val && fields.indexOf(key) > -1) {
+        memo[key] = moment(val).format();
       } else {
         memo[key] = val;
       }
