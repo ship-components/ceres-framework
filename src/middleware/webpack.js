@@ -10,8 +10,6 @@ module.exports = function(ceres) {
     noInfo: false,
     quiet: false,
     publicPath: '/assets',
-    stats: Object.assign(config.stats, {
-      cached: false
-    })
+    stats: config.stats
   });
 };
