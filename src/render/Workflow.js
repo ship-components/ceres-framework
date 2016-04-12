@@ -50,6 +50,11 @@ module.exports.setup = function(config, props) {
     react: function(options) {
       return function(done, results) {
         var html = '';
+        // Skip if we have no component
+        if (typeof options.component !== 'function') {
+          done(null, html);
+          return;
+        }
         try {
           html = ReactDOMServer.renderToString(React.createElement(options.component, deepClone(results.props)));
         } catch (err) { // Catch any errors in the front end so they dont' crash the backend
