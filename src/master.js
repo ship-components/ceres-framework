@@ -6,6 +6,7 @@ var cluster = require('cluster');
 var _ = require('lodash');
 
 module.exports = function(ceres) {
+
   /**
    * Keep track the number of worker's we've started
    * @type    {Number}
@@ -18,7 +19,7 @@ module.exports = function(ceres) {
    */
   var errorCount = 0;
 
-  var workers = [];
+  var workers = {};
 
   /**
    * Fork a worker
@@ -27,7 +28,8 @@ module.exports = function(ceres) {
     workerCount += 1;
     var worker = cluster.fork(ceres.config);
     ceres.log._ceres.silly('Worker %s-%s forked', workerCount, worker.process.pid);
-    workers.push(worker);
+
+    workers[worker.process.pid] = worker;
   }
 
   /*****************************************************************************
@@ -40,8 +42,9 @@ module.exports = function(ceres) {
     errorCount += 1;
     if (errorCount > 10) {
       console.error('Encountered too many errors. Exiting...');
-      process.exit();
+      process.exit(127);
     }
+    delete workers[worker.process.pid];
     forkWorker();
   });
 
@@ -54,4 +57,21 @@ module.exports = function(ceres) {
   for (var i = 0; i < ceres.config.instances; i++) {
     forkWorker();
   }
+
+  /*****************************************************************************
+   * Cleanup
+   ****************************************************************************/
+  ['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach(function(signal){
+    process.on(signal, function() {
+      ceres.log._ceres.info('Recieved ' + signal +'. Cleaning up any workers...');
+      for (var pid in workers) {
+        if (workers.hasOwnProperty(pid)) {
+          ceres.log._ceres.debug('Killing ' + pid + '...');
+          workers[pid].kill();
+        }
+      }
+      ceres.log._ceres.debug('Exiting...');
+      process.exit();
+    });
+  });
 };
