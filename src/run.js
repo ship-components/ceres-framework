@@ -1,9 +1,9 @@
 var winston = require('winston');
+var master = require('./master');
+var child = require('./child');
+var cluster = require('cluster');
 
 module.exports = function(ceres) {
-  var master = require('./master');
-  var child = require('./child');
-
   // Ensure secret is present
   if (!ceres.config.secret) {
     console.error('Unable to find secret.');
@@ -25,8 +25,6 @@ module.exports = function(ceres) {
 
   if (ceres.config.instances && ceres.config.instances > 1) {
     ceres.log._ceres.silly('Starting cluster with %d workers', ceres.config.instances);
-    // Clustering
-    var cluster = require('cluster');
 
     if (cluster.isMaster) {
       master.call(ceres, ceres);
