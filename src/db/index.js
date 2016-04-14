@@ -1,17 +1,39 @@
 /**
- * Reference to DB Object
+ * Connect to database connection
+ * @param  {Object} config
+ * @return {Promise}
  */
-var db = null;
-
 module.exports = function(config) {
-  if (db !== null) {
-    // Already Setup
-    return db;
-  } else if (config.db.type === 'bookshelf') {
+  if (config.db.type === 'bookshelf') {
     // Setup Bookself
-    return require('./bookself')(config);
+    return new Promise(function(resolve) {
+      resolve(require('./bookself')(config));
+    });
+  } else if (config.db.type === 'rethinkdb'){
+    return new Promise(function(resolve, reject){;
+      try {
+        var r = require('rethinkdb');
+        var version = require('rethinkdb/package.json').version
+
+        r.connect(config.db)
+        .then(function(connection){
+          resolve({
+            r: r,
+            version: version,
+            connection: connection
+          })
+        })
+        .catch(function(err){
+          console.log(err);
+          reject(err);
+        });
+      } catch (err) {
+        console.log(err);
+        reject(err);
+      }
+    })
   } else {
     // Unknown config
-    return null;
+    throw new Error('Unknown config.db.type');
   }
 };

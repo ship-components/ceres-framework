@@ -157,7 +157,7 @@ var BaseController = {
    * @param    {Express.res}    res
    */
   putUpdate: function(req) {
-    this.model.update(req.body)
+    this.model.update(req.body, req.params.id)
       .then(this.send)
       .catch(this.fail);
   },
@@ -169,7 +169,7 @@ var BaseController = {
    * @param    {Express.res}    res
    */
   deleteOne: function(req) {
-    this.model.del(req.body)
+    this.model.del(req.params.id)
       .then(this.noContent)
       .catch(this.fail);
   },

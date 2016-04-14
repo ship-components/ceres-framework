@@ -1,11 +1,8 @@
 {
   "name": "ceres-framework",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Node.js Framework for React Applications",
   "main": "src/Ceres.js",
-  "bin": {
-    "ceres": "./bin/ceres.js"
-  },
   "scripts": {
     "test": "npm test"
   },
@@ -19,7 +16,6 @@
     "api-jwt": "git://github.com/isuttell/api-jwt#master",
     "async": "^1.2.1",
     "body-parser": "^1.13.1",
-    "bookshelf": "^0.8.1",
     "commander": "^2.9.0",
     "compression": "^1.5.0",
     "connect-redis": "^2.3.0",
@@ -45,5 +41,9 @@
     "webpack": "^1.12.9",
     "webpack-dev-middleware": "^1.4.0",
     "winston-daily-rotate-file": "^1.0.1"
+  },
+  "optionalDependencies" : {
+    "rethinkdb": "^2.3.0",
+    "bookshelf": "^0.8.1"
   }
 }

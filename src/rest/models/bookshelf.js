@@ -5,7 +5,7 @@
 var _ = require('lodash');
 var moment = require('moment');
 
-var BaseModel = require('./BaseModel');
+var BaseModel = require('../BaseModel');
 
 function assertNotNull(val) {
   if(val === null) {
@@ -80,9 +80,8 @@ var Model = BaseModel.extend({
    * @param     {Object}    body
    * @return    {promise}
    */
-  update: function(body) {
+  update: function(body, id) {
     assertNotNull(this.model);
-    var id = body.id;
     delete body.id; // Can't update the ID
 
     delete body.created_at; // You can only create it once
@@ -105,10 +104,10 @@ var Model = BaseModel.extend({
    * @param     {Number}    id
    * @return    {promise}
    */
-  del: function(body) {
+  del: function(id) {
     assertNotNull(this.model);
     return new this.model({
-      id: body.id
+      id: id
     }).destroy();
   }
 });
@@ -120,14 +119,14 @@ var Model = BaseModel.extend({
  */
 module.exports.extend = function extend(props) {
   // Override defaults
-  var model = _.merge({}, Model, props);
+  var model = _.merge({
+    database: this.Database
+  }, Model, props);
 
   // Ensure correct this context
   model = _.bindAll(model);
 
-  if(this.config.db.type === 'bookshelf') {
-    model.model = this.Database.Model.extend(model.table);
-  }
+  model.model = this.Database.Model.extend(model.table);
 
   return model;
 };
