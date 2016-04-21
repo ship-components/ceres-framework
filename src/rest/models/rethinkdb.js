@@ -37,10 +37,7 @@ var Model = BaseModel.extend({
     if (typeof id !== 'undefined') {
       return this.table()
         .get(id)
-        .run(this.connection)
-        .then(function(cursor){
-          return cursor.toArray()
-        });
+        .run(this.connection);
     } else {
       return this.table()
         .run(this.connection)
