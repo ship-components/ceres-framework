@@ -60,13 +60,17 @@ module.exports = function(ceres) {
    * Session
    */
   var RedisStore = require('connect-redis')(session);
-  app.use(session({
+  var sessionStore = session({
     store: new RedisStore(ceres.config.session.redis),
     secret: ceres.config.secret,
     resave: true,
     saveUninitialized: true,
     name: ceres.config.name
-  }));
+  })
+  // Save it so sockets can use later
+  app.set('sharedSession', sessionStore);
+  // Apply
+  app.use(sessionStore);
   ceres.log._ceres.silly('Redis session store setup');
 
   /*****************************************************************************

@@ -1,5 +1,6 @@
 module.exports = {
   directory: require('./directory'),
   routes: require('./routes'),
-  config: require('./config')
+  config: require('./config'),
+  sockets: require('./sockets')
 };

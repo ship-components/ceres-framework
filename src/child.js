@@ -4,6 +4,7 @@
 var moment = require('moment');
 var Application = require('./setup/express');
 var Setup = require('./setup');
+var http = require('http');
 
 module.exports = function(ceres) {
 
@@ -26,8 +27,14 @@ module.exports = function(ceres) {
   var db = require('./db')(ceres.config);
   app.set('db', db);
 
+  // Setup server
+  var server = http.Server(app);
+
+  // Setup any sockets
+  Setup.sockets(ceres, app, server);
+
   // Listen
-  var server = app.listen(ceres.config.port, function() {
+  server.listen(ceres.config.port, function() {
 
     var host = server.address().address === '::' ? 'localhost' : server.address().address;
     var port = server.address().port;

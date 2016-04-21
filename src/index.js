@@ -72,7 +72,7 @@ Ceres.prototype.load = function(options) {
   return new Promise(function(resolve, reject){
     this.log._ceres.silly('Setting up ' + this.config.db.type);
     var Database = require(__dirname + '/db')(this.config);
-    Database.then(function(db){
+    return Database.then(function(db){
         this.Database = db;
         return this;
       }.bind(this))
