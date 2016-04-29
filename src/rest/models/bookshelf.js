@@ -4,7 +4,7 @@
 
 var _ = require('lodash');
 var moment = require('moment');
-
+var Promise = require('bluebird');
 var BaseModel = require('../BaseModel');
 
 function assertNotNull(val) {
@@ -96,6 +96,15 @@ var Model = BaseModel.extend({
       // Get relations
       return model.fetch(this.fetch);
     }.bind(this));
+  },
+
+  updateAll: function(body) {
+    if (body instanceof Array !== true) {
+      body = [body];
+    }
+    return Promise.all(body.map(function(doc) {
+      return this.update(doc, doc.id);
+    }.bind(this)));
   },
 
   /**

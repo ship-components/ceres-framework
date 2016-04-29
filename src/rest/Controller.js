@@ -108,7 +108,7 @@ var BaseController = {
     'get /': 'getAll',
     'get /:id': 'getOne',
     'post /': 'postCreate',
-    'put /:id': 'putUpdate',
+    'put /:id?': 'putUpdate',
     'delete /:id': 'deleteOne'
   },
 
@@ -157,9 +157,17 @@ var BaseController = {
    * @param    {Express.res}    res
    */
   putUpdate: function(req) {
-    this.model.update(req.body, req.params.id)
-      .then(this.send)
-      .catch(this.fail);
+    if (req.params.id) {
+      // Update single
+      this.model.update(req.body, req.params.id)
+        .then(this.send)
+        .catch(this.fail);
+    } else {
+      // Update multiple
+      this.model.updateAll(req.body)
+        .then(this.send)
+        .catch(this.fail);
+    }
   },
 
   /**
