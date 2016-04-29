@@ -129,13 +129,13 @@ var Model = BaseModel.extend({
 module.exports.extend = function extend(props) {
   // Override defaults
   var model = _.merge({
-    database: this.Database
+    database: this.Database.bookshelf
   }, Model, props);
 
   // Ensure correct this context
   model = _.bindAll(model);
 
-  model.model = this.Database.Model.extend(model.table);
+  model.model = this.Database.bookshelf.Model.extend(model.table);
 
   return model;
 };

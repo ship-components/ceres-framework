@@ -34,6 +34,7 @@
     "multer": "^0.1.8",
     "nopt": "^3.0.2",
     "pg": "^4.4.0",
+    "pg-live-select": "^1.0.3",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
     "response-time": "^2.3.1",
