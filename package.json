@@ -47,6 +47,6 @@
   },
   "optionalDependencies": {
     "rethinkdb": "^2.3.0",
-    "bookshelf": "^0.8.1"
+    "bookshelf": "^0.9.5"
   }
 }
