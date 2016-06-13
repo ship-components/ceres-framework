@@ -79,7 +79,11 @@ var wrapRoute = module.exports.wrapRoute = function wrapRoute(handler, ctx) {
       models: models,
     });
 
-    return handler.call(context, req, res);
+    try {
+      return handler.call(context, req, res);
+    } catch(err) {
+      return responses.fail(err);
+    }
   };
 };
 
