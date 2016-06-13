@@ -105,11 +105,6 @@ var BaseController = {
    * @type    {Object}
    */
   routes: {
-    'get /': 'getAll',
-    'get /:id': 'getOne',
-    'post /': 'postCreate',
-    'put /:id?': 'putUpdate',
-    'delete /:id': 'deleteOne'
   },
 
   /**
@@ -187,7 +182,7 @@ var BaseController = {
    *
    * @return    {Express.router}
    */
-  router: function(config) {
+  router: function(ceres, config, controllerName) {
     /**
      * Express Router
      *
@@ -224,6 +219,7 @@ var BaseController = {
         // Gett actual fn
         var handler = this[fnName];
         if (typeof handler !== 'function') {
+          ceres.log._ceres.warn('%s - Ignoring %s %s: %s is not a function', controllerName, method, path, fnName || 'undefined');
           // Skip if we're not a function
           continue;
         }
@@ -236,6 +232,7 @@ var BaseController = {
 
         // Express route
         router[method].apply(router, args);
+        ceres.log._ceres.silly('%s - Setting up %s %s: %s', controllerName, method, path, fnName);
       }
     }
 
