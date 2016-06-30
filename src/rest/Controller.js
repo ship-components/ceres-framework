@@ -3,6 +3,7 @@
  ******************************************************************************/
 
 var _ = require('lodash');
+var EventEmitter = require('events');
 
 /**
  * Default Controller Reponses
@@ -35,7 +36,7 @@ function bindEach(src, ctx) {
  * @param     {Object}      ctx         `this` from created Controller
  * @return    {Express.route}
  */
-var wrapRoute = module.exports.wrapRoute = function wrapRoute(handler, ctx) {
+var wrapRoute = module.exports.wrapRoute = function wrapRoute(handler, ctx, config) {
   return function(req, res) {
 
     /**
@@ -64,7 +65,9 @@ var wrapRoute = module.exports.wrapRoute = function wrapRoute(handler, ctx) {
      */
     responses = bindEach(responses, {
       req: req,
-      res: res
+      res: res,
+      controller: ctx,
+      config: config
     });
 
     /**
@@ -145,6 +148,10 @@ var BaseController = {
    */
   postCreate: function(req) {
     this.model.create(req.body)
+      .then(function(result){
+        this.controller.emit('created', req, req.body, result);
+        return result;
+      }.bind(this))
       .then(this.send)
       .catch(this.fail);
   },
@@ -159,11 +166,19 @@ var BaseController = {
     if (req.params.id) {
       // Update single
       this.model.update(req.body, req.params.id)
+        .then(function(result){
+          this.controller.emit('updated', req, req.body, result);
+          return result;
+        }.bind(this))
         .then(this.send)
         .catch(this.fail);
     } else {
       // Update multiple
       this.model.updateAll(req.body)
+        .then(function(result){
+          this.controller.emit('updated', req, req.body, result);
+          return result;
+        }.bind(this))
         .then(this.send)
         .catch(this.fail);
     }
@@ -177,6 +192,10 @@ var BaseController = {
    */
   deleteOne: function(req) {
     this.model.del(req.params.id)
+      .then(function(result){
+        this.controller.emit('deleted', req, req.params.id);
+        return result;
+      }.bind(this))
       .then(this.noContent)
       .catch(this.fail);
   },
@@ -234,9 +253,14 @@ var BaseController = {
         // Add to args
         args.push(fn);
 
+        if (typeof router[method] !== 'function') {
+          ceres.log._ceres.warn('%s - Ignoring %s %s: router.%s is not a function', controllerName, method, path, method);
+          continue;
+        }
+
         // Express route
         router[method].apply(router, args);
-        ceres.log._ceres.silly('%s - Setting up %s %s: %s', controllerName, method, path, fnName);
+        ceres.log._ceres.silly('%s - Setting up %s %s - %s', controllerName, method, path, fnName);
       }
     }
 
@@ -253,6 +277,11 @@ var BaseController = {
 module.exports.extend = function(props) {
   // Override defaults
   var controller = _.merge({}, BaseController, props);
+
+  controller._events = new EventEmitter();
+  controller.on = controller._events.on;
+  controller.removeListener = controller._events.removeListener;
+  controller.emit = controller._events.emit;
 
   return controller;
 };
