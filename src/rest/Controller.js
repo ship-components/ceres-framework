@@ -229,7 +229,7 @@ var BaseController = {
         }
 
         // Wrap and inject model
-        var fn = wrapRoute(handler, this);
+        var fn = wrapRoute(handler, this, config);
 
         // Add to args
         args.push(fn);
