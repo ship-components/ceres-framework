@@ -70,6 +70,13 @@ var Responses = {
     var response = {
       message: 'Interal Server Error'
     };
+
+    if (this.config.env !== 'production' && err instanceof Error) {
+      response.context = err.stack.split('\n');
+    } else if (this.config.env !== 'production') {
+      response.context = err.toString();
+    }
+
     this.res.status(STATUS.ERROR).json(response).end();
     throw err;
   },
