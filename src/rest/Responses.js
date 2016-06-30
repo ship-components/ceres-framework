@@ -55,9 +55,10 @@ var Responses = {
   /**
    * Client sent a request that we can't process
    */
-  badRequest: function() {
+  badRequest: function(context) {
     this.res.status(STATUS.BAD_REQUEST).json({
-      message: 'Bad Request'
+      message: 'Bad Request',
+      context: context
     }).end();
   },
 
