@@ -81,9 +81,15 @@ var Model = BaseModel.extend({
    * @return    {promise}
    */
   update: function(body, id) {
+    if (typeof id === 'undefined' && typeof body.id === 'number') {
+      id = body.id;
+    }
     assertNotNull(this.model);
-    delete body.id; // Can't update the ID
 
+    // Clone so we don't mutate accidently
+    Object.assign({}, body);
+
+    delete body.id; // Can't update the ID
     delete body.created_at; // You can only create it once
     delete body.updated_at; // Handled by DB
 
