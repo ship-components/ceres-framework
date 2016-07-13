@@ -6,6 +6,7 @@ module.exports = {
     ['-p, --port <number>', 'Which port to listen to', parseInt],
     ['-d, --debug', 'Enable debug logging'],
     ['-v, --verbose', 'Enable verbose output to console'],
+    ['-l, --log-level <level>', 'Set level to log'],
     ['-w, --webpack', 'Enable webpack middleware for development']
   ],
   init: [

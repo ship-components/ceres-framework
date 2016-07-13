@@ -2,7 +2,6 @@ var winston = require('winston');
 
 module.exports = function logger(config, name) {
   var name = name || config.name;
-
   /**
    * Transports
    *
@@ -14,6 +13,7 @@ module.exports = function logger(config, name) {
       name: 'production',
       filename: config.folders.logs + '/production.log',
       label: name,
+      level: config.logLevel || 'info',
       tailable: true
     })
   ];
@@ -21,7 +21,7 @@ module.exports = function logger(config, name) {
   // Output to console on dev
   if (config.env !== 'production' || config.verbose) {
     transports.push(new(winston.transports.Console)({
-      level: 'silly',
+      level: config.logLevel || 'silly',
       colorize: true,
       label: name,
       prettyPrint: true,

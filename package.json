@@ -43,6 +43,7 @@
     "two-factor": "https://github.com/isuttell/two-factor#master",
     "webpack": "^1.12.9",
     "webpack-dev-middleware": "^1.4.0",
+    "winston": "^2.2.0",
     "winston-daily-rotate-file": "^1.0.1"
   },
   "optionalDependencies": {
