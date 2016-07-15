@@ -29,7 +29,7 @@ module.exports = function(ceres, app, server) {
   var handler = require(clientSocketEntryPath);
 
   // Connect it to client connection event
-  io.on('connection', handler.bind(ceres, ceres.Database));
+  io.on('connection', handler.bind(ceres, io, ceres.Database));
 
   // Share express sessions
   io.use(sharedsession(app.get('sharedSession')));
