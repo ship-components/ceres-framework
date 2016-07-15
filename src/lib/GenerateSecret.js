@@ -1,6 +1,58 @@
-
-var TwoFactor = require('two-factor');
 var fs = require('fs');
+
+/**
+ * Creates a random string
+ *
+ * @param     {Object}    options
+ * @return    {String}
+ */
+function randomString(options) {
+  var set = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+
+  if (options.symbols === true) {
+    set += '!@#$%^&*()<>?/[]{},.:;';
+  }
+
+  var key = '';
+  for (var i = 0; i < options.length; i++) {
+    key += set.charAt(Math.floor(Math.random() * set.length));
+  }
+
+  return key;
+}
+
+/**
+ * Generates a random base32 secret key and optionally a qrcode
+ *
+ * @param     {Object}    options
+ * @return    {Object}
+ */
+function generateKey(options) {
+  // Options
+  options = _.extend({
+    length: 32,
+    name: '',
+    symbols: false,
+    google: false,
+    qrCode: false,
+    type: 'base32'
+  }, options || {});
+
+  // Generate the random string
+  var key = randomString(options);
+
+  if (options.type === 'ascii') {
+    return key;
+  } else if (options.type === 'base32') {
+    // Encode the ascii string into base32 and remove any `=` signs which google
+    // doesn't like
+    key = base32.encode(key).toString().replace(/=/g, '');
+
+    return key;
+  } else {
+    throw new Error('InvalidKeyType');
+  }
+}
 
 /**
  * Generates a random key andsaves to disk. Used to store secrets
@@ -21,7 +73,7 @@ module.exports = function GenerateSecretKey(pkg, overrides) {
     }
   }
 
-  var key = TwoFactor.generate.key({
+  var key = generateKey({
     symbols: true,
     type: 'ascii',
     length: options.length

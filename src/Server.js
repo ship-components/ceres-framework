@@ -33,21 +33,5 @@ module.exports = function(ceres) {
   // Setup any sockets
   Setup.sockets(ceres, app, server);
 
-  // Listen
-  server.listen(ceres.config.port, function() {
-
-    var host = server.address().address === '::' ? 'localhost' : server.address().address;
-    var port = server.address().port;
-
-    // Calculate how long it took to load
-    ceres.loadTime = process.hrtime(ceres.startTime);
-    var loadTimeMs = Math.floor((ceres.loadTime[0] * 1e9 + ceres.loadTime[1])/ 1000000);
-    var loadTimeS = moment.duration(loadTimeMs).asSeconds();
-
-    ceres.log._ceres.silly('Instance took %ds to start', loadTimeS);
-
-    ceres.log.info('Listening on http://%s:%s (%s)', host, port, ceres.config.env);
-  });
-
   return server;
 };

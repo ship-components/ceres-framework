@@ -1,6 +1,6 @@
 {
   "name": "ceres-framework",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Node.js Framework for React Applications",
   "main": "src/Ceres.js",
   "scripts": {
@@ -13,8 +13,7 @@
     "url": "git+https://github.com/isuttell/ceres-framework.git"
   },
   "dependencies": {
-    "api-jwt": "https://github.com/isuttell/api-jwt#master",
-    "async": "^1.2.1",
+    "async": "^1.5.2",
     "body-parser": "^1.13.1",
     "commander": "^2.9.0",
     "compression": "^1.5.0",
@@ -37,10 +36,10 @@
     "pg-live-select": "^1.0.3",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
+    "redis": "^2.6.2",
     "response-time": "^2.3.1",
     "socket.io": "^1.4.5",
-    "throttled": "https://github.com/isuttell/throttled#master",
-    "two-factor": "https://github.com/isuttell/two-factor#master",
+    "sticky-session": "^1.1.2",
     "webpack": "^1.12.9",
     "webpack-dev-middleware": "^1.4.0",
     "winston": "^2.2.0",
