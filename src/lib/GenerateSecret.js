@@ -29,7 +29,7 @@ function randomString(options) {
  */
 function generateKey(options) {
   // Options
-  options = _.extend({
+  options = Object.assign({
     length: 32,
     name: '',
     symbols: false,
