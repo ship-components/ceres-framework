@@ -8,6 +8,7 @@
 var path = require('path');
 var winston = require('winston');
 var Setup = require('./setup');
+var DailyRotateFile = require('winston-daily-rotate-file');
 
 function Ceres() {
   this.startTime = process.hrtime();
@@ -21,7 +22,7 @@ Ceres.prototype.load = function(options) {
 
   if (this.config.env === 'production') {
     // Save uncaught exceptions to their own file in production
-    winston.handleExceptions(new winston.transports.DailyRotateFile({
+    winston.handleExceptions(new DailyRotateFile({
       filename: this.config.folders.logs + '/exceptions.log',
       tailable: true
     }));
