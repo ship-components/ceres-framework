@@ -174,6 +174,14 @@ Controller.prototype  = {
    * @param    {Express.res}    res
    */
   getOne: function(req) {
+    var id = parseInt(req.params.id, 10);
+
+    // Ensure we have a valid id and don't accidently return everything
+    if (isNaN(id)) {
+      this.notFound('Unknown or invalid id');
+      return;
+    }
+
     this.model
       .read(req.params.id)
       .then(this.send)
