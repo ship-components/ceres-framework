@@ -36,7 +36,7 @@ function bindEach(src, ctx) {
  * @param     {Object}      ctx         `this` from created Controller
  * @return    {Express.route}
  */
-var wrapRoute = module.exports.wrapRoute = function wrapRoute(handler, ctx, config) {
+function wrapRoute(handler, ctx, config) {
   return function(req, res) {
 
     /**
@@ -91,12 +91,53 @@ var wrapRoute = module.exports.wrapRoute = function wrapRoute(handler, ctx, conf
 };
 
 /**
- * Defaults
+ * Base instance of a controller to be extended
+ * @param {Object} props
+ */
+function Controller(props) {
+  Object.assign(this, props);
+
+  this._events = new EventEmitter();
+  this.on = this._events.on;
+  this.removeListener = this._events.removeListener;
+  this.emit = this._events.emit;
+}
+
+/**
+ * Make wrap wrapRoute public
+ * @static
+ * @type {Function}
+ */
+Controller.wrapRoute = wrapRoute;
+
+/**
+ * Helper function to create new controllers
+ * @param     {Object}    props
+ * @alias
+ * @static
+ * @return    {Controller}
+ */
+Controller.extend = function(props) {
+  return new Controller(props);
+};
+
+/**
+ * Export
+ * @type {Function}
+ */
+module.exports = Controller;
+
+/**
+ * Prototype
  *
  * @type    {Object}
  */
-var BaseController = {
+Controller.prototype  = {
 
+  /**
+   * Shortcut to model for CRUD controllers
+   * @type {[type]}
+   */
   model: null,
 
   /**
@@ -111,8 +152,7 @@ var BaseController = {
    *
    * @type    {Object}
    */
-  routes: {
-  },
+  routes: {},
 
   /**
    * GET all
@@ -222,6 +262,33 @@ var BaseController = {
         var method = parts[0].toLowerCase();
         var path = parts[1];
 
+        // Get fn name aka value
+        var fnName = '';
+        if (typeof this.routes[route] === 'string') {
+          // Default
+          fnName = this.routes[route];
+        } else if (this.routes[route] instanceof Array) {
+          // Array option so users can inject middleware
+          fnName = this.routes[route].pop();
+        }
+
+        // Gett actual fn
+        var handler;
+        if (typeof fnName === 'string') {
+          // By default look for a method with the fnName on `this`
+          handler = this[fnName];
+        } else if (typeof fnName === 'function') {
+          // Allow user to pass in fn instead of string
+          handler = fnName;
+          fnName = handler.constructor.name;
+        }
+
+        if (typeof handler !== 'function') {
+          ceres.log._ceres.warn('%s - Ignoring %s %s: %s is not a function', controllerName, method, path, fnName || 'undefined');
+          // Skip if we're not a function
+          continue;
+        }
+
         // Path
         var args = [path];
 
@@ -236,15 +303,9 @@ var BaseController = {
           args = args.concat(userMiddleware);
         }
 
-        // Get fn name aka value
-        var fnName = this.routes[route];
-
-        // Gett actual fn
-        var handler = this[fnName];
-        if (typeof handler !== 'function') {
-          ceres.log._ceres.warn('%s - Ignoring %s %s: %s is not a function', controllerName, method, path, fnName || 'undefined');
-          // Skip if we're not a function
-          continue;
+        // Attach another other user supplied middleware
+        if (this.routes[route] instanceof Array) {
+          args = args.concat(this.routes[route]);
         }
 
         // Wrap and inject model
@@ -266,22 +327,4 @@ var BaseController = {
 
     return router;
   }
-};
-
-
-/**
- * Helper function to create new controllers
- * @param     {Object}    props
- * @return    {Object}
- */
-module.exports.extend = function(props) {
-  // Override defaults
-  var controller = _.merge({}, BaseController, props);
-
-  controller._events = new EventEmitter();
-  controller.on = controller._events.on;
-  controller.removeListener = controller._events.removeListener;
-  controller.emit = controller._events.emit;
-
-  return controller;
 };

@@ -16,6 +16,20 @@ function Ceres() {
   this.config = {};
 }
 
+/**
+ * Make contoller available at base level
+ */
+Ceres.prototype.Controller = require(path.resolve(__dirname + '/rest/Controller'));
+
+/**
+ * Make the model available at the base level
+ */
+Ceres.prototype.Model = require(path.resolve(__dirname + '/rest/Model'));
+
+/**
+ * Load the app
+ * @param  {Object} options
+ */
 Ceres.prototype.load = function(options) {
   // Bootstrap config
   this.config = Setup.config(options);
@@ -36,9 +50,8 @@ Ceres.prototype.load = function(options) {
 
   // Bind the correct context
   if (this.config.folders.middleware) {
-    this.config.middleware = Setup.directory(this.config.folders.middleware, {
-      config: this.config
-    });
+    this.config.middleware = Setup.directory(this.config.folders.middleware, this);
+    this.middleware = this.config.middleware;
   }
 
   /**
@@ -67,7 +80,6 @@ Ceres.prototype.load = function(options) {
 
   // Bind the correct context
   this.Pipeline.create = this.Pipeline.create.bind(this);
-  this.Rest.Controller.extend = this.Rest.Controller.extend.bind(this);
   this.Rest.Model.extend = this.Rest.Model.extend.bind(this);
 
   return new Promise(function(resolve, reject){
