@@ -195,7 +195,7 @@ module.exports.convertDatesToISO8601 = function convertDatesToISO8601(fields, op
         key = _.camelCase(key);
       }
       if (val && fields.indexOf(key) > -1) {
-        memo[key] = moment(val).format();
+        memo[key] = moment(val).utc().format();
       } else {
         memo[key] = val;
       }
