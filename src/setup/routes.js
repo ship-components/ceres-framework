@@ -17,13 +17,17 @@ module.exports = function routes(ceres, prop) {
       continue;
     }
 
-    var benchmark = new Benchmark();
-    var controller = require(folder + '/' + name);
-    var endpoint = routers[name];
-    controller.name = name;
-    controller.endpoint = endpoint;
-    router.use(endpoint, controller.router(ceres, ceres.config, name));
-    ceres.log._ceres.silly('Setup endpoint %s from %s in %dms', endpoint, name, benchmark.stop());
+    try {
+      var benchmark = new Benchmark();
+      var controller = require(folder + '/' + name);
+      var endpoint = routers[name];
+      controller.name = name;
+      controller.endpoint = endpoint;
+      router.use(endpoint, controller.router(ceres, ceres.config, name));
+      ceres.log._ceres.silly('Setup endpoint %s from %s in %dms', endpoint, name, benchmark.stop());
+    } catch(err) {
+      ceres.log._ceres.error(err);
+    }
   }
   ceres.log._ceres.silly('Setup router for %s', prop);
   return router;
