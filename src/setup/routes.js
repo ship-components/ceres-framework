@@ -23,10 +23,11 @@ module.exports = function routes(ceres, prop) {
       var endpoint = routers[name];
       controller.name = name;
       controller.endpoint = endpoint;
-      router.use(endpoint, controller.router(ceres, ceres.config, name));
+      router.use(endpoint, controller.router(ceres, ceres.config, controller));
       ceres.log._ceres.silly('Setup endpoint %s from %s in %dms', endpoint, name, benchmark.stop());
     } catch(err) {
-      ceres.log._ceres.error(err);
+      ceres.log._ceres.error('Unable to setup', name);
+      throw err;
     }
   }
   ceres.log._ceres.silly('Setup router for %s', prop);

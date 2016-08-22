@@ -253,7 +253,7 @@ Controller.prototype  = {
    *
    * @return    {Express.router}
    */
-  router: function(ceres, config, controllerName) {
+  router: function(ceres, config, controller) {
     /**
      * Express Router
      *
@@ -267,8 +267,24 @@ Controller.prototype  = {
         // try {
         // Parse
         var parts = route.split(' ');
+
+        /**
+         * HTTP method
+         * @type {String}
+         */
         var method = parts[0].toLowerCase();
+
+        /**
+         * The sub path or tail end of a path
+         * @type {String}
+         */
         var path = parts[1];
+
+        /**
+         * The complete path from the root url
+         * @type {String}
+         */
+        var fullPath = controller.endpoint + path;
 
         // Get fn name aka value
         var fnName = '';
@@ -292,7 +308,7 @@ Controller.prototype  = {
         }
 
         if (typeof handler !== 'function') {
-          ceres.log._ceres.warn('%s - Ignoring %s %s: %s is not a function', controllerName, method, path, fnName || 'undefined');
+          ceres.log._ceres.warn('%s - Ignoring %s %s: %s is not a function', controller.name, method.toUpperCase(), fullPath, fnName || 'undefined');
           // Skip if we're not a function
           continue;
         }
@@ -323,13 +339,13 @@ Controller.prototype  = {
         args.push(fn);
 
         if (typeof router[method] !== 'function') {
-          ceres.log._ceres.warn('%s - Ignoring %s %s: router.%s is not a function', controllerName, method, path, method);
+          ceres.log._ceres.warn('%s - Ignoring %s %s: router.%s is not a function', controller.name, method.toUpperCase(), fullPath, method);
           continue;
         }
 
         // Express route
         router[method].apply(router, args);
-        ceres.log._ceres.silly('%s - Setting up %s %s - %s', controllerName, method, path, fnName);
+        ceres.log._ceres.silly('%s - Setting up %s %s - %s', controller.name, method.toUpperCase(), fullPath, fnName);
       }
     }
 
