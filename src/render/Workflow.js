@@ -71,7 +71,11 @@ module.exports.setup = function(config, props) {
      */
     template: function(options) {
       return function(done) {
-        fs.readFile(options.template || config.render.template, {
+        var template = config.render.template;
+        if (options && typeof options.templatePath === 'string') {
+          template = options.templatePath;
+        }
+        fs.readFile(template, {
           encoding: 'utf8'
         }, function(err, src) {
           if(err) {
