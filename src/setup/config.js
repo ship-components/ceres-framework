@@ -48,7 +48,7 @@ function requireConfig(env) {
   try {
     return require(process.cwd() + '/config/' + env + '.js');
   } catch(err) {
-    return null;
+    return {};
   }
 }
 
@@ -71,6 +71,10 @@ function getWebpack(env) {
 }
 
 module.exports = function(cli) {
+  if (typeof cli !== 'object') {
+    cli = {};
+  }
+
   // Framework defaults
   var defaultConfig = require('../../config/default');
 
