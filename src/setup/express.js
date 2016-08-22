@@ -6,6 +6,7 @@
 var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser')
 var multer = require('multer');
 var compression = require('compression');
 var session = require('express-session');
@@ -31,6 +32,12 @@ module.exports = function(ceres) {
    */
   app.use(bodyParser.json());
   ceres.log._ceres.silly('Json body ceres configured');
+
+  /*****************************************************************************
+   * Cookies
+   */
+  app.use(cookieParser());
+  ceres.log._ceres.silly('Cookie parser configured');
 
   /*****************************************************************************
    * multipart/form-data - aka file uploads
