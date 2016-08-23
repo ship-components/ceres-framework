@@ -1,6 +1,7 @@
 var Server = require('./Server');
 var moment = require('moment');
 var sticky = require('sticky-session');
+var Promise = require('bluebird');
 
 /**
  * Log the time it took to start
@@ -17,36 +18,46 @@ function logStartTime(str, ceres) {
 }
 
 module.exports = function(ceres) {
-  // Ensure secret is present
-  if (!ceres.config.secret) {
-    console.error('Unable to find secret.');
-    process.exit(1);
-  }
+  return new Promise(function(resolve, reject){
+    try {
+      // Ensure secret is present
+      if (!ceres.config.secret) {
+        throw new Error('Unable to find secret.');
+      }
 
-  // Setup express server
-  var server = Server.call(ceres, ceres);
+      // Setup express server
+      var server = Server.call(ceres, ceres);
 
-  if (!ceres.config.instances || ceres.config.instances === 1) {
-    // Skip sticky session setup if we only have a single instance. Allows
-    // for debugging
-    server.listen(ceres.config.port, function(){
-      logStartTime('Server took %ds to start listening', ceres);
-      ceres.log._ceres.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
-    });
-    return;
-  }
+      if (!ceres.config.instances || ceres.config.instances === 1) {
+        // Skip sticky session setup if we only have a single instance. Allows
+        // for debugging
+        server.listen(ceres.config.port, function(){
+          logStartTime('Server took %ds to start listening', ceres);
+          ceres.log._ceres.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
+          resolve();
+        });
+        return;
+      }
 
-  // Start sticky session server which handles the cluster
-  var isChild = sticky.listen(server, ceres.config.port, {
-    workers: ceres.config.instances
+      // Start sticky session server which handles the cluster
+      var isChild = sticky.listen(server, ceres.config.port, {
+        workers: ceres.config.instances
+      });
+
+      if (!isChild) {
+        server.once('listening', function(){
+          logStartTime('Master took %ds to start listening', ceres);
+          ceres.log._ceres.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
+          resolve();
+        });
+      } else {
+        logStartTime('Child took %ds to configure', ceres);
+        resolve();
+      }
+
+    } catch(err) {
+      ceres.log._ceres.error(err);
+      reject(err);
+    }
   });
-
-  if (!isChild) {
-    server.once('listening', function(){
-      logStartTime('Master took %ds to start listening', ceres);
-      ceres.log._ceres.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
-    });
-  } else {
-    logStartTime('Child took %ds to configure', ceres);
-  }
 };
