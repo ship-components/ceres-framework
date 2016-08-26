@@ -32,8 +32,13 @@ Ceres.prototype.Model = require(path.resolve(__dirname + '/rest/Model'));
  */
 Ceres.prototype.load = function(options) {
   return new Promise(function(resolve, reject){
-    // Bootstrap config
-    this.config = Setup.config(options);
+    try {
+      // Bootstrap config
+      this.config = Setup.config(options);
+    } catch (err) {
+      console.error(err.stack);
+      reject(err);
+    }
 
     if (this.config.env === 'production') {
       // Save uncaught exceptions to their own file in production
@@ -49,54 +54,59 @@ Ceres.prototype.load = function(options) {
     this.log._ceres = require('./setup/logs')(this.config, 'ceres');
     this.log._ceres.silly('Logging configured');
 
-    // Bind the correct context
-    if (this.config.folders.middleware) {
-      this.config.middleware = Setup.directory(this.config.folders.middleware, this);
-      this.middleware = this.config.middleware;
-      this.log._ceres.silly('Middleware configured');
-    }
-
-    /**
-     * Base Rest Controller API
-     *
-     * @type {Object}
-     */
-    this.Rest = {
+    try {
+      // Bind the correct context
+      if (this.config.folders.middleware) {
+        this.config.middleware = Setup.directory(this.config.folders.middleware, this);
+        this.middleware = this.config.middleware;
+        this.log._ceres.silly('Middleware configured');
+      }
 
       /**
-       * Base Controller
+       * Base Rest Controller API
        *
        * @type {Object}
        */
-      Controller: require(path.resolve(__dirname + '/rest/Controller')),
+      this.Rest = {
 
-      /**
-       * Base Model
-       *
-       * @type {Object}
-       */
-      Model: require(path.resolve(__dirname + '/rest/models/' + this.config.db.type))
-    };
+        /**
+         * Base Controller
+         *
+         * @type {Object}
+         */
+        Controller: require(path.resolve(__dirname + '/rest/Controller')),
 
-    this.Pipeline = require(path.resolve(__dirname + '/render/Pipeline'));
+        /**
+         * Base Model
+         *
+         * @type {Object}
+         */
+        Model: require(path.resolve(__dirname + '/rest/models/' + this.config.db.type))
+      };
 
-    // Bind the correct context
-    this.Pipeline.create = this.Pipeline.create.bind(this);
-    this.Rest.Model.extend = this.Rest.Model.extend.bind(this);
+      this.Pipeline = require(path.resolve(__dirname + '/render/Pipeline'));
 
-    this.log._ceres.silly('Rest module configured');
+      // Bind the correct context
+      this.Pipeline.create = this.Pipeline.create.bind(this);
+      this.Rest.Model.extend = this.Rest.Model.extend.bind(this);
 
-    this.log._ceres.silly('Setting up ' + this.config.db.type);
-    var Database = require(__dirname + '/db')(this.config, this);
-    return Database.then(function(db){
-        this.Database = db;
-        return this;
-      }.bind(this))
-      .then(resolve)
-      .catch(function(err){
+      this.log._ceres.silly('Rest module configured');
+
+      this.log._ceres.silly('Setting up ' + this.config.db.type);
+      var Database = require(__dirname + '/db')(this.config, this);
+      return Database.then(function(db){
+          this.Database = db;
+          return this;
+        }.bind(this))
+        .then(resolve)
+        .catch(function(err){
+          this.log._ceres.error(err)
+          reject(err);
+        }.bind(this));
+      } catch(err) {
         this.log._ceres.error(err)
         reject(err);
-      });
+      }
   }.bind(this));
 }
 
