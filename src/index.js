@@ -27,33 +27,72 @@ Ceres.prototype.Controller = require(path.resolve(__dirname + '/rest/Controller'
 Ceres.prototype.Model = require(path.resolve(__dirname + '/rest/Model'));
 
 /**
- * Load the app
- * @param  {Object} options
+ * Connect to database
+ * @return {Promise}
  */
-Ceres.prototype.load = function(options) {
+Ceres.prototype.connect = function() {
+  this.log._ceres.silly('Setting up ' + this.config.db.type);
+  var connect = require(__dirname + '/db')(this.config, this);
+  return connect.then(function(db){
+      this.Database = db;
+      return this;
+    }.bind(this));
+}
+
+/**
+ * Configure application
+ * @param  {Object} options External options
+ * @return {Promise}
+ */
+Ceres.prototype.configure = function(options) {
   return new Promise(function(resolve, reject){
     try {
       // Bootstrap config
       this.config = Setup.config(options);
+
+      resolve();
     } catch (err) {
       console.error(err.stack);
       reject(err);
     }
+  }.bind(this));
+};
 
-    if (this.config.env === 'production') {
-      // Save uncaught exceptions to their own file in production
-      winston.handleExceptions(new DailyRotateFile({
-        filename: this.config.folders.logs + '/exceptions.log',
-        tailable: true
-      }));
+/**
+ * Setup Logging
+ * @return {Promise} [description]
+ */
+Ceres.prototype.setupLogs = function() {
+  return new Promise(function(resolve, reject){
+    try {
+      if (this.config.env === 'production') {
+        // Save uncaught exceptions to their own file in production
+        winston.handleExceptions(new DailyRotateFile({
+          filename: this.config.folders.logs + '/exceptions.log',
+          tailable: true
+        }));
+      }
+
+      // Setup logging app
+      this.log = require('./setup/logs')(this.config);
+      // Setup internal framework logger so we can tell if its an app or framework erro
+      this.log._ceres = require('./setup/logs')(this.config, 'ceres');
+
+      this.log._ceres.silly('Logging configured');
+      resolve();
+    } catch (err) {
+      console.error(err.stack);
+      reject(err);
     }
+  }.bind(this));
+};
 
-    // Setup logging app
-    this.log = require('./setup/logs')(this.config);
-    // Setup internal framework logger so we can tell if its an app or framework erro
-    this.log._ceres = require('./setup/logs')(this.config, 'ceres');
-    this.log._ceres.silly('Logging configured');
-
+/**
+ * Configure middleware, Controllers, Models, Pipelines
+ * @return {Promise}
+ */
+Ceres.prototype.setupModules = function() {
+  return new Promise(function(resolve, reject){
     try {
       // Bind the correct context
       if (this.config.folders.middleware) {
@@ -74,7 +113,7 @@ Ceres.prototype.load = function(options) {
          *
          * @type {Object}
          */
-        Controller: require(path.resolve(__dirname + '/rest/Controller')),
+        Controller: this.Controller,
 
         /**
          * Base Model
@@ -91,23 +130,35 @@ Ceres.prototype.load = function(options) {
       this.Rest.Model.extend = this.Rest.Model.extend.bind(this);
 
       this.log._ceres.silly('Rest module configured');
-
-      this.log._ceres.silly('Setting up ' + this.config.db.type);
-      var Database = require(__dirname + '/db')(this.config, this);
-      return Database.then(function(db){
-          this.Database = db;
-          return this;
-        }.bind(this))
-        .then(resolve)
-        .catch(function(err){
-          this.log._ceres.error(err)
-          reject(err);
-        }.bind(this));
-      } catch(err) {
-        this.log._ceres.error(err)
-        reject(err);
-      }
+      resolve();
+    } catch (err) {
+      console.error(err.stack);
+      reject(err);
+    }
   }.bind(this));
+};
+
+
+/**
+ * Load the app
+ * @param  {Object} options
+ */
+Ceres.prototype.load = function(options) {
+  var instance = this;
+  return instance
+    .configure(options)
+    .then(function(){
+      return instance.setupLogs();
+    })
+    .then(function(){
+      return instance.setupModules();
+    })
+    .then(function(){
+      return instance.connect();
+    })
+    .catch(function(err){
+      this.log._ceres.error(err)
+    });
 }
 
 module.exports = Ceres
