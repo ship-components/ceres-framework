@@ -51,7 +51,7 @@ module.exports = function(ceres) {
           resolve();
         });
       } else {
-        logStartTime('Child took %ds to configure', ceres);
+        logStartTime('Child ready after %ds', ceres);
         resolve();
       }
 
