@@ -30,6 +30,16 @@ function bindEach(src, ctx) {
 }
 
 /**
+ * Get the full path of a controller endpoint
+ * @param  {Object} controlle
+ * @param  {String} path
+ * @return {String}
+ */
+function getFullPath(controller, path) {
+  return (controller.endpoint + path).replace('//','/');
+}
+
+/**
  * Wrap the logic and provide a new this context
  *
  * @param     {Function}    handler
@@ -284,7 +294,7 @@ Controller.prototype  = {
          * The complete path from the root url
          * @type {String}
          */
-        var fullPath = controller.endpoint + path;
+        var fullPath = getFullPath(controller, path);
 
         // Get fn name aka value
         var fnName = '';
