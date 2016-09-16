@@ -33,8 +33,6 @@
     "morgan": "^1.6.0",
     "multer": "^0.1.8",
     "nopt": "^3.0.2",
-    "pg": "^4.4.0",
-    "pg-live-select": "^1.0.3",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
     "redis": "^2.6.2",
@@ -48,6 +46,8 @@
   },
   "optionalDependencies": {
     "rethinkdb": "^2.3.0",
+    "pg-live-select": "^1.0.3",
+    "pg": "^4.4.0",
     "bookshelf": "^0.9.5"
   }
 }

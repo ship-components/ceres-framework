@@ -1,11 +1,9 @@
-var Promise = require('promise');
-var LivePG = require('pg-live-select');
+var Promise = require('bluebird');
 
 /**
- * Reference to DB
+ * Single reference
+ * @type {[type]}
  */
-var knex;
-
 var db = null;
 
 module.exports = function(config, Ceres) {
@@ -15,36 +13,42 @@ module.exports = function(config, Ceres) {
       return;
     }
 
+    // Initialize as object
+    db = {};
+
     /**
      * Setup Knex (DB Connection)
      *
      * @type    {Knex}
      */
-    knex = require('knex')({
+    db.knex = require('knex')({
       client: 'pg',
       connection: config.db,
       migrations: 'migrations'
     });
 
-    // Initialize as object
-    db = {};
-
     /**
      * Setup Bookself ORM
      * @type    {Bookself}
      */
-    db.bookshelf = require('bookshelf')(knex);
+    db.bookshelf = require('bookshelf')(db.knex);
 
-    /**
-     * Connection string
-     * @type {String}
-     */
-    var connection = 'postgres://'+ config.db.user + ':' + config.db.password + '@' + config.db.host + '/' + config.db.database;
+    // Check to see if we want to enable live queries
+    if (config.db.liveDb) {
+      // Only require this if we need it
+      var LivePG = require('pg-live-select');
 
-    Ceres.log._ceres.silly('Setting up livePG connection');
+      /**
+       * Connection string
+       * @type {String}
+       */
+      var connection = 'postgres://'+ config.db.user + ':' + config.db.password + '@' + config.db.host + '/' + config.db.database;
 
-    // Setup live db connection
-    db.liveDb = new LivePG(connection, config.db.database);
+      Ceres.log._ceres.silly('Setting up livePG connection');
+
+      // Setup live db connection
+      db.liveDb = new LivePG(connection, config.db.database);
+    }
 
     resolve(db);
   });
