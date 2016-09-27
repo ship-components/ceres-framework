@@ -73,7 +73,7 @@ function wrapRoute(handler, ctx, config) {
     /**
      * Bind req and res to each response
      */
-    responses = bindEach(responses, {
+    responses = bindEach(responses, ctx, {
       req: req,
       res: res,
       controller: ctx,
@@ -86,11 +86,10 @@ function wrapRoute(handler, ctx, config) {
      * @type    {Object}
      */
     var context = _.extend({
-      controller: ctx
-    }, responses, {
+      controller: ctx,
       model: model,
       models: models,
-    });
+    }, responses, ctx);
 
     try {
       return handler.call(context, req, res);
