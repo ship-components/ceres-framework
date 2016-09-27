@@ -2,15 +2,13 @@
  * Base Model
  ******************************************************************************/
 
-var _ = require('lodash');
 var path = require('path');
 
 /**
  * Required methods for all Models
- *
  * @type {Object}
  */
-var CRUD = {
+Model.prototype = {
   /**
    * Create model and return a promise
    */
@@ -39,17 +37,20 @@ var CRUD = {
 function Model(props) {
   // Import ORM
   var model;
-  if (['bookshelf', 'rethinkdb'].indexOf(props.type) > -1) {
+
+  if (['bookshelf', 'rethinkdb'].indexOf(props.type.toLowerCase()) > -1) {
     var orm = require(path.resolve(__dirname + '/models/' + props.type));
     model = orm.extend(props);
+  } else {
+    throw new Error('Unknown model type: ' + props.type);
   }
 
   // Override defaults
-  _.merge(this, CRUD, model, props);
+  Object.assign(this, model, props);
 
   // Ensure all required methods are defined
   for (var method in CRUD) {
-    if (CRUD.hasOwnProperty(method) && !_.isFunction(this[method])) {
+    if (CRUD.hasOwnProperty(method) && typeof this[method] !== 'function') {
       throw new TypeError('Required Model method \'' + method + '\' is not a function');
     }
   }

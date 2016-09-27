@@ -2,7 +2,6 @@
  * Controller - Base Controller
  ******************************************************************************/
 
-var _ = require('lodash');
 var EventEmitter = require('events');
 
 /**
@@ -46,55 +45,72 @@ function getFullPath(controller, path) {
  * @param     {Object}      ctx         `this` from created Controller
  * @return    {Express.route}
  */
-function wrapRoute(handler, ctx, config) {
+function wrapRoute(handler, ctx, ceres) {
   return function(req, res) {
-
-    /**
-     * Get all the models
-     *
-     * @type    {Object}
-     */
-    var models = req.app.get('models');
-
-    /**
-     * Grab the model from the express instance
-     *
-     * @type    {Object}
-     */
-    var model = ctx.model;
-
-    /**
-     * User overridden responses
-     *
-     * @type    {ject}
-     */
-    var responses = _.extend(Responses, ctx.responses);
-
-    /**
-     * Bind req and res to each response
-     */
-    responses = bindEach(responses, ctx, {
-      req: req,
-      res: res,
-      controller: ctx,
-      config: config
-    });
-
     /**
      * Create this context
      *
      * @type    {Object}
      */
-    var context = _.extend({
-      controller: ctx,
-      model: model,
-      models: models,
-    }, responses, ctx);
+    var context = Object.assign({
+      /**
+       * Make req available on this
+       * @type {Express.Request}
+       */
+      req: req,
 
+      /**
+       * Make res available on this
+       * @type {Express.Responses}
+       */
+      res: res,
+
+      /**
+       * Ceres config
+       * @type {Object}
+       */
+      config: ceres.config,
+
+      /**
+       * Make the loggere availabe to each request
+       * @type {Winston}
+       */
+      log: ceres.log,
+
+      /**
+       * Old way of accessing context
+       * @deprecated
+       * @type {Object}
+       */
+      controller: ctx,
+
+      /**
+       * All models
+       * @type {Object}
+       */
+      models: req.app.get('models'),
+
+    }, ctx);
+
+    /**
+     * User overridden responses
+     * @type    {Oject}
+     */
+    var responses = Object.assign({}, Responses, ctx.responses);
+
+    /**
+     * Bind req and res to each response
+     */
+    responses = bindEach(responses, context);
+
+    // Attach to context
+    Object.assign(context, responses);
+
+    // Attempt to catch any errors and handle them gracefully
     try {
-      return handler.call(context, req, res);
+      return handler.call(context, req, res, ceres);
     } catch(err) {
-      return responses.fail(err);
+      return context.fail(err);
     }
   };
 };
@@ -159,7 +175,7 @@ Controller.prototype  = {
    *
    * @type    {Object}
    */
-  responses: _.clone(Responses),
+  responses: Object.assign({}, Responses),
 
   /**
    * Default Routes
@@ -277,90 +293,92 @@ Controller.prototype  = {
 
     // Loop through all of them
     for (var route in this.routes) {
-      if (this.routes.hasOwnProperty(route)) {
-        // try {
-        // Parse
-        var parts = route.split(' ');
-
-        /**
-         * HTTP method
-         * @type {String}
-         */
-        var method = parts[0].toLowerCase();
-
-        /**
-         * The sub path or tail end of a path
-         * @type {String}
-         */
-        var path = parts[1];
-
-        /**
-         * The complete path from the root url
-         * @type {String}
-         */
-        var fullPath = getFullPath(controller, path);
-
-        // Get fn name aka value
-        var fnName = '';
-        if (typeof this.routes[route] === 'string') {
-          // Default
-          fnName = this.routes[route];
-        } else if (this.routes[route] instanceof Array) {
-          // Array option so users can inject middleware
-          fnName = this.routes[route].pop();
-        }
-
-        // Gett actual fn
-        var handler;
-        if (typeof fnName === 'string') {
-          // By default look for a method with the fnName on `this`
-          handler = this[fnName];
-        } else if (typeof fnName === 'function') {
-          // Allow user to pass in fn instead of string
-          handler = fnName;
-          fnName = handler.constructor.name;
-        }
-
-        if (typeof handler !== 'function') {
-          ceres.log._ceres.warn('%s - Ignoring %s %s: %s is not a function', controller.name, method.toUpperCase(), fullPath, fnName || 'undefined');
-          // Skip if we're not a function
-          continue;
-        }
-
-        // Path
-        var args = [path];
-
-        // Middleware
-        if (_.isArray(this.middleware)) {
-          args = args.concat(this.middleware);
-        } else if (_.isFunction(this.middleware)) {
-          var userMiddleware = this.middleware.call(this, config.middleware, config);
-          if (!_.isArray(userMiddleware)) {
-            userMiddleware = [userMiddleware];
-          }
-          args = args.concat(userMiddleware);
-        }
-
-        // Attach another other user supplied middleware
-        if (this.routes[route] instanceof Array) {
-          args = args.concat(this.routes[route]);
-        }
-
-        // Wrap and inject model
-        var fn = wrapRoute(handler, this, config);
-
-        // Add to args
-        args.push(fn);
-
-        if (typeof router[method] !== 'function') {
-          ceres.log._ceres.warn('%s - Ignoring %s %s: router.%s is not a function', controller.name, method.toUpperCase(), fullPath, method);
-          continue;
-        }
-
-        // Express route
-        router[method].apply(router, args);
-        ceres.log._ceres.silly('%s - Setting up %s %s - %s', controller.name, method.toUpperCase(), fullPath, fnName);
+      if (!this.routes.hasOwnProperty(route)) {
+        continue;
       }
+      // Parse
+      var parts = route.split(' ');
+
+      /**
+       * HTTP method
+       * @type {String}
+       */
+      var method = parts[0].toLowerCase();
+
+      /**
+       * The sub path or tail end of a path
+       * @type {String}
+       */
+      var path = parts[1];
+
+      /**
+       * The complete path from the root url
+       * @type {String}
+       */
+      var fullPath = getFullPath(controller, path);
+
+      // Get fn name aka value
+      var fnName = '';
+      if (typeof this.routes[route] === 'string') {
+        // Default
+        fnName = this.routes[route];
+      } else if (this.routes[route] instanceof Array) {
+        // Array option so users can inject middleware
+        fnName = this.routes[route].pop();
+      }
+
+      // Gett actual fn
+      var handler;
+      if (typeof fnName === 'string') {
+        // By default look for a method with the fnName on `this`
+        handler = this[fnName];
+      } else if (typeof fnName === 'function') {
+        // Allow user to pass in fn instead of string
+        handler = fnName;
+        fnName = handler.constructor.name;
+      }
+
+      if (typeof handler !== 'function') {
+        ceres.log._ceres.warn('%s - Ignoring %s %s: %s is not a function', controller.name, method.toUpperCase(), fullPath, fnName || 'undefined');
+        // Skip if we're not a function
+        continue;
+      }
+
+      // Path
+      var args = [path];
+
+      // Middleware
+      if (this.middleware instanceof Array) {
+        args = args.concat(this.middleware);
+      } else if (typeof this.middleware === 'function') {
+        // Run it
+        var userMiddleware = this.middleware.call(this, config.middleware, config);
+
+        // Ensure we're an array
+        userMiddleware = userMiddleware instanceof Array !== true ? [userMiddleware] : userMiddleware;
+
+        args = args.concat(userMiddleware);
+      }
+
+      // Attach another other user supplied middleware
+      if (this.routes[route] instanceof Array) {
+        args = args.concat(this.routes[route]);
+      }
+
+      // Bind custom this context to route
+      var fn = wrapRoute(handler, this, ceres);
+
+      // Add to args
+      args.push(fn);
+
+      if (typeof router[method] !== 'function') {
+        ceres.log._ceres.warn('%s - Ignoring %s %s: router.%s is not a function', controller.name, method.toUpperCase(), fullPath, method);
+        continue;
+      }
+
+      // Express route
+      router[method].apply(router, args);
+      ceres.log._ceres.silly('%s - Setting up %s %s - %s', controller.name, method.toUpperCase(), fullPath, fnName);
     }
 
     return router;
