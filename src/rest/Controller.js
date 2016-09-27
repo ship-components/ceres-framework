@@ -110,6 +110,11 @@ function Controller(props) {
   this.on = this._events.on;
   this.removeListener = this._events.removeListener;
   this.emit = this._events.emit;
+
+  // Allow some user initialization
+  if (typeof this.init === 'function') {
+    this.init.call(this);
+  }
 }
 
 /**

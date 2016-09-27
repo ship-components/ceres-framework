@@ -53,6 +53,11 @@ function Model(props) {
       throw new TypeError('Required Model method \'' + method + '\' is not a function');
     }
   }
+
+  // Allow some user initialization code
+  if (typeof this.init === 'function') {
+    this.init.call(this);
+  }
 }
 
 /**
