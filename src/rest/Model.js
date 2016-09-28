@@ -48,13 +48,6 @@ function Model(props) {
   // Override defaults
   Object.assign(this, model, props);
 
-  // Ensure all required methods are defined
-  for (var method in CRUD) {
-    if (CRUD.hasOwnProperty(method) && typeof this[method] !== 'function') {
-      throw new TypeError('Required Model method \'' + method + '\' is not a function');
-    }
-  }
-
   // Allow some user initialization code
   if (typeof this.init === 'function') {
     this.init.call(this);
