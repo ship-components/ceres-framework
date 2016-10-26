@@ -25,4 +25,5 @@ This creates the basic folder structure and a default configuration in the curre
 ## Documentation
 * [Config](docs/config.md)
 * [Controllers](docs/controllers.md)
+* [Models](docs/models.md)
 * [Routing (see Controllers)](docs/controllers.md)
