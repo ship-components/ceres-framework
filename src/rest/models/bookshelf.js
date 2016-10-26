@@ -127,6 +127,8 @@ var Model = BaseModel.extend({
   }
 });
 
+module.exports = Model;
+
 /**
  * Helper function to create new models
  * @param     {Object}    props

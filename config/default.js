@@ -39,7 +39,7 @@ var config = {
    *
    * @type    {String}
    */
-  rc: '.configrc',
+  rc: '.' + pkg.name + 'rc',
 
   /**
    * Path to pid location
@@ -81,11 +81,11 @@ var config = {
    * @type    {Object}
    */
   db: {
-    type     : 'bookshelf',
+    type     : 'none',
     host     : '127.0.0.1',
-    user     : 'ceres',
-    password : 'ceres',
-    database : 'ceres',
+    user     : '',
+    password : '',
+    database : '',
     charset  : 'utf8'
   },
 

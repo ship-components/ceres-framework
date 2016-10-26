@@ -7,11 +7,9 @@
  ******************************************************************************/
 
 var program = require('commander');
+var pkg = require(require('path').resolve(__dirname + '/../package.json'));
 
-var pkg = require(process.cwd() + '/package.json');
-
-program
-  .version(pkg.version)
-  .command('run', 'Start the server', {isDefault: true})
-  .command('init', 'Run the initialization scripts needed for the server to run')
+program.version(pkg.version)
+  .command('create', 'Setup a new application')
+  .command('controller', 'Create a new controller')
   .parse(process.argv);

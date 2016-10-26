@@ -3,6 +3,9 @@
   "version": "0.3.0",
   "description": "Node.js Framework for React Applications",
   "main": "src/Ceres.js",
+  "bin": {
+    "ceres": "./cli/index.js"
+  },
   "scripts": {
     "test": "npm test"
   },

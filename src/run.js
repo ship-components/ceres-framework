@@ -70,7 +70,7 @@ function listen(ceres) {
       reject(err);
     }
   });
-};
+}
 
 /**
  * Make sure everything is setup the way we need to be before we start Listening
@@ -78,7 +78,6 @@ function listen(ceres) {
  * @return {Promise}
  */
 module.exports = function(ceres) {
-  return ceres.setupModules.call(ceres, ceres)
-    .then(ceres.connect.bind(ceres, ceres))
+  return ceres.connect.call(ceres, ceres)
     .then(listen.bind(ceres, ceres));
-}
+};

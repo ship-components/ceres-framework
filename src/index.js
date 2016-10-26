@@ -9,6 +9,8 @@ var path = require('path');
 var winston = require('winston');
 var Setup = require('./setup');
 var DailyRotateFile = require('winston-daily-rotate-file');
+var Promise = require('bluebird');
+var mkdirp = require('mkdirp');
 
 function Ceres() {
   this.startTime = process.hrtime();
@@ -27,17 +29,30 @@ Ceres.prototype.Controller = require(path.resolve(__dirname + '/rest/Controller'
 Ceres.prototype.Model = require(path.resolve(__dirname + '/rest/Model'));
 
 /**
+ * Alias cut to Pipeline
+ */
+Ceres.prototype.Pipeline = require(path.resolve(__dirname + '/render/Pipeline'));
+
+/**
  * Connect to database
  * @return {Promise}
  */
 Ceres.prototype.connect = function() {
-  this.log._ceres.silly('Setting up ' + this.config.db.type);
-  var connect = require(__dirname + '/db')(this.config, this);
-  return connect.then(function(db){
-      this.Database = db;
-      return this;
-    }.bind(this));
-}
+  return new Promise(function(resolve, reject){
+    if (this.config.db.type === 'none') {
+      resolve();
+      return;
+    }
+    this.log._ceres.silly('Setting up ' + this.config.db.type);
+    var connect = require(__dirname + '/db')(this.config, this);
+    return connect.then(function(db){
+        this.Database = db;
+        return this;
+      }.bind(this))
+      .then(resolve)
+      .catch(reject);
+  }.bind(this));
+};
 
 /**
  * Configure application
@@ -67,6 +82,9 @@ Ceres.prototype.configure = function(options) {
 Ceres.prototype.setupLogs = function() {
   return new Promise(function(resolve, reject){
     try {
+      // Make sure the folder exists
+      mkdirp.sync(this.config.folders.logs);
+
       if (this.config.env === 'production') {
         // Save uncaught exceptions to their own file in production
         winston.handleExceptions(new DailyRotateFile({
@@ -80,57 +98,7 @@ Ceres.prototype.setupLogs = function() {
       // Setup internal framework logger so we can tell if its an app or framework erro
       this.log._ceres = require('./setup/logs')(this.config, 'ceres');
 
-      this.log._ceres.silly('Logging configured');
-      resolve();
-    } catch (err) {
-      reject(err);
-    }
-  }.bind(this));
-};
-
-/**
- * Configure middleware, Controllers, Models, Pipelines
- * @return {Promise}
- */
-Ceres.prototype.setupModules = function() {
-  return new Promise(function(resolve, reject){
-    try {
-      // Bind the correct context
-      if (this.config.folders.middleware) {
-        this.config.middleware = Setup.directory(this.config.folders.middleware, this);
-        this.middleware = this.config.middleware;
-        this.log._ceres.silly('Middleware configured');
-      }
-
-      /**
-       * Base Rest Controller API
-       *
-       * @type {Object}
-       */
-      this.Rest = {
-
-        /**
-         * Base Controller
-         *
-         * @type {Object}
-         */
-        Controller: this.Controller,
-
-        /**
-         * Base Model
-         *
-         * @type {Object}
-         */
-        Model: require(path.resolve(__dirname + '/rest/models/' + this.config.db.type))
-      };
-
-      this.Pipeline = require(path.resolve(__dirname + '/render/Pipeline'));
-
-      // Bind the correct context
-      this.Pipeline.create = this.Pipeline.create.bind(this);
-      this.Rest.Model.extend = this.Rest.Model.extend.bind(this);
-
-      this.log._ceres.silly('Rest module configured');
+      this.log._ceres.silly('Writing logs to %s', this.config.folders.logs);
       resolve();
     } catch (err) {
       reject(err);
@@ -146,7 +114,6 @@ Ceres.prototype.load = function(options) {
   var instance = this;
   return instance
     .configure(options)
-    .then(instance.setupModules)
     .then(instance.connect)
     .catch(function(err){
       if (instance.log) {
@@ -155,7 +122,7 @@ Ceres.prototype.load = function(options) {
         console.error(err.stack);
       }
     });
-}
+};
 
 /**
  * Load the app
@@ -173,7 +140,6 @@ Ceres.prototype.exec = function(command, options) {
         console.error(err.stack);
       }
     });
-}
+};
 
-
-module.exports = Ceres
+module.exports = Ceres;
