@@ -67,8 +67,7 @@ var config = {
     uploads: './storage/uploads',
     controllers: './server/controllers',
     views: './server/views',
-    middleware: './server/middleware',
-    queues: './server/queues'
+    middleware: './server/middleware'
   },
 
   /**
