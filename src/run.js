@@ -23,6 +23,10 @@ module.exports = function(ceres) {
       // Ensure secret is present
       if (!ceres.config.secret) {
         throw new Error('Unable to find secret.');
+      if (ceres.config.pid) {
+        // Setup Pid
+        ceres.pid = new Pid(ceres.config.pid);
+        ceres.log._ceres.silly('pid %d written to %s', ceres.pid.id, ceres.pid.options.path);
       }
 
       // Setup express server

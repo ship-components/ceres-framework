@@ -4,7 +4,6 @@
 
 var fs = require('fs');
 var path = require('path');
-
 var pkg = require(process.cwd() + '/package.json');
 
 /**
@@ -41,6 +40,12 @@ var config = {
    * @type    {String}
    */
   rc: '.configrc',
+
+  /**
+   * Path to pid location
+   * @type {String}
+   */
+  pid: 'ceres.pid',
 
   /**
    * What mode to run in
