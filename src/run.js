@@ -2,6 +2,7 @@ var Server = require('./Server');
 var moment = require('moment');
 var sticky = require('sticky-session');
 var Promise = require('bluebird');
+var Pid = require('./lib/Pid');
 
 /**
  * Log the time it took to start
