@@ -52,7 +52,7 @@ var config = {
    *
    * @type    {String}
    */
-  env: process.env.NODE_ENV,
+  env: 'production',
 
   /**
    * How many worker instances to run at one time
