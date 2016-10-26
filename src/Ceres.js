@@ -7,4 +7,13 @@
 
 var Ceres = require('./index');
 
-module.exports = new Ceres();
+var instance = new Ceres();
+
+/**
+ * Alias to run
+ * @alias
+ * @static
+ */
+instance.run = require('./run');
+
+module.exports = instance;
