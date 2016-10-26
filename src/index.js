@@ -15,6 +15,10 @@ var mkdirp = require('mkdirp');
 function Ceres() {
   this.startTime = process.hrtime();
 
+  this.Controller = this.Controller.bind(this, this);
+  this.Model = this.Model.bind(this, this);
+  this.Pipeline.create = this.Pipeline.create.bind(this);
+
   this.config = {};
 }
 
@@ -77,7 +81,7 @@ Ceres.prototype.configure = function(options) {
 
 /**
  * Setup Logging
- * @return {Promise} [description]
+ * @return {Promise}
  */
 Ceres.prototype.setupLogs = function() {
   return new Promise(function(resolve, reject){
@@ -108,6 +112,7 @@ Ceres.prototype.setupLogs = function() {
 
 /**
  * Load the app
+ * @deprecated
  * @param  {Object} options
  */
 Ceres.prototype.load = function(options) {

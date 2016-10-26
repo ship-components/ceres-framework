@@ -88,7 +88,7 @@ function wrapRoute(handler, ctx, ceres) {
        * All models
        * @type {Object}
        */
-      models: req.app.get('models'),
+      models: req.app.get('models')
 
     }, ctx);
 
@@ -113,13 +113,13 @@ function wrapRoute(handler, ctx, ceres) {
       return context.fail(err);
     }
   };
-};
+}
 
 /**
  * Base instance of a controller to be extended
  * @param {Object} props
  */
-function Controller(props) {
+function Controller(Ceres, props) {
   Object.assign(this, props);
 
   this._events = new EventEmitter();
@@ -134,13 +134,6 @@ function Controller(props) {
 }
 
 /**
- * Make wrap wrapRoute public
- * @static
- * @type {Function}
- */
-Controller.wrapRoute = wrapRoute;
-
-/**
  * Helper function to create new controllers
  * @param     {Object}    props
  * @alias
@@ -148,7 +141,7 @@ Controller.wrapRoute = wrapRoute;
  * @return    {Controller}
  */
 Controller.extend = function(props) {
-  return new Controller(props);
+  return new Controller(this, props);
 };
 
 /**
@@ -162,7 +155,7 @@ module.exports = Controller;
  *
  * @type    {Object}
  */
-Controller.prototype  = {
+Controller.prototype = {
 
   /**
    * Shortcut to model for CRUD controllers
