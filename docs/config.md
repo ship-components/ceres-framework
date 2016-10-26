@@ -1,3 +1,11 @@
+# Configuration
+Default config is stored in `config/default.js`. You can specify environment
+configs by creating a new file in the config file with the environment name.
+For example `config/production.js` and then when you specified `--env` production
+when you ran the application it would read from `production.js`
+
+## Example Config
+```
 /** ****************************************************************************
  * Default App Configuration
  ******************************************************************************/
@@ -165,3 +173,5 @@ var config = {
 };
 
 module.exports = config;
+
+```
