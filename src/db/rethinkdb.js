@@ -15,11 +15,9 @@ module.exports = function(config, Ceres) {
         })
       })
       .catch(function(err){
-        Ceres.log._ceres.error(err);
         reject(err);
       });
     } catch (err) {
-      Ceres.log._ceres.error(err);
       reject(err);
     }
   })

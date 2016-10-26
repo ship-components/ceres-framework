@@ -51,12 +51,11 @@ module.exports = function(ceres) {
           resolve();
         });
       } else {
-        logStartTime('Child ready after %ds', ceres);
+        logStartTime('Child ready after %dsSetting up', ceres);
         resolve();
       }
 
     } catch(err) {
-      ceres.log._ceres.error(err);
       reject(err);
     }
   });

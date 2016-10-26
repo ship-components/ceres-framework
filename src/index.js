@@ -52,7 +52,6 @@ Ceres.prototype.configure = function(options) {
 
       resolve();
     } catch (err) {
-      console.error(err.stack);
       reject(err);
     }
   }.bind(this));
@@ -81,7 +80,6 @@ Ceres.prototype.setupLogs = function() {
       this.log._ceres.silly('Logging configured');
       resolve();
     } catch (err) {
-      console.error(err.stack);
       reject(err);
     }
   }.bind(this));
@@ -132,7 +130,6 @@ Ceres.prototype.setupModules = function() {
       this.log._ceres.silly('Rest module configured');
       resolve();
     } catch (err) {
-      console.error(err.stack);
       reject(err);
     }
   }.bind(this));
@@ -157,7 +154,11 @@ Ceres.prototype.load = function(options) {
       return instance.connect();
     })
     .catch(function(err){
-      this.log._ceres.error(err)
+      if (instance.log) {
+        instance.log._ceres.error(err);
+      } else {
+        console.error(err.stack);
+      }
     });
 }
 
