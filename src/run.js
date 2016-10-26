@@ -18,12 +18,19 @@ function logStartTime(str, ceres) {
     ceres.log._ceres.silly(str, loadTimes);
 }
 
-module.exports = function(ceres) {
+/**
+ * Setup and start listening
+ * @param  {Ceres} ceres
+ * @return {Promise}
+ */
+function listen(ceres) {
   return new Promise(function(resolve, reject){
     try {
       // Ensure secret is present
       if (!ceres.config.secret) {
         throw new Error('Unable to find secret.');
+      }
+
       if (ceres.config.pid) {
         // Setup Pid
         ceres.pid = new Pid(ceres.config.pid);
@@ -59,9 +66,19 @@ module.exports = function(ceres) {
         logStartTime('Child ready after %dsSetting up', ceres);
         resolve();
       }
-
     } catch(err) {
       reject(err);
     }
   });
 };
+
+/**
+ * Make sure everything is setup the way we need to be before we start Listening
+ * @param  {Ceres}    ceres
+ * @return {Promise}
+ */
+module.exports = function(ceres) {
+  return ceres.setupModules.call(ceres, ceres)
+    .then(ceres.connect.bind(ceres, ceres))
+    .then(listen.bind(ceres, ceres));
+}

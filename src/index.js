@@ -49,11 +49,14 @@ Ceres.prototype.configure = function(options) {
     try {
       // Bootstrap config
       this.config = Setup.config(options);
-
-      resolve();
     } catch (err) {
       reject(err);
     }
+
+    // Setup logging as well
+    this.setupLogs()
+      .then(resolve)
+      .catch(reject);
   }.bind(this));
 };
 
@@ -135,7 +138,6 @@ Ceres.prototype.setupModules = function() {
   }.bind(this));
 };
 
-
 /**
  * Load the app
  * @param  {Object} options
@@ -144,15 +146,8 @@ Ceres.prototype.load = function(options) {
   var instance = this;
   return instance
     .configure(options)
-    .then(function(){
-      return instance.setupLogs();
-    })
-    .then(function(){
-      return instance.setupModules();
-    })
-    .then(function(){
-      return instance.connect();
-    })
+    .then(instance.setupModules)
+    .then(instance.connect)
     .catch(function(err){
       if (instance.log) {
         instance.log._ceres.error(err);
@@ -161,5 +156,24 @@ Ceres.prototype.load = function(options) {
       }
     });
 }
+
+/**
+ * Load the app
+ * @param  {Object} options
+ */
+Ceres.prototype.exec = function(command, options) {
+  var instance = this;
+  return instance
+    .configure(options)
+    .then(command.bind(this, this))
+    .catch(function(err){
+      if (instance.log) {
+        instance.log._ceres.error(err);
+      } else {
+        console.error(err.stack);
+      }
+    });
+}
+
 
 module.exports = Ceres
