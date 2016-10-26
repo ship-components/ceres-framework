@@ -1,4 +1,4 @@
-var Promise = require('promise');
+var Promise = require('bluebird');
 
 module.exports = function(config, Ceres) {
   return new Promise(function(resolve, reject){;
