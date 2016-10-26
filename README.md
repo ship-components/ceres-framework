@@ -23,6 +23,6 @@ $ ./example.js run
 This creates the basic folder structure and a default configuration in the current folder.
 
 ## Documentation
-* [Config](docs/config)
+* [Config](docs/config.md)
 * [Controllers](docs/controllers.md)
 * [Routing (see Controllers)](docs/controllers.md)

@@ -12,4 +12,5 @@ var pkg = require(require('path').resolve(__dirname + '/../package.json'));
 program.version(pkg.version)
   .command('create', 'Setup a new application')
   .command('controller', 'Create a new controller')
+  .command('model', 'Create a new model')
   .parse(process.argv);
