@@ -17,7 +17,7 @@ module.exports = function(ceres, app, server) {
     fs.accessSync(clientSocketEntryPath);
   } catch(err) {
     if (err.code === 'ENOENT') {
-      ceres.log._ceres.silly('Websockets configuration not found');
+      ceres.log._ceres.silly('Websockets configuration not found at %s', clientSocketEntryPath);
       return;
     } else {
       throw err;
