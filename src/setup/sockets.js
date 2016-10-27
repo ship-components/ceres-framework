@@ -1,4 +1,5 @@
 var fs = require('fs');
+var path = require('path');
 var sharedsession = require('express-socket.io-session');
 
 /**
@@ -9,7 +10,8 @@ var sharedsession = require('express-socket.io-session');
  * @return {socket.io}
  */
 module.exports = function(ceres, app, server) {
-  var clientSocketEntryPath = process.cwd() + '/server/socket/index.js';
+  var clientSocketEntryPath = path.resolve(ceres.config.folders.sockets, './index.js');
+
   try {
     // Can we access the file?
     fs.accessSync(clientSocketEntryPath);

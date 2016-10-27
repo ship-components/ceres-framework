@@ -39,8 +39,11 @@ module.exports = function(ceres) {
   // Setup server
   var server = http.Server(app);
 
-  // Setup any sockets
-  sockets(ceres, app, server);
+  // Should we load sockets
+  if (ceres.config.sockets && ceres.config.folders.sockets) {
+    // Setup any sockets
+    sockets(ceres, app, server);
+  }
 
   return server;
 };
