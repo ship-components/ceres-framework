@@ -11,6 +11,7 @@ var multer = require('multer');
 var compression = require('compression');
 var session = require('express-session');
 var _ = require('lodash');
+var mkdirp = require('mkdirp');
 
 var routes = require('./routes');
 
@@ -42,10 +43,15 @@ module.exports = function(ceres) {
   /*****************************************************************************
    * multipart/form-data - aka file uploads
    */
-  app.use(multer({
-    dest: ceres.config.folders.uploads
-  }));
-  ceres.log._ceres.silly('Multipart configured');
+  if (ceres.config.folders.uploads) {
+    // Make sure the folder exists
+    mkdirp.sync(ceres.config.folders.uploads);
+    // Setup multer
+    app.use(multer({
+      dest: ceres.config.folders.uploads
+    }));
+    ceres.log._ceres.silly('Multipart configured');
+  }
 
   /*****************************************************************************
    * Obfusticate
