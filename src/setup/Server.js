@@ -12,7 +12,7 @@ module.exports = function(ceres) {
   if (ceres.config.folders.middleware) {
     ceres.config.middleware = directory(ceres.config.folders.middleware, ceres);
     ceres.middleware = ceres.config.middleware;
-    ceres.log._ceres.silly('Middleware configured');
+    ceres.log._ceres.silly('Middleware folder configured');
   }
 
   // The master doesn't do very much besides load the workers so we also use it
@@ -23,12 +23,12 @@ module.exports = function(ceres) {
       config: ceres.config
     });
 
-    ceres.log._ceres.silly('Queues ceres.configured');
+    ceres.log._ceres.silly('Queues folder configured');
   }
 
   // Setup Express
   var app = Application.call(ceres, ceres);
-  ceres.log._ceres.silly('Express ceres.configured');
+  ceres.log._ceres.silly('Express configured');
 
   if (ceres.config.db.type !== 'none') {
     // Setup DB

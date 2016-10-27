@@ -183,21 +183,19 @@ module.exports = function(ceres) {
     ceres.config.middleware.error.forEach(function(middleware){
       app.use(middleware);
     });
-    ceres.log._ceres.silly('Setup user configured error middleware');
+    ceres.log._ceres.silly('User error middleware configued');
   } else {
     var errorMiddleware = require('../middleware/error')(ceres);
     app.use(errorMiddleware);
-    ceres.log._ceres.silly('Setup default error middleware');
   }
 
   // Allow user to override not found response
   if(_.isFunction(ceres.config.middleware.notFound)) {
     app.use(ceres.config.middleware.notFound);
-    ceres.log._ceres.silly('Setup user supplied not found middleware');
+    ceres.log._ceres.silly('User supplied 404 middleware configured');
   } else {
     var notFound = require('../middleware/notFound')(ceres);
     app.use(notFound);
-    ceres.log._ceres.silly('Setup defualt not found middleware');
   }
 
   return app;
