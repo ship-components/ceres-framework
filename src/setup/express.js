@@ -31,7 +31,7 @@ module.exports = function(ceres) {
    * JSON
    */
   app.use(bodyParser.json());
-  ceres.log._ceres.silly('Json body ceres configured');
+  ceres.log._ceres.silly('Json body configured');
 
   /*****************************************************************************
    * Cookies
@@ -60,7 +60,7 @@ module.exports = function(ceres) {
     // Adds the X-Response-Time header
     var responseTime = require('response-time');
     app.use(responseTime());
-    ceres.log._ceres.silly('Response ceres header configured');
+    ceres.log._ceres.silly('Response time header configured');
   }
 
   /*****************************************************************************
@@ -85,21 +85,21 @@ module.exports = function(ceres) {
    */
   app.set('view engine', 'ejs');
   app.set('views', ceres.config.folders.views);
-  ceres.log._ceres.silly('View engine setup');
+  ceres.log._ceres.silly('View engine setup: %s', 'ejs');
 
-  if(ceres.config.env === 'production') {
+  if (ceres.config.env === 'production') {
     app.enable('view cache');
-    ceres.log._ceres.silly('View ceres enabled');
+    ceres.log._ceres.silly('View cache enabled');
   } else {
     app.disable('view cache');
-    ceres.log._ceres.silly('View cache ceres');
+    ceres.log._ceres.silly('View cache disabled');
   }
 
   /*****************************************************************************
    * Compression
    */
   app.use(compression());
-  ceres.log._ceres.silly('Request ceres enabled');
+  ceres.log._ceres.silly('Request compression enabled');
 
   if (ceres.config.env !== 'production' && ceres.config.webpack && ceres.config.webpackConfig) {
     /*****************************************************************************
@@ -124,7 +124,7 @@ module.exports = function(ceres) {
   // Setup Uploads
   if (ceres.config.folders.uploads) {
     app.use('/uploads', express.static(ceres.config.folders.uploads));
-    ceres.log._ceres.silly('Static asset uploads to be read from %s', ceres.config.folders.uploads);
+    ceres.log._ceres.silly('Static uploads to be read from %s', ceres.config.folders.uploads);
   }
 
   /*****************************************************************************
@@ -153,9 +153,11 @@ module.exports = function(ceres) {
   /*****************************************************************************
    * Throttle all requests
    */
-  var throttle = require('../middleware/throttled')(ceres.config.throttle);
-  app.use(throttle);
-  ceres.log._ceres.silly('ceres throttling configured');
+  if (ceres.config.throttle) {
+    var throttle = require('../middleware/throttled')(ceres.config.throttle);
+    app.use(throttle);
+    ceres.log._ceres.silly('Request throttling configured');
+  }
 
   /*****************************************************************************
    * Routes
