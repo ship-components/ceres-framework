@@ -24,7 +24,7 @@ function writePid(fd, callback) {
  * 	var Pid = require('./Pid');
  * 	var pid = new Pid('/var/log/app.pid');
  */
-function Pid(filename, options, logger) {
+function Pid(filename, options) {
   /**
    * Default options
    * @type {Object}

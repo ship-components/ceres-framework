@@ -3,7 +3,6 @@
  ******************************************************************************/
 
 var _ = require('lodash');
-var moment = require('moment');
 
 var BaseModel = require('../BaseModel');
 
@@ -24,7 +23,7 @@ var Model = BaseModel.extend({
   create: function(body) {
     return this.table()
       .insert(body)
-      .run(this.connection)
+      .run(this.connection);
   },
 
   /**
@@ -42,7 +41,7 @@ var Model = BaseModel.extend({
       return this.table()
         .run(this.connection)
         .then(function(cursor){
-          return cursor.toArray()
+          return cursor.toArray();
         });
     }
   },
@@ -58,7 +57,7 @@ var Model = BaseModel.extend({
       .filter(query)
       .run(this.connection)
       .then(function(cursor){
-        return cursor.toArray()
+        return cursor.toArray();
       });
   },
 

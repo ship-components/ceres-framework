@@ -37,4 +37,4 @@ module.exports = function(ceres, app, server) {
   ceres.log._ceres.silly('Websockets configured');
 
   return io;
-}
+};

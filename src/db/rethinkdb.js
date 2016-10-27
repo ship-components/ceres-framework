@@ -1,10 +1,10 @@
 var Promise = require('bluebird');
 
-module.exports = function(config, Ceres) {
-  return new Promise(function(resolve, reject){;
+module.exports = function(config) {
+  return new Promise(function(resolve, reject){
     try {
       var r = require('rethinkdb');
-      var version = require('rethinkdb/package.json').version
+      var version = require('rethinkdb/package.json').version;
 
       r.connect(config.db)
       .then(function(connection){
@@ -12,7 +12,7 @@ module.exports = function(config, Ceres) {
           r: r,
           version: version,
           connection: connection
-        })
+        });
       })
       .catch(function(err){
         reject(err);
@@ -20,5 +20,5 @@ module.exports = function(config, Ceres) {
     } catch (err) {
       reject(err);
     }
-  })
+  });
 };

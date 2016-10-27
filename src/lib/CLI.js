@@ -15,4 +15,4 @@ module.exports = function cli(version, options){
   });
 
   return program;
-}
+};

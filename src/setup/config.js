@@ -6,11 +6,9 @@
  ******************************************************************************/
 
 // Modules
-var nopt = require('nopt');
 var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
-var mkdirp = require('mkdirp');
 
 /**
  * Read the config RC File

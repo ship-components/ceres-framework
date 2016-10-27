@@ -13,4 +13,4 @@ module.exports = {
     ['-r, --rc <path>', 'Location of the config file'],
     ['-l, --length <number>', 'How long should the secret be?', parseInt]
   ]
-}
+};

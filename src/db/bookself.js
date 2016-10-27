@@ -48,18 +48,17 @@ module.exports = function(config, Ceres) {
 
       // Setup live db connection
       db.liveDb = new LivePG(connection, config.db.database);
+
+      // Clean up on exit
+      process.on('exit', function() {
+        if (db !== null && db.liveDb) {
+          db.liveDb.cleanup(function(){
+            Ceres.log._ceres.silly('liveDb cleaned up after exit');
+          });
+        }
+      });
     }
 
     resolve(db);
   });
-
-  // Clean up on exit
-  process.on('exit', function() {
-    if (db !== null && db.liveDb) {
-      db.liveDb.cleanup(function(type){
-        Ceres.log._ceres.silly('liveDb cleaned up after exit');
-      });
-    }
-  });
-
 };

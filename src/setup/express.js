@@ -6,7 +6,7 @@
 var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 var multer = require('multer');
 var compression = require('compression');
 var session = require('express-session');
@@ -73,7 +73,7 @@ module.exports = function(ceres) {
     resave: true,
     saveUninitialized: true,
     name: ceres.config.name
-  })
+  });
   // Save it so sockets can use later
   app.set('sharedSession', sessionStore);
   // Apply

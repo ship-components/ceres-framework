@@ -80,7 +80,7 @@ var Responses = {
 
     this.res.status(STATUS.ERROR).json(response).end();
     throw err;
-  },
+  }
 
 };
 

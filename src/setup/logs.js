@@ -1,7 +1,8 @@
 var winston = require('winston');
 
 module.exports = function logger(config, name) {
-  var name = name || config.name;
+  name = name || config.name;
+
   /**
    * Transports
    *
@@ -31,5 +32,5 @@ module.exports = function logger(config, name) {
 
   return new(winston.Logger)({
     transports: transports
-  })
+  });
 };

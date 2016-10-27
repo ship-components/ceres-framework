@@ -7,7 +7,8 @@
     "ceres": "./cli/index.js"
   },
   "scripts": {
-    "test": "npm test"
+    "test": "npm test",
+    "lint": "./node_modules/.bin/eslint cli/ src/ config/"
   },
   "author": "Isaac Suttell",
   "license": "MIT",
@@ -17,6 +18,7 @@
   },
   "dependencies": {
     "async": "^1.5.2",
+    "base32": "0.0.6",
     "bluebird": "^3.4.6",
     "body-parser": "^1.13.1",
     "commander": "^2.9.0",
@@ -36,7 +38,6 @@
     "moment": "^2.10.3",
     "morgan": "^1.6.0",
     "multer": "^0.1.8",
-    "nopt": "^3.0.2",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
     "redis": "^2.6.2",
@@ -53,5 +54,8 @@
     "pg-live-select": "^1.0.3",
     "pg": "^4.4.0",
     "bookshelf": "^0.9.5"
+  },
+  "devDependencies": {
+    "eslint": "^3.8.1"
   }
 }

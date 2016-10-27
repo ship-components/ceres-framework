@@ -1,4 +1,5 @@
 var fs = require('fs');
+var base32 = require('base32');
 
 /**
  * Creates a random string
@@ -46,7 +47,7 @@ function generateKey(options) {
   } else if (options.type === 'base32') {
     // Encode the ascii string into base32 and remove any `=` signs which google
     // doesn't like
-    key = base32.encode(key).toString().replace(/=/g, '');
+    key = base32.encode(key).toString().replace(/\=/g, '');
 
     return key;
   } else {
@@ -67,9 +68,9 @@ module.exports = function GenerateSecretKey(pkg, overrides) {
     length: 64
   };
 
-  for (var key in overrides) {
-    if (overrides.hasOwnProperty(key) && overrides[key]) {
-      options[key] = overrides[key];
+  for (var prop in overrides) {
+    if (overrides.hasOwnProperty(prop) && overrides[prop]) {
+      options[prop] = overrides[prop];
     }
   }
 
@@ -82,7 +83,7 @@ module.exports = function GenerateSecretKey(pkg, overrides) {
   // Chaining for semantics
   return {
     save: function(callback) {
-      callback = callback || function() {}
+      callback = callback || function() {};
       try {
         var rc = {};
 
@@ -101,4 +102,4 @@ module.exports = function GenerateSecretKey(pkg, overrides) {
       }
     }
   };
-}
+};

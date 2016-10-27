@@ -7,4 +7,4 @@ module.exports = function(ceres) {
       res.status(500).send(err).end();
     }
   };
-}
+};
