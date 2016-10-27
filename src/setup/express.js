@@ -46,10 +46,11 @@ module.exports = function(ceres) {
   if (ceres.config.folders.uploads) {
     // Make sure the folder exists
     mkdirp.sync(ceres.config.folders.uploads);
-    // Setup multer
-    app.use(multer({
+    var upload = multer({
       dest: ceres.config.folders.uploads
-    }));
+    });
+    // Setup multer
+    app.use(upload.any());
     ceres.log._ceres.silly('Multipart configured');
   }
 

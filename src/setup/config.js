@@ -80,8 +80,8 @@ module.exports = function(cli) {
   var config = requireConfig();
 
   // Get the environment
-  var env = _.detect([cli.env, config.env, process.env.NODE_ENV, 'production'], function(env){
-    return _.isString(env);
+  var env = [cli.env, config.env, process.env.NODE_ENV, 'production'].find(function(item){
+    return typeof item === 'string';
   });
 
   // Get env specific config

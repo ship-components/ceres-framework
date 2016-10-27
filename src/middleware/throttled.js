@@ -100,7 +100,7 @@ module.exports = function(options) {
          * @type    {Array}
          */
         count: ['req',
-          function(done, results) {
+          function(results, done) {
             var count = (results.req ? parseInt(results.req.count, 10) : 0) + 1;
             client.hset([key, 'count', count], function(err) {
               if (err) {
@@ -118,7 +118,7 @@ module.exports = function(options) {
          * @type    {Array}
          */
         throttled: ['count',
-          function(done, results) {
+          function(results, done) {
             var throttled = results.count > options.limit;
 
             if (results.req && (results.req.throttled === 'true') === throttled) {
@@ -141,7 +141,7 @@ module.exports = function(options) {
          * @type    {Array}
          */
         expire: ['req', 'throttled',
-          function(done, results) {
+          function(results, done) {
             if (!results.req) {
               client.expire(key, options.period, done);
             }
@@ -159,7 +159,7 @@ module.exports = function(options) {
          * @type    {Array}
          */
         expiresAt: ['req', 'throttled',
-          function(done, results) {
+          function(results, done) {
             if (results.throttled && results.req && !results.req.expiresAt) {
               var expiresAt = Date.now() + (options.ban * 1000);
               client.hset(key, 'expiresAt', expiresAt, function(err) {

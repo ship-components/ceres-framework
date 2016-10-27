@@ -48,7 +48,7 @@ module.exports.setup = function(config, props) {
      * @return    {Async.auto}
      */
     react: function(options) {
-      return function(done, results) {
+      return function(results, done) {
         var html = '';
         // Skip if we have no component
         if (typeof options.component !== 'function') {
@@ -75,6 +75,7 @@ module.exports.setup = function(config, props) {
         if (options && typeof options.templatePath === 'string') {
           template = options.templatePath;
         }
+
         fs.readFile(template, {
           encoding: 'utf8'
         }, function(err, src) {
@@ -83,7 +84,7 @@ module.exports.setup = function(config, props) {
             return;
           }
 
-          if(options.minifyHtml || config.render.minifyHtml) {
+          if (options.minifyHtml || config.render.minifyHtml) {
             // Strip line breaks
             src = src.replace( /[\n\r]+/g, ' ');
 
@@ -129,7 +130,7 @@ module.exports.setup = function(config, props) {
      * @return    {Async.auto}
      */
     payload: function(options) {
-      return function(done, results) {
+      return function(results, done) {
         // Load asset information
         var payload = {
           component: results.react,
@@ -149,7 +150,7 @@ module.exports.setup = function(config, props) {
      * @return    {Async.auto}
    */
     html: function() {
-      return function render(done, results) {
+      return function render(results, done) {
         // Render
         var html = ejs.render(results.template, results.payload);
 
