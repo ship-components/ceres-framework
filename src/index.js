@@ -16,7 +16,12 @@ function Ceres() {
   this.startTime = process.hrtime();
 
   this.Controller = this.Controller.bind(this, this);
+
   this.Model = this.Model.bind(this, this);
+  // Expose these for any help function
+  this.Model.Bookshelf = require('./rest/models/bookshelf');
+  this.Model.Rethinkdb = require('./rest/models/rethinkdb');
+
   this.Pipeline.create = this.Pipeline.create.bind(this);
 
   this.config = {};
