@@ -1,15 +1,16 @@
 /*******************************************************************************
  * Worker Instance
  ******************************************************************************/
-var Application = require('./setup/express');
-var Setup = require('./setup');
 var http = require('http');
 
-module.exports = function(ceres) {
+var Application = require('./express');
+var directory = require('./directory');
+var sockets = require('./sockets');
 
+module.exports = function(ceres) {
   // Bind the correct context
   if (ceres.config.folders.middleware) {
-    ceres.config.middleware = Setup.directory(ceres.config.folders.middleware, ceres);
+    ceres.config.middleware = directory(ceres.config.folders.middleware, ceres);
     ceres.middleware = ceres.config.middleware;
     ceres.log._ceres.silly('Middleware configured');
   }
@@ -18,7 +19,7 @@ module.exports = function(ceres) {
   // handle the queues. If a queue crashes then the master will crash as well...
   if (ceres.config.folders.queues) {
     // Load any files in this folder and apply this config
-    Setup.directory(ceres.config.folders.queues, {
+    directory(ceres.config.folders.queues, {
       config: ceres.config
     });
 
@@ -31,7 +32,7 @@ module.exports = function(ceres) {
 
   if (ceres.config.db.type !== 'none') {
     // Setup DB
-    var db = require('./db')(ceres.config);
+    var db = require('../db')(ceres.config);
     app.set('db', db);
   }
 
@@ -39,7 +40,7 @@ module.exports = function(ceres) {
   var server = http.Server(app);
 
   // Setup any sockets
-  Setup.sockets(ceres, app, server);
+  sockets(ceres, app, server);
 
   return server;
 };

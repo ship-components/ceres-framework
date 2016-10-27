@@ -9,7 +9,7 @@ var EventEmitter = require('events');
  *
  * @type    {Object}
  */
-var Responses = require('./Responses');
+var Responses = require('../lib/Responses');
 
 /**
  * Clone and Bind context to each object value

@@ -1,8 +1,9 @@
-var Server = require('./Server');
 var moment = require('moment');
 var sticky = require('sticky-session');
 var Promise = require('bluebird');
-var Pid = require('./lib/Pid');
+
+var Server = require('./Server');
+var Pid = require('../lib/Pid');
 
 /**
  * Log the time it took to start
@@ -78,6 +79,7 @@ function listen(ceres) {
  * @return {Promise}
  */
 module.exports = function(ceres) {
-  return ceres.connect.call(ceres, ceres)
-    .then(listen.bind(ceres, ceres));
+  return this
+    .connect.call(this, ceres)
+    .then(listen.bind(this, ceres));
 };

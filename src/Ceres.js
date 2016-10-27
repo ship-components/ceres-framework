@@ -7,22 +7,24 @@
 
 var path = require('path');
 var winston = require('winston');
-var Setup = require('./setup');
 var DailyRotateFile = require('winston-daily-rotate-file');
 var Promise = require('bluebird');
 var mkdirp = require('mkdirp');
 
+var setupConfig = require('./setup/config');
+
 function Ceres() {
   this.startTime = process.hrtime();
 
+  // Bind these so we ensure the right context
   this.Controller = this.Controller.bind(this, this);
-
   this.Model = this.Model.bind(this, this);
-  // Expose these for any help function
-  this.Model.Bookshelf = require('./rest/models/bookshelf');
-  this.Model.Rethinkdb = require('./rest/models/rethinkdb');
-
   this.Pipeline.create = this.Pipeline.create.bind(this);
+  this.run = this.run.bind(this);
+
+  // Expose these for any help function
+  this.Model.Bookshelf = require('./models/types/bookshelf');
+  this.Model.Rethinkdb = require('./models/types/rethinkdb');
 
   this.config = {};
 }
@@ -30,17 +32,22 @@ function Ceres() {
 /**
  * Make contoller available at base level
  */
-Ceres.prototype.Controller = require(path.resolve(__dirname + '/rest/Controller'));
+Ceres.prototype.Controller = require(path.resolve(__dirname + '/controllers/Controller'));
 
 /**
  * Make the model available at the base level
  */
-Ceres.prototype.Model = require(path.resolve(__dirname + '/rest/Model'));
+Ceres.prototype.Model = require(path.resolve(__dirname + '/models/Model'));
 
 /**
  * Alias cut to Pipeline
  */
 Ceres.prototype.Pipeline = require(path.resolve(__dirname + '/render/Pipeline'));
+
+/**
+ * Alias to run
+ */
+Ceres.prototype.run = require(path.resolve(__dirname + '/setup/run'));
 
 /**
  * Connect to database
@@ -72,7 +79,7 @@ Ceres.prototype.configure = function(options) {
   return new Promise(function(resolve, reject){
     try {
       // Bootstrap config
-      this.config = Setup.config(options);
+      this.config = setupConfig(options);
     } catch (err) {
       reject(err);
     }

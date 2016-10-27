@@ -9,11 +9,4 @@ var Ceres = require('./Ceres');
 
 var instance = new Ceres();
 
-/**
- * Alias to run
- * @alias
- * @static
- */
-instance.run = require('./run');
-
 module.exports = instance;

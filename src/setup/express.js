@@ -12,7 +12,7 @@ var compression = require('compression');
 var session = require('express-session');
 var _ = require('lodash');
 
-var Setup = require('./index');
+var routes = require('./routes');
 
 module.exports = function(ceres) {
   /*****************************************************************************
@@ -166,7 +166,7 @@ module.exports = function(ceres) {
     if (!ceres.config.folders[prop] || !ceres.config[prop]) {
       return;
     }
-    var router = Setup.routes(ceres, prop);
+    var router = routes(ceres, prop);
     app.use(router);
   });
 
