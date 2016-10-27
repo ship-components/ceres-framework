@@ -2,7 +2,7 @@
   "name": "ceres-framework",
   "version": "0.3.1",
   "description": "Node.js Framework for React Applications",
-  "main": "src/Ceres.js",
+  "main": "src/index.js",
   "bin": {
     "ceres": "./cli/index.js"
   },
