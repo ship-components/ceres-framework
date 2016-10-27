@@ -8,7 +8,7 @@
 
 var _ = require('lodash');
 var async = require('async');
-var Promise = require('es6-promise').Promise;
+var Promise = require('bluebird');
 var Workflow = require('./Workflow');
 
 /**
