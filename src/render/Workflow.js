@@ -1,7 +1,6 @@
 
 var ReactDOMServer = require('react-dom/server');
 var React = require('react');
-var _ = require('lodash');
 var fs = require('fs');
 var ejs = require('ejs');
 
@@ -48,17 +47,19 @@ module.exports.setup = function(config, props) {
      * @return    {Async.auto}
      */
     react: function(options) {
-      return function(results, done) {
+      return function(done, results) {
+        require('../index').log.silly('Rendering react component');
         var html = '';
         // Skip if we have no component
         if (typeof options.component !== 'function') {
+          require('../index').log.silly('No react component found, skipping...');
           done(null, html);
           return;
         }
         try {
           html = ReactDOMServer.renderToString(React.createElement(options.component, deepClone(results.props)));
         } catch (err) { // Catch any errors in the front end so they dont' crash the backend
-          console.error('ReactRenderError', err, err.stack);
+          require('../index').log.error('ReactRenderError', err);
         } finally {
           done(null, html);
         }
@@ -71,6 +72,8 @@ module.exports.setup = function(config, props) {
      */
     template: function(options) {
       return function(done) {
+        require('../index').log.silly('Reading template');
+
         var template = config.render.template;
         if (options && typeof options.templatePath === 'string') {
           template = options.templatePath;
@@ -98,39 +101,15 @@ module.exports.setup = function(config, props) {
     },
 
     /**
-     * Read checksums cache file from disk
-     *
-     * @return    {Async.auto}
-     */
-    checksums: function(options) {
-      return function(done) {
-        fs.readFile(options.checksumrc || config.render.checksumrc, {
-          encoding: 'utf8'
-        }, function(err, src) {
-          if (err) {
-            done(err);
-            return;
-          }
-
-          // Parse
-          try {
-            var checksums = JSON.parse(src);
-            done(null, checksums);
-          } catch (e) {
-            done(e);
-          }
-        });
-      };
-    },
-
-    /**
      * Organizes the data for the template
      *
      * @param     {String}    entry    Which js to load
      * @return    {Async.auto}
      */
     payload: function(options) {
-      return function(results, done) {
+      return function(done, results) {
+        require('../index').log.silly('Parsing props');
+
         // Load asset information
         var payload = {
           component: results.react,
@@ -150,7 +129,9 @@ module.exports.setup = function(config, props) {
      * @return    {Async.auto}
    */
     html: function() {
-      return function render(results, done) {
+      return function render(done, results) {
+        require('../index').log.silly('Rendering html');
+
         // Render
         var html = ejs.render(results.template, results.payload);
 
@@ -160,5 +141,5 @@ module.exports.setup = function(config, props) {
     }
   };
 
-  return _.extend(Workflow, props);
+  return Object.assign(Workflow, props);
 };
