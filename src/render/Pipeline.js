@@ -40,12 +40,6 @@ module.exports.create = function(options) {
   // Requires React Component and props to be done
   lines.payload = ['react', 'props', workflow.payload(options)];
 
-  // Inject checksums
-  if (options.assets.checksums) {
-    lines.payload = ['checksums'].concat(lines.payload);
-    lines.checksums = workflow.checksums(options);
-  }
-
   // Requires template and payload to be completed
   lines.html = ['template', 'payload', workflow.html(options)];
 
