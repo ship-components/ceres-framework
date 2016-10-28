@@ -64,7 +64,7 @@ Model.prototype = {
  * @return    {Object}
  */
 Model.extend = function extend(props) {
-  return new Model(props);
+  return new Model(this, props);
 };
 
 module.exports = Model;
