@@ -16,11 +16,18 @@ var setupConfig = require('./setup/config');
 function Ceres() {
   this.startTime = process.hrtime();
 
-  // Bind these so we ensure the right context
+  // Bind and pass in this as an arg
   this.Controller = this.Controller.bind(this, this);
   this.Model = this.Model.bind(this, this);
+  // Ensure create has the right context
   this.Pipeline.create = this.Pipeline.create.bind(this);
-  this.run = this.run.bind(this);
+
+  // Bind everything else just in case
+  for (var key in this) {
+    if (typeof this[key] === 'function') {
+      this[key] = this[key].bind(this);
+    }
+  }
 
   // Expose these for any help function
   this.Model.Bookshelf = require('./models/types/bookshelf');
