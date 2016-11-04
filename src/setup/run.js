@@ -64,7 +64,7 @@ function listen(ceres) {
           resolve();
         });
       } else {
-        logStartTime('Child ready after %dsSetting up', ceres);
+        logStartTime('Child ready after %ds', ceres);
         resolve();
       }
     } catch(err) {
