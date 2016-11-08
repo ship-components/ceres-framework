@@ -185,7 +185,7 @@ Controller.prototype = {
    */
   getAll: function() {
     this.model
-      .read()
+      .readAll()
       .then(this.send)
       .catch(this.fail);
   },

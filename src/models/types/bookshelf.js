@@ -35,16 +35,14 @@ var Model = BaseModel.extend({
   },
 
   /**
-   * Read all models or just a single one
+   * Read a single model
    *
    * @param     {Mixed}    id
    * @return    {promise}
    */
   read: function(id) {
     assertNotNull(this.model);
-    if (_.isUndefined(id)) {
-      return this.model.fetchAll(this.fetch);
-    } else if (_.isObject(id)) {
+    if (_.isObject(id)) {
       return new this.model({
         id: id.id
       }).fetch(this.fetch);
@@ -53,6 +51,15 @@ var Model = BaseModel.extend({
         id: id
       }).fetch(this.fetch);
     }
+  },
+
+  /**
+   * Read all models
+   * @return {Promise}
+   */
+  readAll: function() {
+    assertNotNull(this.model);
+    return this.model.fetchAll(this.fetch);
   },
 
   /**

@@ -33,17 +33,23 @@ var Model = BaseModel.extend({
    * @return    {promise}
    */
   read: function(id) {
-    if (typeof id !== 'undefined') {
-      return this.table()
-        .get(id)
-        .run(this.connection);
-    } else {
-      return this.table()
-        .run(this.connection)
-        .then(function(cursor){
-          return cursor.toArray();
-        });
-    }
+    return this.table()
+      .get(id)
+      .run(this.connection);
+  },
+
+  /**
+   * Read all models
+   *
+   * @param     {Mixed}    id
+   * @return    {promise}
+   */
+  readAll: function() {
+    return this.table()
+      .run(this.connection)
+      .then(function(cursor){
+        return cursor.toArray();
+      });
   },
 
   /**
