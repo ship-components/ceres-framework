@@ -25,7 +25,7 @@ function checkIfExists(filename) {
       if (err) {
         resolve();
       } else {
-        reject(new Error('File exists'));
+        reject(new Error('File exists: ' + filename));
       }
     });
   });

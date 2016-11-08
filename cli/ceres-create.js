@@ -113,7 +113,12 @@ program.version(pkg.version)
           console.log('Creating controller %s', filename);
         }
 
-        return Create.controller(filename, 'IndexController');
+        return Create.controller(filename, 'IndexController').catch(function(err){
+          console.log('There was a problem writing %s, skipping...', filename);
+          if (config.verbose) {
+            console.error(err);
+          }
+        });
       })
       .then(function(){
         var files = [
@@ -149,10 +154,10 @@ program.version(pkg.version)
             cmd: 'npm',
             args: ['init', '-y']
           },
-          // {
-          //   cmd: 'npm',
-          //   args: ['install', 'ceres-framework@latest', '--save']
-          // },
+          {
+            cmd: 'npm',
+            args: ['install', 'ceres-framework@latest', '--save']
+          },
           {
             cmd: 'chmod',
             args: ['u+x', path.resolve(process.cwd(), './' + name + '.js')]
