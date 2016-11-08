@@ -332,7 +332,7 @@ Controller.prototype = {
       }
 
       if (typeof handler !== 'function') {
-        ceres.log._ceres.warn('%s - Ignoring %s %s: %s is not a function', controller.name, method.toUpperCase(), fullPath, fnName || 'undefined');
+        ceres.log._ceres.error('%s - Ignoring %s %s: %s is not a function', controller.name, method.toUpperCase(), fullPath, fnName || 'undefined');
         // Skip if we're not a function
         continue;
       }
