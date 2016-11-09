@@ -3,6 +3,9 @@
  * cli router
  ******************************************************************************/
 
+// Set the working directory so it's consistent
+process.chdir(__dirname);
+
 var program = require('commander');
 
 var pkg = require(process.cwd() + '/package.json');
