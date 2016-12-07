@@ -8,8 +8,14 @@ var Promise = require('bluebird');
 var BaseModel = require('../BaseModel');
 
 function assertNotNull(val) {
-  if(val === null) {
+  if (val === null) {
     throw new TypeError('Model is null');
+  }
+}
+
+function assetDefined(val, name) {
+  if (typeof val === 'undefined') {
+    throw new TypeError((typeof name === 'string' ? name : 'value') + ' is undefined');
   }
 }
 
@@ -42,6 +48,7 @@ var Model = BaseModel.extend({
    */
   read: function(id) {
     assertNotNull(this.model);
+    assetDefined(id, 'id');
     if (_.isObject(id)) {
       return new this.model({
         id: id.id
@@ -92,6 +99,7 @@ var Model = BaseModel.extend({
       id = body.id;
     }
     assertNotNull(this.model);
+    assetDefined(id, 'id');
 
     // Clone so we don't mutate accidently
     Object.assign({}, body);
@@ -128,6 +136,7 @@ var Model = BaseModel.extend({
    */
   del: function(id) {
     assertNotNull(this.model);
+    assetDefined(id, 'id');
     return new this.model({
       id: id
     }).destroy();
