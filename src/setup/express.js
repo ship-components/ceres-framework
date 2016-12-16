@@ -161,7 +161,9 @@ module.exports = function(ceres) {
    * Throttle all requests
    */
   if (ceres.config.throttle) {
-    var throttle = require('../middleware/throttled')(ceres.config.throttle);
+    var throttle = require('../middleware/throttled')(Object.assign({
+      logger: ceres.log._ceres
+    }, ceres.config.throttle));
     app.use(throttle);
     ceres.log._ceres.silly('Request throttling configured');
   }
