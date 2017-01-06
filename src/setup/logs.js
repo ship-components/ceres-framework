@@ -1,7 +1,18 @@
 var winston = require('winston');
 
-module.exports = function logger(config, name) {
+/**
+ * Store loggers that have alread been setup
+ * @type    {Object}
+ */
+var loggers = {};
+
+module.exports = function setupLogger(config, name) {
   name = name || config.name;
+
+  // Return if we're already setup
+  if (loggers[name]){
+    return loggers[name];
+  }
 
   /**
    * Transports
@@ -15,6 +26,8 @@ module.exports = function logger(config, name) {
       filename: config.folders.logs + '/production.log',
       label: name,
       level: config.logLevel || 'info',
+      maxFiles: 30,
+      timestamp: true,
       tailable: true
     })
   ];
@@ -26,11 +39,18 @@ module.exports = function logger(config, name) {
       colorize: true,
       label: name,
       prettyPrint: true,
+      timestamp: true,
       depth: 4
     }));
   }
 
-  return new(winston.Logger)({
+  // Create
+  var logger = new(winston.Logger)({
     transports: transports
   });
+
+  // Save to cache
+  loggers[name] = logger;
+
+  return logger;
 };
