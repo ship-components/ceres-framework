@@ -20,6 +20,10 @@ $ ./example.js init
 $ ./example.js run
 ```
 
+## History
+* 0.5.2 - Upgraded logging packages, ensure timestamps are neabled and added option for custom loggers
+* 0.5.0 - Add mongo support
+
 This creates the basic folder structure and a default configuration in the current folder.
 
 ## Documentation

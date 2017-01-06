@@ -116,10 +116,14 @@ Ceres.prototype.setupLogs = function() {
         }));
       }
 
-      // Setup logging app
-      this.log = require('./setup/logs')(this.config);
+      // Bind config and allow custom loggers
+      this.logger = require('./setup/logs').bind(this, this.config);
+
+      // Setup default logging
+      this.log = this.logger();
+
       // Setup internal framework logger so we can tell if its an app or framework erro
-      this.log._ceres = require('./setup/logs')(this.config, 'ceres');
+      this.log._ceres = this.logger('ceres');
 
       this.log._ceres.silly('Writing logs to %s', this.config.folders.logs);
       resolve();
