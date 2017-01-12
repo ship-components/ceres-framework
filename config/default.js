@@ -128,6 +128,21 @@ var config = {
   },
 
   /**
+   * Settings for Redis Session Store
+   *
+   * @type    {Object}
+   */
+  cache: {
+    type: 'redis',
+    host: '127.0.0.1',
+    port: 6379,
+    ttl: 3600,
+    pass: '',
+    db: 0,
+    prefix: 'os'
+  },
+
+  /**
    * Render settings
    *
    * @type    {Object}

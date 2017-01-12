@@ -4,6 +4,7 @@ var Promise = require('bluebird');
 
 var Server = require('./Server');
 var Pid = require('../lib/Pid');
+var setupCache = require('./cache');
 
 /**
  * Log the time it took to start
@@ -81,5 +82,12 @@ function listen(ceres) {
 module.exports = function(ceres) {
   return this
     .connect.call(this, ceres)
+    .then(function(){
+      return setupCache(ceres);
+    })
+    .then(function(Cache){
+      ceres.Cache = Cache;
+      return ceres;
+    })
     .then(listen.bind(this, ceres));
 };
