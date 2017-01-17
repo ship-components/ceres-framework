@@ -6,9 +6,10 @@
  ******************************************************************************/
 
 // Modules
-var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
+var merge = require('../lib/merge');
+
 
 /**
  * Read the config RC File
@@ -51,8 +52,8 @@ function requireConfig(env) {
 }
 
 function getRCPath(configs) {
-  var config = _.find(configs, function(conf){
-    return _.isObject(conf) && conf.rc;
+  var config = configs.find(function(conf){
+    return typeof conf === 'object' && conf.rc;
   });
   return config ? path.resolve(config.rc) : void 0;
 }
@@ -93,7 +94,8 @@ module.exports = function(cli) {
   var rc = rcConfig(rcPath);
 
   // Merge config sources together
-  config = _.merge(defaultConfig, config, envConfig, rc, cli);
+  config = merge({}, defaultConfig, config, envConfig, rc, cli);
+
   config.rc = rcPath;
 
   // Resolve all paths

@@ -21,6 +21,7 @@ $ ./example.js run
 ```
 
 ## History
+* 0.6.1 - Refactored merge in config and added initial unit testing setup
 * 0.6.0 - Added redis caching
 * 0.5.2 - Upgraded logging packages, ensure timestamps are neabled and added option for custom loggers
 * 0.5.0 - Add mongo support

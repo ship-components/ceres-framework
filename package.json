@@ -1,14 +1,15 @@
 {
   "name": "ceres-framework",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Node.js Framework for React Applications",
   "main": "src/index.js",
   "bin": {
     "ceres": "./cli/index.js"
   },
   "scripts": {
-    "test": "npm test",
-    "lint": "./node_modules/.bin/eslint cli/ src/ config/"
+    "test": "./node_modules/.bin/jasmine",
+    "lint": "./node_modules/.bin/eslint cli/ src/ config/",
+    "watch:test": "./node_modules/.bin/chokidar --initial --verbose -p 'spec/**/*.js' -p 'src/**/*.js' -c 'npm test'"
   },
   "author": "Isaac Suttell",
   "license": "MIT",
@@ -56,6 +57,8 @@
     "bookshelf": ">=0.9.5"
   },
   "devDependencies": {
-    "eslint": "*"
+    "chokidar-cli": "^1.2.0",
+    "eslint": "*",
+    "jasmine": "^2.5.3"
   }
 }
