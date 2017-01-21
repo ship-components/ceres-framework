@@ -45,6 +45,19 @@ describe('Ceres', function(){
     expect(result).toBe(obj1);
   });
 
+  it('should NOT deeply merge an array', function() {
+    var obj1 = {
+      arr: ['one']
+    };
+    var obj2 = {
+      arr: ['two', 'three']
+    };
+
+    var result = merge(obj1, obj2);
+
+    expect(result.arr.length).toBe(obj2.arr.length);
+  });
+
   it('should merge multiple objects', function() {
     var obj1 = {
       name: 'one'

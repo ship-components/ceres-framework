@@ -16,7 +16,7 @@ module.exports = function merge() {
       return;
     }
     Object.keys(src).forEach(function(key){
-      if (typeof src[key] === 'object') {
+      if (typeof src[key] === 'object' && src[key] instanceof Array !== true) {
         // Recursion
         result[key] = merge({}, result[key], src[key]);
       } else if (typeof src[key] !== 'undefined') {
