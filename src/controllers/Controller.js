@@ -28,6 +28,15 @@ function bindEach(src, ctx) {
   return obj;
 }
 
+function validateMiddleware(ceres, name, method, fullPath, arg) {
+  if (typeof arg === 'function') {
+    return true;
+  } else {
+    ceres.log._ceres.error('%s - %s %s: middleware is not a function. Skipping...', name, method.toUpperCase(), fullPath);
+    return false;
+  }
+}
+
 /**
  * Get the full path of a controller endpoint
  * @param  {Object} controlle
@@ -337,8 +346,7 @@ Controller.prototype = {
         continue;
       }
 
-      // Path
-      var args = [path];
+      var args = [];
 
       // Middleware
       if (this.middleware instanceof Array) {
@@ -358,10 +366,16 @@ Controller.prototype = {
         args = args.concat(this.routes[route]);
       }
 
+      // Ensure middleware functons are valid
+      args = args.filter(validateMiddleware.bind(this, ceres, controller.name, method.toUpperCase(), fullPath));
+
+      // Add path to start
+      args.unshift(path);
+
       // Bind custom this context to route
       var fn = wrapRoute(handler, this, ceres);
 
-      // Add to args
+      // Add to args at the end
       args.push(fn);
 
       if (typeof router[method] !== 'function') {

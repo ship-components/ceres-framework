@@ -1,4 +1,6 @@
 var winston = require('winston');
+var DailyRotateFile = require('winston-daily-rotate-file');
+var mkdirp = require('mkdirp');
 
 /**
  * Store loggers that have alread been setup
@@ -14,6 +16,18 @@ module.exports = function setupLogger(config, name) {
     return loggers[name];
   }
 
+	// Make sure the folder exists
+	mkdirp.sync(config.folders.logs);
+
+	// Save uncaught exceptions to their own file in production
+	winston.handleExceptions(new DailyRotateFile({
+		name: 'exceptions',
+		filename: this.config.folders.logs + '/exceptions.log',
+		tailable: true,
+		maxFiles: 30,
+		timestamp: true
+	}));
+
   /**
    * Transports
    *
@@ -21,7 +35,7 @@ module.exports = function setupLogger(config, name) {
    */
   var transports = [
     // Should probably be kept for 30 days
-    new(require('winston-daily-rotate-file'))({
+    new DailyRotateFile({
       name: 'production',
       filename: config.folders.logs + '/production.log',
       label: name,
@@ -51,6 +65,8 @@ module.exports = function setupLogger(config, name) {
 
   // Save to cache
   loggers[name] = logger;
+
+	logger.debug('logger configured');
 
   return logger;
 };

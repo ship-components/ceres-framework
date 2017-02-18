@@ -45,6 +45,9 @@ function rcConfig(file) {
 function requireConfig(env) {
   env = env || 'default';
   try {
+    /**
+     * TODO: Add file checking
+     */
     return require(process.cwd() + '/config/' + env + '.js');
   } catch(err) {
     return {};
@@ -87,6 +90,11 @@ module.exports = function(cli) {
 
   // Get env specific config
   var envConfig = requireConfig(env);
+
+	// listen for the port as an environmental variable. If we see it, use it.
+	if (process.env.PORT) {
+		envConfig.port = process.env.PORT;
+	}
 
   var rcPath = getRCPath([cli, envConfig, config]);
 
