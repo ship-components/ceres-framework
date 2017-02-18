@@ -171,6 +171,25 @@ var config = {
   },
 
   /**
+   * Configure Hash Ids
+   * @type    {Object}
+   */
+  hashIds: {
+    /**
+     * Change the secret and hence generated keys, probably will be the same
+     * from preprod to production to make it easie to copy data
+     * @type    {String}
+     */
+    secret: 'ceres',
+
+    /**
+     * Min lengh of hashes. They may be longer.
+     * @type    {Number}
+     */
+    minLength: 5
+  },
+
+  /**
    * A list of controllers and where to connect their routers. This is a high
    * overview of routing
    *

@@ -10,6 +10,7 @@ var winston = require('winston');
 var DailyRotateFile = require('winston-daily-rotate-file');
 var Promise = require('bluebird');
 var mkdirp = require('mkdirp');
+var EventEmitter = require('events');
 
 var setupConfig = require('./setup/config');
 
@@ -32,8 +33,16 @@ function Ceres() {
   // Expose these for any help function
   this.Model.Bookshelf = require('./models/types/bookshelf');
   this.Model.Rethinkdb = require('./models/types/rethinkdb');
+	// Setup event emitter
+	this._events = new EventEmitter();
+	this.on = this._events.on;
+	this.removeListener = this._events.removeListener;
+	this.emit = this._events.emit;
 
   this.config = {};
+	this.on('configured', function(){
+		this.HashIds = this.HashIds.call(this, this);
+	}.bind(this));
 }
 
 /**
@@ -45,6 +54,12 @@ Ceres.prototype.Controller = require(path.resolve(__dirname + '/controllers/Cont
  * Make the model available at the base level
  */
 Ceres.prototype.Model = require(path.resolve(__dirname + '/models/Model'));
+
+/**
+ * Link to hashIds
+ * @type    {Object}
+ */
+Ceres.prototype.HashIds = require(path.resolve(__dirname + '/lib/HashIds'));
 
 /**
  * Alias cut to Pipeline
@@ -93,6 +108,10 @@ Ceres.prototype.configure = function(options) {
 
     // Setup logging as well
     this.setupLogs()
+			.then(function(){
+				this.emit('configured');
+				return this;
+			}.bind(this))
       .then(resolve)
       .catch(reject);
   }.bind(this));
@@ -143,6 +162,10 @@ Ceres.prototype.load = function(options) {
   return instance
     .configure(options)
     .then(instance.connect)
+		.then(function(ceres){
+			this.emit('before:run');
+			return ceres;
+		}.bind(this))
     .catch(function(err){
       if (instance.log) {
         instance.log._ceres.error(err);
@@ -160,6 +183,10 @@ Ceres.prototype.exec = function(command, options) {
   var instance = this;
   return instance
     .configure(options)
+		.then(function(ceres){
+			this.emit('before:run');
+			return ceres;
+		}.bind(this))
     .then(command.bind(this, this))
     .catch(function(err){
       if (instance.log) {
