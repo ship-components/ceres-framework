@@ -95,7 +95,7 @@ var Model = BaseModel.extend({
    * @return    {promise}
    */
   update: function(body, id) {
-    if (typeof id === 'undefined' && typeof body.id === 'number') {
+    if (typeof id === 'undefined' && typeof body.id !== 'undefined') {
       id = body.id;
     }
     assertNotNull(this.model);
