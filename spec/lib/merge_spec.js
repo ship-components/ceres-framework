@@ -2,7 +2,7 @@
 
 var merge = require('../../src/lib/merge');
 
-describe('Ceres', function(){
+describe('merge', function(){
   it('should export a function', function() {
     expect(typeof merge).toBe('function');
   });
