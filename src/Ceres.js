@@ -62,7 +62,7 @@ Ceres.prototype.Model = require(path.resolve(__dirname + '/models/Model'));
  * Link to hashIds
  * @type    {Object}
  */
-Ceres.prototype.HashIds = require(path.resolve(__dirname + '/lib/HashIds'));
+Ceres.prototype.HashIds = require(path.resolve(__dirname + '/lib/hashids'));
 
 /**
  * Alias cut to Pipeline
