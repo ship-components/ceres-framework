@@ -3,8 +3,8 @@ Opinionated node.js framework for React single page applications
 
 [![npm](https://img.shields.io/npm/v/ceres-framework.svg?maxAge=2592000)](https://www.npmjs.com/package/ceres-framework)
 [![Build Status](http://img.shields.io/travis/isuttell/ceres-framework/master.svg?style=flat)](https://travis-ci.org/isuttell/ceres-framework)
+[![Coveralls branch](https://img.shields.io/coveralls/github/isuttell/ceres-framework/master.svg)](?style=flat)
 [![dependencies](https://img.shields.io/david/isuttell/ceres-framework.svg?style=flat)](https://david-dm.org/isuttell/ceres-framework)
-[![devDependencies](https://img.shields.io/david/dev/isuttell/ceres-framework.svg?style=flat)](https://david-dm.org/isuttell/ceres-framework?type=dev)
 
 ## Installation
 
