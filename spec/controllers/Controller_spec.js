@@ -39,4 +39,12 @@ describe('Controller', function(){
 		expect(typeof controller.deleteOne).toBe('function');
 	});
 
+	it('should call the init function if found', function() {
+		var spy = jasmine.createSpy();
+		new Controller({ // eslint-disable-line
+			init: spy
+		});
+		expect(spy).toHaveBeenCalled();
+	});
+
 });
