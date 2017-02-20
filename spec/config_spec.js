@@ -39,4 +39,20 @@ describe('config', function(){
     var result = setupConfig(testConfig());
     expect(result.env).toBe(Original.rc.env);
   });
+
+	it('should throw an error if the machine config does not exist', function(){
+		expect(function(){
+			setupConfig({
+				rc: './spec/helpers/missing.json'
+			});
+		}).toThrow();
+	});
+
+	it('should not throw an error if the environment config does not exist', function(){
+		expect(function(){
+			setupConfig(testConfig({
+				env: 'test'
+			}));
+		}).not.toThrow();
+	});
 });
