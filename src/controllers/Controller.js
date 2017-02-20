@@ -4,30 +4,18 @@
 
 var EventEmitter = require('events');
 
-/**
- * Default Controller Reponses
- *
- * @type    {Object}
- */
 var Responses = require('../lib/Responses');
+var bindEach = require('../lib/bindAll');
 
 /**
- * Clone and Bind context to each object value
- *
- * @param     {Object}    obj
- * @param     {Mixed}    ctx
- * @return    {Object}
+ * Ensure middle ware is valid
+ * @param    {Ceres}   	 ceres
+ * @param    {String}    name
+ * @param    {String}    method
+ * @param    {String}    fullPath
+ * @param    {Function}  arg
+ * @return   {Boolean}
  */
-function bindEach(src, ctx) {
-  var obj = {};
-  for (var key in src) {
-    if (src.hasOwnProperty(key)) {
-      obj[key] = src[key].bind(ctx);
-    }
-  }
-  return obj;
-}
-
 function validateMiddleware(ceres, name, method, fullPath, arg) {
   if (typeof arg === 'function') {
     return true;
