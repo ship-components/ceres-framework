@@ -6,9 +6,10 @@
  ******************************************************************************/
 
 // Modules
-var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
+
+var merge = require('../lib/merge');
 
 /**
  * Read the config RC File
@@ -17,22 +18,20 @@ var path = require('path');
  * @return    {Object}
  */
 function rcConfig(file) {
-  file = path.resolve(file || '.configrc');
+	file = path.resolve(file || '.configrc');
 
-  // Must exist
-  if (!fs.existsSync(file)) {
-    throw new Error('Unable to find ' + file);
-  }
+	// Must exist
+	fs.accessSync(file);
 
-  // Read
-  var rc = fs.readFileSync(file, {
-    encoding: 'utf8'
-  });
+	// Read
+	var rc = fs.readFileSync(file, {
+		encoding: 'utf8'
+	});
 
-  // Convert to JS
-  rc = JSON.parse(rc);
+	// Convert to JS
+	rc = JSON.parse(rc);
 
-  return rc;
+	return rc;
 }
 
 /**
@@ -42,68 +41,96 @@ function rcConfig(file) {
  * @return {Object}
  */
 function requireConfig(env) {
-  env = env || 'default';
-  try {
-    return require(process.cwd() + '/config/' + env + '.js');
-  } catch(err) {
-    return {};
-  }
+	env = env || 'default';
+	var fileName = process.cwd() + '/config/' + env + '.js';
+	try {
+		fs.accessSync(fileName);
+		return require(fileName);
+	} catch(accessError) {
+		if (accessError.message.indexOf('ENOENT') === 0) {
+			return {};
+		} else {
+			throw accessError;
+		}
+	}
 }
 
+/**
+ * Grab the path to the machine config
+ * @param    {Array<Object>}    configs
+ * @return   {String}
+ */
 function getRCPath(configs) {
-  var config = _.find(configs, function(conf){
-    return _.isObject(conf) && conf.rc;
-  });
-  return config ? path.resolve(config.rc) : void 0;
+	var config = configs.find(function(conf){
+		return typeof conf === 'object' && conf.rc;
+	});
+	return config ? path.resolve(config.rc) : void 0;
 }
 
+/**
+ * Search for webpack config
+ * @param    {String}    env
+ * @return   {Object}
+ */
 function getWebpack(env) {
-  var files = [process.cwd() + '/config/webpack' + env + '.js', process.cwd() + '/config/webpack.default.js', process.cwd() + '/config/webpack.config.js'];
-  var index = files.length;
-  while(--index > 0) {
-    if (fs.existsSync(files[index])) {
-      return require(files[index]);
-    }
-  }
-  return {};
+	var files = [process.cwd() + '/config/webpack' + env + '.js', process.cwd() + '/config/webpack.default.js', process.cwd() + '/config/webpack.config.js'];
+	var index = files.length;
+	while (--index > 0) {
+		try {
+			fs.accessSync(files[index]);
+			return require(files[index]);
+		} catch(accessError) {
+			if (accessError.message.indexOf('ENOENT') !== 0) {
+				throw accessError;
+			}
+		}
+	}
+	return {};
 }
 
 module.exports = function(cli) {
-  if (typeof cli !== 'object') {
-    cli = {};
-  }
+	if (typeof cli !== 'object') {
+		cli = {};
+	}
 
-  // Framework defaults
-  var defaultConfig = require('../../config/default');
+	// Framework defaults
+	var defaultConfig = require('../../config/default');
 
-  // Get global config
-  var config = requireConfig();
+	// Get global config
+	var config = requireConfig();
 
-  // Get the environment
-  var env = [cli.env, config.env, process.env.NODE_ENV, 'production'].find(function(item){
-    return typeof item === 'string';
-  });
+	// Get the environment
+	var env = [cli.env, config.env, process.env.NODE_ENV, 'production'].find(function(item){
+		return typeof item === 'string';
+	});
 
-  // Get env specific config
-  var envConfig = requireConfig(env);
+	// Get env specific config
+	var envConfig = requireConfig(env);
 
-  var rcPath = getRCPath([cli, envConfig, config]);
+	// listen for the port as an environmental variable. If we see it, use it.
+	if (process.env.PORT) {
+		envConfig.port = process.env.PORT;
+	}
 
-  // Get machine specific settings
-  var rc = rcConfig(rcPath);
+	// Get the location of the machine config file
+	var rcPath = getRCPath([cli, envConfig, config]);
 
-  // Merge config sources together
-  config = _.merge(defaultConfig, config, envConfig, rc, cli);
-  config.rc = rcPath;
+	// Get machine specific settings
+	var rc = rcConfig(rcPath);
 
-  // Resolve all paths
-  for (var folder in config.folders) {
-    if (config.folders.hasOwnProperty(folder)) {
-      config.folders[folder] = path.resolve(config.folders[folder]);
-    }
-  }
+	// Merge config sources together
+	config = merge({}, defaultConfig, config, envConfig, rc, cli);
 
-  config.webpackConfig = getWebpack(env);
+	config.rc = rcPath;
 
-  return config;
+	// Resolve all paths
+	for (var folder in config.folders) {
+		if (config.folders.hasOwnProperty(folder)) {
+			config.folders[folder] = path.resolve(config.folders[folder]);
+		}
+	}
+
+	config.webpackConfig = getWebpack(env);
+
+	return config;
 };

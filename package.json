@@ -1,14 +1,16 @@
 {
   "name": "ceres-framework",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Node.js Framework for React Applications",
   "main": "src/index.js",
   "bin": {
     "ceres": "./cli/index.js"
   },
   "scripts": {
-    "test": "npm test",
-    "lint": "./node_modules/.bin/eslint cli/ src/ config/"
+    "test": "npm run lint && ./node_modules/.bin/istanbul cover -x 'spec/**' -x 'config/**' ./node_modules/.bin/jasmine",
+		"coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "lint": "./node_modules/.bin/eslint cli/ src/ config/",
+    "watch:test": "./node_modules/.bin/chokidar --initial --verbose -p 'spec/**/*.js' -p 'src/**/*.js' -c 'npm test'"
   },
   "author": "Isaac Suttell",
   "license": "MIT",
@@ -31,6 +33,7 @@
     "express-session": "^1.14.1",
     "express-socket.io-session": "^1.3.1",
     "file-stream-rotator": "0.0.7",
+    "hashids": "^1.1.1",
     "knex": "^0.12.6",
     "lodash": "^4.16.4",
     "mkdirp": "^0.5.1",
@@ -56,6 +59,10 @@
     "bookshelf": ">=0.9.5"
   },
   "devDependencies": {
-    "eslint": "*"
+    "chokidar-cli": "^1.2.0",
+    "coveralls": "^2.11.16",
+    "eslint": "*",
+    "istanbul": "^0.4.5",
+    "jasmine": "^2.5.3"
   }
 }

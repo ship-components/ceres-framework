@@ -15,7 +15,7 @@ var mkdirp = require('mkdirp');
 
 var routes = require('./routes');
 
-module.exports = function(ceres) {
+module.exports = function Server(ceres) {
   /*****************************************************************************
    * Start Express
    */

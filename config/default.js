@@ -47,6 +47,14 @@ var config = {
    */
   pid: 'ceres.pid',
 
+	/**
+	 * Either cluster or fork. Determines how multiple instances of the app
+	 * are run to take advantage of multiple cores. fork is recommended when
+	 * being a reverse proxy
+	 * @type    {String}
+	 */
+	processManagement: 'cluster',
+
   /**
    * What mode to run in
    *
@@ -168,6 +176,25 @@ var config = {
      * @type    {Boolean}
      */
     minifyHtml: true
+  },
+
+  /**
+   * Configure Hash Ids
+   * @type    {Object}
+   */
+  hashIds: {
+    /**
+     * Change the secret and hence generated keys, probably will be the same
+     * from preprod to production to make it easie to copy data
+     * @type    {String}
+     */
+    secret: 'ceres',
+
+    /**
+     * Min lengh of hashes. They may be longer.
+     * @type    {Number}
+     */
+    minLength: 5
   },
 
   /**

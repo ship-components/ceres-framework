@@ -5,14 +5,14 @@ the `config/default.js` controllers subsection.
 ## CLI
 This commands create an empty controller for you if you have the CLI installed
 
-```
+```shell
 ceres controller IndexController
 ```
 
 After creating it you need to define it's endpoint in your configuration.
 
 ## Basic Example
-```
+```js
 var Ceres = require('ceres-framework');
 
 module.exports = new Ceres.Controller({
@@ -22,7 +22,7 @@ module.exports = new Ceres.Controller({
    * @type    {String}
    */
 
-  model: null,
+  model: UserModel,
 
   /**
    * Available endpoints
@@ -39,8 +39,25 @@ module.exports = new Ceres.Controller({
     'del /:id' : 'deleteOne',
 
     // Custom methods
-    'get /search' : 'search'
+    'get /search' : 'search',
+
+		// Apply middleware to a specific route
+		'get /admin' : [this.adminOnlyCheck, 'adminsOnly'],
   },
+
+	/**
+	 * Pretend middleware for admins only
+	 * @param  {Express.Request}  req
+   * @param  {Express.Response} res
+	 * @param  {Function}   	    next
+	 */
+	adminOnlyCheck: function(req, res, next) {
+		if(req.session.admin) {
+			next();
+		} else {
+			next(new Error('Forbidden'));
+		}
+	}
 
   /**
    * Custom handler defined above
@@ -48,22 +65,39 @@ module.exports = new Ceres.Controller({
    * @param  {Express.Response} res
    */
   search: function(req, res){
-    res.send('oh yeah');
-  }
+		// This send is a convenience function and alias to res.send
+    this.send({
+			message: 'Found it'
+		});
+  },
+
+	/**
+   * Custom route for admins
+   * @param  {Express.Request}  req
+   * @param  {Express.Response} res
+   */
+	adminsOnly: function(req, res){
+		// This is protected by admin middleware defined in the routes object
+		this.send({
+			message: 'Our admins are so nice'
+		});
+	},
 
   /**
-   * Middleware to apply to the routes
+   * Middleware to apply to all routes
    *
    * @type    {Array<Function>}
    */
-  middleware: function(middlewares) {
-    return [];
+  middleware: function(middleware) {
+		// The middleware object is loaded from the './middleware' folder when the
+		// application starts. It gets applied to all routes in this controller
+    return [middleware.csrf];
   }
 });
 ```
 
 ## Config
-```
+```js
   /**
    * A list of controllers and where to connect their routers. This is a high
    * overview of routing
@@ -86,7 +120,7 @@ create your own express router and overwrite the `router` object.
 
 Here's an example on how to use the default router.
 
-```
+```js
 routes: {
   // These five are always available
   'get /': 'getAll',
@@ -103,7 +137,7 @@ routes: {
 Alternatively you can overwrite the router function and supply your own router.
 This means the routes object is ignored unless you specifically reference it.
 
-```
+```js
 /**
  * Create an custom express Router
  *
@@ -116,7 +150,7 @@ router: function() {
   router.all('/api/status', this.status);
 
   // Pass everything to the client except the api/ routes
-  router.get(/(?!^\/(api|assets|public))(^.*$)/, cas, Ceres.Controller.wrapRoute(this.getApp, this, Ceres));
+  router.get(/(?!^\/(api|assets|public))(^.*$)/, authMiddleware, this.getApp.bind(this));
 
   return router;
 },

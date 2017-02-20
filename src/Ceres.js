@@ -6,12 +6,14 @@
  ******************************************************************************/
 
 var path = require('path');
-var winston = require('winston');
-var DailyRotateFile = require('winston-daily-rotate-file');
 var Promise = require('bluebird');
-var mkdirp = require('mkdirp');
+var EventEmitter = require('events');
 
 var setupConfig = require('./setup/config');
+var setupCache = require('./setup/cache');
+var setupLogs = require('./setup/logs');
+var runCluster = require('./setup/run-cluster');
+var runFork = require('./setup/run-fork');
 
 function Ceres() {
   this.startTime = process.hrtime();
@@ -29,12 +31,22 @@ function Ceres() {
     }
   }
 
-  // Expose these for any help function
-  this.Model.Bookshelf = require('./models/types/bookshelf');
-  this.Model.Rethinkdb = require('./models/types/rethinkdb');
+	// Setup event emitter
+	this._events = new EventEmitter();
+	this.on = this._events.on.bind(this._events);
+	this.removeListener = this._events.removeListener.bind(this._events);
+	this.emit = this._events.emit.bind(this._events);
 
-  this.config = {};
+	this.on('configured', function(){
+		this.HashIds = this.HashIds.call(this, this);
+	}.bind(this));
 }
+
+/**
+ * Placeholder for Database object
+ * @type    {Object}
+ */
+Ceres.prototype.Database = {};
 
 /**
  * Make contoller available at base level
@@ -47,6 +59,12 @@ Ceres.prototype.Controller = require(path.resolve(__dirname + '/controllers/Cont
 Ceres.prototype.Model = require(path.resolve(__dirname + '/models/Model'));
 
 /**
+ * Link to hashIds
+ * @type    {Object}
+ */
+Ceres.prototype.HashIds = require(path.resolve(__dirname + '/lib/hashIds'));
+
+/**
  * Alias cut to Pipeline
  */
 Ceres.prototype.Pipeline = require(path.resolve(__dirname + '/render/Pipeline'));
@@ -54,23 +72,59 @@ Ceres.prototype.Pipeline = require(path.resolve(__dirname + '/render/Pipeline'))
 /**
  * Alias to run
  */
-Ceres.prototype.run = require(path.resolve(__dirname + '/setup/run'));
+Ceres.prototype.run = function run() {
+	// Ensure secret is present
+	if (!this.config.secret) {
+		throw new Error('Unable to find secret.');
+	}
+	if (this.config.processManagement === 'fork') {
+		return runFork(this);
+	} else {
+		return runCluster(this);
+	}
+};
 
 /**
- * Connect to database
+ * Connect to database and cache
  * @return {Promise}
  */
 Ceres.prototype.connect = function() {
   return new Promise(function(resolve, reject){
-    if (this.config.db.type === 'none') {
-      resolve();
-      return;
+		if (typeof this.config !== 'object') {
+			reject(new Error('Ceres has not been configured yet'));
+			return;
+		}
+
+		var type = this.config.db.type;
+    if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type) === -1) {
+			this.log._ceres.silly('Skipping database setup');
+			return setupCache(this)
+				.then(function(cache){
+					this.Cache = cache;
+					return this;
+				}.bind(this));
     }
-    this.log._ceres.silly('Setting up ' + this.config.db.type);
+
+    this.log._ceres.silly('Setting up ' + type);
+
+		// Expose these for any help function
+		if (type === 'bookshelf') {
+			this.Model.Bookshelf = require('./models/types/bookshelf');
+		} else if (type === 'rethinkdb') {
+			this.Model.Rethinkdb = require('./models/types/rethinkdb');
+		} else if (type === 'mongodb') {
+			this.Model.Mongodb = require('./models/types/mongodb');
+		}
+
     var connect = require(__dirname + '/db')(this.config, this);
+
     return connect.then(function(db){
         this.Database = db;
-        return this;
+        return setupCache(this);
+			}.bind(this))
+			.then(function(cache){
+				this.Cache = cache;
+				return this;
       }.bind(this))
       .then(resolve)
       .catch(reject);
@@ -89,47 +143,25 @@ Ceres.prototype.configure = function(options) {
       this.config = setupConfig(options);
     } catch (err) {
       reject(err);
+			return;
     }
 
-    // Setup logging as well
-    this.setupLogs()
-      .then(resolve)
-      .catch(reject);
-  }.bind(this));
-};
+		// Bind config and allow custom loggers
+		this.logger = setupLogs.bind(this, this.config);
 
-/**
- * Setup Logging
- * @return {Promise}
- */
-Ceres.prototype.setupLogs = function() {
-  return new Promise(function(resolve, reject){
-    try {
-      // Make sure the folder exists
-      mkdirp.sync(this.config.folders.logs);
+		// Setup default logging
+		this.log = this.logger();
 
-      if (this.config.env === 'production') {
-        // Save uncaught exceptions to their own file in production
-        winston.handleExceptions(new DailyRotateFile({
-          filename: this.config.folders.logs + '/exceptions.log',
-          tailable: true
-        }));
-      }
+		// Setup internal framework logger so we can tell if its an app or framework erro
+		this.log._ceres = this.logger('ceres');
 
-      // Bind config and allow custom loggers
-      this.logger = require('./setup/logs').bind(this, this.config);
+		this.log._ceres.debug('Writing logs to %s', this.config.folders.logs);
 
-      // Setup default logging
-      this.log = this.logger();
+		// Emit a configured silly can listen to
+		this.log._ceres.silly('EVENT: configured');
+		this.emit('configured');
 
-      // Setup internal framework logger so we can tell if its an app or framework erro
-      this.log._ceres = this.logger('ceres');
-
-      this.log._ceres.silly('Writing logs to %s', this.config.folders.logs);
-      resolve();
-    } catch (err) {
-      reject(err);
-    }
+		resolve(this);
   }.bind(this));
 };
 
@@ -143,6 +175,11 @@ Ceres.prototype.load = function(options) {
   return instance
     .configure(options)
     .then(instance.connect)
+		.then(function(ceres){
+			this.log._ceres.silly('EVENT: before:run');
+			this.emit('before:run');
+			return ceres;
+		}.bind(this))
     .catch(function(err){
       if (instance.log) {
         instance.log._ceres.error(err);
@@ -160,6 +197,11 @@ Ceres.prototype.exec = function(command, options) {
   var instance = this;
   return instance
     .configure(options)
+		.then(function(ceres){
+			this.log._ceres.silly('EVENT: before:run');
+			this.emit('before:run');
+			return ceres;
+		}.bind(this))
     .then(command.bind(this, this))
     .catch(function(err){
       if (instance.log) {

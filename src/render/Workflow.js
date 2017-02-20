@@ -29,7 +29,7 @@ module.exports.setup = function(config, props) {
    *
    * @type    {Object}
    */
-  var AssetFactory = require('./AssetFactory.js')(config);
+  var assetFactory = require('./AssetFactory.js')(config);
 
    /**
    * This object contains methods that return Async.auto objects. Each item has a
@@ -118,7 +118,7 @@ module.exports.setup = function(config, props) {
           title: options.title,
           env: config.env,
           index: options.index,
-          assets: AssetFactory(options.assets, results.checksums).forPayload()
+          assets: assetFactory(options.assets, results.checksums).forPayload()
         };
         done(null, payload);
       };
