@@ -1,4 +1,5 @@
 var express = require('express');
+var path = require('path');
 
 /**
  * Attach routes to a Express router router
@@ -22,7 +23,7 @@ module.exports = function routes(ceres, prop) {
 
     try {
       var benchmark = new Benchmark();
-      var controller = require(folder + '/' + name);
+      var controller = require(path.resolve(folder + '/' + name));
       var endpoint = routers[name];
       controller.name = name;
       controller.endpoint = endpoint;
