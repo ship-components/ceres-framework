@@ -25,28 +25,46 @@ var workers = [];
  * @return   {Undefined}
  */
 function spawn(ceres, port) {
+	/**
+	 * Give each child a uniqueId
+	 * @type    {Number}
+	 */
+	var id = ++uniqueIds;
+
+	// Rerun with the same arguments
 	var worker = fork('./home-run.js', process.argv, {
 		env: {
+
+			// Each process gets a unique port
 			PORT: port,
-			CERES_UNIQUE_ID: ++uniqueIds
+
+			// And a unique ID. Only children get this
+			CERES_UNIQUE_ID: id
 		}
 	});
 
+	// Loggin
+	ceres.log._ceres.debug('Spawned child #%s - %s', id, worker.pid);
+
+	// Keep track of the active workers
+	workers.push(worker);
+
+	// Log any errors
+	worker.on('error', function(err){
+		ceres.log._ceres.error(err);
+	});
+
+	// Repawn if the child crashes
 	worker.on('exit', function(code, signal){
-		ceres.log._ceres.error('%s - Spawning new process', worker.pid, code || signal);
+		ceres.log._ceres.error('%s exited with %s - Spawning new process...', worker.pid, code || signal);
 
 		var index = workers.indexOf(worker);
 		if (index !== -1) {
 			workers.splice(index, 1);
 		}
 
-		// Wait a second so we don't spam restarts
-		setTimeout(function(){
-			spawn(ceres, port);
-		}, 1000);
+		spawn(ceres, port);
 	});
-
-	workers.push(worker);
 }
 
 /**
@@ -57,10 +75,9 @@ function spawn(ceres, port) {
 function listen(ceres) {
 	return new Promise(function(resolve, reject){
 		try {
-			ceres.log._ceres.silly('CERES_UNIQUE_ID=%s', process.env.CERES_UNIQUE_ID);
 			Server.call(ceres, ceres).listen(ceres.config.port, function(){
 				logStartTime('Child took %ds to start listening', ceres);
-				ceres.log._ceres.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
+				ceres.log._ceres.info('Child #%s listening on %d (%s)', process.env.CERES_UNIQUE_ID, ceres.config.port, ceres.config.env);
 				resolve();
 			});
 		} catch(err) {
