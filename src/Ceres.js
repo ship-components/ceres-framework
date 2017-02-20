@@ -158,7 +158,7 @@ Ceres.prototype.configure = function(options) {
 		this.log._ceres.debug('Writing logs to %s', this.config.folders.logs);
 
 		// Emit a configured silly can listen to
-		this.log._ceres.debug('EVENT: configured');
+		this.log._ceres.silly('EVENT: configured');
 		this.emit('configured');
 
 		resolve(this);

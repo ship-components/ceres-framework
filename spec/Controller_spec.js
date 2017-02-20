@@ -2,7 +2,7 @@
 
 var ControllerModule = require('../src/controllers/Controller');
 
-describe('Ceres', function(){
+describe('Controller', function(){
 	var Controller;
   it('should export a function', function() {
     expect(typeof ControllerModule).toBe('function');
