@@ -44,10 +44,8 @@ function requireConfig(env) {
 	env = env || 'default';
 	var fileName = process.cwd() + '/config/' + env + '.js';
 	try {
-		if (fs.accessSync(fileName)){
-			return require(fileName);
-		}
-		return {};
+		fs.accessSync(fileName);
+		return require(fileName);
 	} catch(accessError) {
 		if (accessError.message.indexOf('ENOENT') === 0) {
 			return {};
@@ -79,9 +77,8 @@ function getWebpack(env) {
 	var index = files.length;
 	while (--index > 0) {
 		try {
-			if (fs.accessSync(files[index])) {
-				return require(files[index]);
-			}
+			fs.accessSync(files[index]);
+			return require(files[index]);
 		} catch(accessError) {
 			if (accessError.message.indexOf('ENOENT') !== 0) {
 				throw accessError;
