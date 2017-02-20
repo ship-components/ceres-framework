@@ -43,7 +43,17 @@ module.exports = function setupLogger(config, name) {
       maxFiles: 30,
       timestamp: true,
       tailable: true
-    })
+    }),
+		// Log errors to a separate file
+		new DailyRotateFile({
+			name: 'errors',
+			filename: config.folders.logs + '/errors.log',
+			label: name,
+			level: 'error',
+			maxFiles: 30,
+			timestamp: true,
+			tailable: true
+		})
   ];
 
   // Output to console on dev
@@ -66,7 +76,7 @@ module.exports = function setupLogger(config, name) {
   // Save to cache
   loggers[name] = logger;
 
-	logger.debug('logger configured');
+	logger.debug('%s logger configured', name);
 
   return logger;
 };
