@@ -1,5 +1,5 @@
 'use strict';
-var controllerRouter = require('../src/controllers/Router');
+var controllerRouter = require('../../src/controllers/Router');
 
 describe('controllerRouter', function(){
 	var controller;

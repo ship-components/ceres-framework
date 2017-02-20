@@ -1,6 +1,6 @@
 'use strict';
 
-var ControllerModule = require('../src/controllers/Controller');
+var ControllerModule = require('../../src/controllers/Controller');
 
 describe('Controller', function(){
 	var Controller;
