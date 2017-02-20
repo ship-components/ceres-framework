@@ -14,47 +14,23 @@ function Model(Ceres, props) {
 
   var type = props.type || Ceres.config.db.type;
 
-  if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type.toLowerCase()) > -1) {
+	if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type.toLowerCase()) > -1) {
     var orm = require(path.resolve(__dirname, './types', type));
     model = orm.extend.call(Ceres, props);
   } else {
     throw new Error('Unknown model type: ' + type);
   }
 
-  // Override defaults
-  Object.assign(this, model, props);
+  // Pull everything off and into this instance
+  for (var key in model) { // eslint-disable-line
+		this[key] = model[key];
+	}
 
   // Allow some user initialization code
   if (typeof this.init === 'function') {
     this.init.call(this);
   }
 }
-
-/**
- * Required methods for all Models
- * @type {Object}
- */
-Model.prototype = {
-  /**
-   * Create model and return a promise
-   */
-  create: null,
-
-  /**
-   * Read all models or just a single one
-   */
-  read: null,
-
-  /**
-   * Update/Patch a single model
-   */
-  update: null,
-
-  /**
-   * Delete a model
-   */
-  del: null
-};
 
 /**
  * Helper function to create new models. Ensures the correct interface for

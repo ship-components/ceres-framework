@@ -3,18 +3,24 @@
  ******************************************************************************/
 
 var _ = require('lodash');
-
-var BaseModel = require('../BaseModel');
 var Promise = require('bluebird');
 
-var Model = BaseModel.extend({
-  /**
-   * Store a copy of the bookself model to handle relationship
-   *
-   * @type    {Bookself.model}
-   */
-  model: null,
+/**
+ * Initial model
+ * @param    {[type]}    props    [description]
+ */
+function MongoModel(props) {
+	// Overview defaults
+	Object.assign(this, props);
 
+	// Ensure correct context
+	_.bindAll(this);
+
+	// Setup Mongo
+	this.collection = this.Database.collection(this.table.tableName);
+}
+
+MongoModel.prototype = Object.assign(MongoModel.prototype, {
   /**
    * Create model and return a promise
    *
@@ -144,17 +150,6 @@ var Model = BaseModel.extend({
  * @return    {Object}
  */
 module.exports.extend = function extend(props) {
-  // Override defaults
-  var model = _.merge({}, this.Database, Model, props);
-
-  // Ensure correct this context
-  for (var key in model) {
-    if (model.hasOwnProperty(key) && typeof model[key] === 'function') {
-       model[key] = model[key].bind(model);
-    }
-  }
-
-  model.collection = this.Database.collection(props.table.tableName);
-
-  return model;
+	props.Database = props.Database || this.Database;
+  return new MongoModel(props);
 };
