@@ -32,7 +32,7 @@ function spawn(ceres, port) {
 	var id = ++uniqueIds;
 
 	// Rerun with the same arguments
-	var worker = fork('./home-run.js', process.argv, {
+	var worker = fork(process.argv[1], process.argv, {
 		env: {
 
 			// Each process gets a unique port
