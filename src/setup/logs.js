@@ -1,82 +1,121 @@
 var winston = require('winston');
-var DailyRotateFile = require('winston-daily-rotate-file');
 var mkdirp = require('mkdirp');
 
+var DefaultSettings = {
+	production: {
+		name: 'production',
+		timestamp: true,
+		tailable: true
+	},
+	error: {
+		name: 'errors',
+		level: 'error',
+		timestamp: true,
+		tailable: true
+	},
+	console: {
+		level: 'silly',
+		colorize: true,
+		prettyPrint: true,
+		timestamp: true,
+		depth: 4
+	}
+};
+
 /**
- * Store loggers that have alread been setup
- * @type    {Object}
+ * Setup a new category
+ * @type    {[type]}
  */
-var loggers = {};
+module.exports.logger = function logger(config, name) {
+	name = name || config.name;
 
-module.exports = function setupLogger(config, name) {
-  name = name || config.name;
+	// Return if we're already setup
+	if (winston.loggers.has(name)) {
+		return winston.loggers.get(name);
+	} else {
+		/**
+		 * App specific transports
+		 * @type    {Array}
+		 */
+		var transports = [
+			// Should probably be kept for 30 days
+			new winston.transports.File(Object.assign({}, DefaultSettings.production, {
+				filename: config.folders.logs + '/production.log',
+				level: config.logLevel || 'info',
+				label: name
+			})),
+			// Log errors to a separate file
+			new winston.transports.File(Object.assign({}, DefaultSettings.errors, {
+				filename: config.folders.logs + '/errors.log',
+				label: name
+			}))
+		];
 
-  // Return if we're already setup
-  if (loggers[name]){
-    return loggers[name];
-  }
+		// Output to console on dev
+		if (config.env !== 'production' || config.verbose) {
+			transports.push(new winston.transports.Console(Object.assign({}, DefaultSettings.console, {
+				level: config.logLevel || 'silly',
+				label: name
+			})));
+		}
+
+		return winston.loggers.add(name, {
+			transports: transports
+		});
+	}
+};
+
+
+/**
+ * Setup winston
+ * @param    {Ceres}    ceres
+ * @return   {Undefined}
+ */
+module.exports.init = function(ceres) {
 
 	// Make sure the folder exists
-	mkdirp.sync(config.folders.logs);
+	mkdirp.sync(ceres.config.folders.logs);
 
-	// Save uncaught exceptions to their own file in production
-	winston.handleExceptions(new DailyRotateFile({
-		name: 'exceptions',
-		filename: this.config.folders.logs + '/exceptions.log',
-		tailable: true,
-		maxFiles: 30,
-		timestamp: true
-	}));
-
-  /**
-   * Transports
-   *
-   * @type    {Object}
-   */
-  var transports = [
-    // Should probably be kept for 30 days
-    new DailyRotateFile({
-      name: 'production',
-      filename: config.folders.logs + '/production.log',
-      label: name,
-      level: config.logLevel || 'info',
-      maxFiles: 30,
-      timestamp: true,
-      tailable: true
-    }),
+	/**
+	 * Framework transports. Pretty much the only different thing is how errors
+	 * are captured
+	 * @type    {Array}
+	 */
+	var transports = [
+		// Should probably be kept for 30 days
+		new winston.transports.File(Object.assign({}, DefaultSettings.production, {
+			filename: ceres.config.folders.logs + '/production.log',
+			level: ceres.config.logLevel || 'info',
+			label: 'ceres',
+			handleExceptions: true,
+			humanReadableUnhandledException: true
+		})),
 		// Log errors to a separate file
-		new DailyRotateFile({
-			name: 'errors',
-			filename: config.folders.logs + '/errors.log',
-			label: name,
-			level: 'error',
-			maxFiles: 30,
-			timestamp: true,
-			tailable: true
-		})
-  ];
+		new winston.transports.File(Object.assign({}, DefaultSettings.errors, {
+			filename: ceres.config.folders.logs + '/errors.log',
+			label: 'ceres',
+			handleExceptions: true,
+			humanReadableUnhandledException: true
+		}))
+	];
 
-  // Output to console on dev
-  if (config.env !== 'production' || config.verbose) {
-    transports.push(new(winston.transports.Console)({
-      level: config.logLevel || 'silly',
-      colorize: true,
-      label: name,
-      prettyPrint: true,
-      timestamp: true,
-      depth: 4
-    }));
-  }
+	// Output to console on dev
+	if (ceres.config.env !== 'production' || ceres.config.verbose) {
+		transports.push(new winston.transports.Console(Object.assign({}, DefaultSettings.console, {
+			level: ceres.config.logLevel || 'silly',
+			label: 'ceres',
+			handleExceptions: true,
+			humanReadableUnhandledException: true
+		})));
+	}
 
-  // Create
-  var logger = new(winston.Logger)({
-    transports: transports
-  });
+	// Apply
+	winston.configure({
+		transports: transports
+	});
 
-  // Save to cache
-  loggers[name] = logger;
+	// Setup internal framework logger so we can tell if its an app or framework erro
+	winston.debug('Writing logs to %s', ceres.config.folders.logs);
 
-	logger.debug('%s logger configured', name);
-
-  return logger;
+	return winston;
 };
