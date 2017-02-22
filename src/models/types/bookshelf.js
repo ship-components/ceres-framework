@@ -36,18 +36,18 @@ BookshelfModel.prototype.create = function create(body) {
   });
 };
 
-  /**
-   * Read a single model
-   *
-   * @param     {Mixed}    id
-   * @return    {promise}
-   */
+/**
+ * Read a single model
+ *
+ * @param     {Mixed}    id
+ * @return    {promise}
+ */
 BookshelfModel.prototype.read = function read(id) {
   assertNotNull(this.model);
   assertDefined(id, 'id');
 	if (id instanceof Array) {
 		return this.model.where('id', 'IN', id).fetchAll(this.fetch);
-  if (_.isObject(id)) {
+  } else if (_.isObject(id)) {
     return new this.model({ // eslint-disable-line new-cap
       id: id.id
     }).fetch(this.fetch);
