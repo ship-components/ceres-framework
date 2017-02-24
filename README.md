@@ -24,6 +24,7 @@ $ ./example.js run
 ```
 
 ## History
+* 0.8.0 - Add option for BookselfModel.read to read an array of ids. Fork bug fixes. Improved Logging.
 * 0.7.0 - Added forking option, more unit tests and refactoring
 * 0.6.1 - Refactored merge in config and added initial unit testing setup
 * 0.6.0 - Added redis caching
