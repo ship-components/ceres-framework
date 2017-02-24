@@ -97,7 +97,7 @@ Ceres.prototype.connect = function() {
 
 		var type = this.config.db.type;
     if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type) === -1) {
-			this.log._ceres.silly('Skipping database setup');
+			this.log._ceres.debug('Skipping database setup');
 			return setupCache(this)
 				.then(function(cache){
 					this.Cache = cache;
@@ -105,7 +105,7 @@ Ceres.prototype.connect = function() {
 				}.bind(this));
     }
 
-    this.log._ceres.silly('Setting up ' + type);
+    this.log._ceres.debug('Setting up ' + type);
 
 		// Expose these for any help function
 		if (type === 'bookshelf') {
@@ -147,20 +147,16 @@ Ceres.prototype.configure = function(options) {
     }
 
 		// Bind config and allow custom loggers
-		this.logger = setupLogs.bind(this, this.config);
+		this.logger = setupLogs.logger.bind(this, this.config);
 
-		// Setup default logging
+		// Setup default app logger
 		this.log = this.logger();
 
-		// Setup internal framework logger so we can tell if its an app or framework erro
-		this.log._ceres = this.logger('ceres');
+		// Setup internal logger
+		this.log._ceres = setupLogs.init(this);
 
-		this.log._ceres.debug('Writing logs to %s', this.config.folders.logs);
-
-		// Emit a configured silly can listen to
-		this.log._ceres.silly('EVENT: configured');
 		this.emit('configured');
-
+		this.log._ceres.debug('Configured');
 		resolve(this);
   }.bind(this));
 };
@@ -176,7 +172,6 @@ Ceres.prototype.load = function(options) {
     .configure(options)
     .then(instance.connect)
 		.then(function(ceres){
-			this.log._ceres.silly('EVENT: before:run');
 			this.emit('before:run');
 			return ceres;
 		}.bind(this))
@@ -198,7 +193,6 @@ Ceres.prototype.exec = function(command, options) {
   return instance
     .configure(options)
 		.then(function(ceres){
-			this.log._ceres.silly('EVENT: before:run');
 			this.emit('before:run');
 			return ceres;
 		}.bind(this))

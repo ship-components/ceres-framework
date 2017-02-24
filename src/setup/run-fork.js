@@ -18,6 +18,14 @@ var uniqueIds = 0;
 var workers = [];
 
 /**
+ * Settings to control worker
+ * @type    {Object}
+ */
+var childSettings = {
+	restart: true
+};
+
+/**
  * Fork the application and run it on a specific port. Recursively spawn a new
  * intsance if it crashes
  * @param    {Object}    ceres    [description]
@@ -32,7 +40,7 @@ function spawn(ceres, port) {
 	var id = ++uniqueIds;
 
 	// Rerun with the same arguments
-	var worker = fork('./home-run.js', process.argv, {
+	var worker = fork(process.argv[1], process.argv, {
 		env: {
 
 			// Each process gets a unique port
@@ -54,16 +62,33 @@ function spawn(ceres, port) {
 		ceres.log._ceres.error(err);
 	});
 
-	// Repawn if the child crashes
+	// Listen to messages from the parent
+	worker.on('message', function(obj){
+		ceres.log._ceres.error('%s recieved %s', worker.pid, obj);
+		if (typeof obj === 'object') {
+			Object.assign(childSettings, obj);
+		}
+	});
+
+	// Attempt to respawn unexcepted crashes
 	worker.on('exit', function(code, signal){
-		ceres.log._ceres.error('%s exited with %s - Spawning new process...', worker.pid, code || signal);
+		if (code && code > 0) {
+			ceres.log._ceres.error('%s exited with %s', worker.pid, code);
+		} else if (signal) {
+			ceres.log._ceres.debug('%s received %s', worker.pid, signal);
+		}
 
 		var index = workers.indexOf(worker);
 		if (index !== -1) {
 			workers.splice(index, 1);
 		}
 
-		spawn(ceres, port);
+		// Respawn the child if we get an error code. Do not respawn if we received
+		// a signal. Respawning on signals leads to endless recurision. It hurts.
+		if (code && code > 0 && childSettings.restart === true) {
+			ceres.log._ceres.info('Repawning new process...', worker.pid);
+			spawn(ceres, port);
+		}
 	});
 }
 
@@ -112,6 +137,20 @@ module.exports = function(ceres) {
 			for (var i = 0; i < ports.length; i++) {
 				spawn(ceres, ports[i]);
 			}
+
+			// Clean up any workers
+			['SIGTERM', 'SIGINT'].forEach(function(signal){
+				process.on(signal, function(){
+					ceres.log._ceres.debug('Master received ' + signal + '. Cleaning up workers...');
+					workers.forEach(function(worker){
+						worker.send({
+							restart: false
+						});
+						worker.kill('SIGKILL');
+					});
+				});
+			});
+
 			resolve();
 		} else {
 			// Child
