@@ -7,11 +7,8 @@ var express = require('express');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-var multer = require('multer');
 var compression = require('compression');
 var session = require('express-session');
-var _ = require('lodash');
-var mkdirp = require('mkdirp');
 
 var routes = require('./routes');
 
@@ -41,20 +38,6 @@ module.exports = function Server(ceres) {
   ceres.log._ceres.silly('Cookie parser configured');
 
   /*****************************************************************************
-   * multipart/form-data - aka file uploads
-   */
-  if (ceres.config.folders.uploads) {
-    // Make sure the folder exists
-    mkdirp.sync(ceres.config.folders.uploads);
-    var upload = multer({
-      dest: ceres.config.folders.uploads
-    });
-    // Setup multer
-    app.use(upload.any());
-    ceres.log._ceres.silly('Multipart configured');
-  }
-
-  /*****************************************************************************
    * Obfusticate
    */
   app.disable('x-powered-by');
@@ -73,19 +56,21 @@ module.exports = function Server(ceres) {
   /*****************************************************************************
    * Session
    */
-  var RedisStore = require('connect-redis')(session);
-  var sessionStore = session({
-    store: new RedisStore(ceres.config.session.redis),
-    secret: ceres.config.secret,
-    resave: true,
-    saveUninitialized: true,
-    name: ceres.config.name
-  });
-  // Save it so sockets can use later
-  app.set('sharedSession', sessionStore);
-  // Apply
-  app.use(sessionStore);
-  ceres.log._ceres.silly('Redis session store setup');
+  if (ceres.config.session) {
+    var RedisStore = require('connect-redis')(session);
+    var sessionStore = session({
+      store: new RedisStore(ceres.config.session.redis),
+      secret: ceres.config.secret,
+      resave: true,
+      saveUninitialized: true,
+      name: ceres.config.name
+    });
+    // Save it so sockets can use later
+    app.set('sharedSession', sessionStore);
+    // Apply
+    app.use(sessionStore);
+    ceres.log._ceres.silly('Redis session store setup');
+	}
 
   /*****************************************************************************
    * Views
@@ -123,15 +108,9 @@ module.exports = function Server(ceres) {
      */
     // Load before we start morgan so we don't log static assets, just requests
     app.use('/assets', express.static(ceres.config.folders.public));
-    // Load assets into a versioned folder for caching. This is just an alias
-    app.use('/assets/:version/', express.static(ceres.config.folders.public));
-    ceres.log._ceres.silly('Public assets configured to read from %s', ceres.config.folders.public);
-  }
 
-  // Setup Uploads
-  if (ceres.config.folders.uploads) {
-    app.use('/uploads', express.static(ceres.config.folders.uploads));
-    ceres.log._ceres.silly('Static uploads to be read from %s', ceres.config.folders.uploads);
+    // Load assets into a versioned folder for caching. This is just an alias
+    ceres.log._ceres.silly('Public assets configured to read from %s', ceres.config.folders.public);
   }
 
   /*****************************************************************************
@@ -188,7 +167,7 @@ module.exports = function Server(ceres) {
 
   // Allow user to override error responses
   if (ceres.config.middleware.error) {
-    if(!_.isArray(ceres.config.middleware.error)) {
+    if (ceres.config.middleware.error instanceof Array !== true) {
       ceres.config.middleware.error = [ceres.config.middleware.error];
     }
     ceres.config.middleware.error.forEach(function(middleware){
@@ -201,7 +180,7 @@ module.exports = function Server(ceres) {
   }
 
   // Allow user to override not found response
-  if(_.isFunction(ceres.config.middleware.notFound)) {
+  if(typeof ceres.config.middleware.notFound === 'function') {
     app.use(ceres.config.middleware.notFound);
     ceres.log._ceres.silly('User supplied 404 middleware configured');
   } else {
