@@ -11,8 +11,6 @@ module.exports = function(config, Ceres) {
     return require('./mongodb')(config, Ceres);
   } else if (config.db.type === 'rethinkdb'){
     return require('./rethinkdb')(config, Ceres);
-  } else {
-    // Unknown config
-    throw new Error('Unknown config.db.type');
   }
+	return;
 };

@@ -102,7 +102,9 @@ Ceres.prototype.connect = function() {
 				.then(function(cache){
 					this.Cache = cache;
 					return this;
-				}.bind(this));
+				}.bind(this))
+				.then(resolve)
+				.catch(reject);
     }
 
     this.log._ceres.debug('Setting up ' + type);
