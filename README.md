@@ -24,6 +24,7 @@ $ ./example.js run
 ```
 
 ## History
+* 0.9.1 - Added env variable so children know their index
 * 0.9.0 - Removed multer from default setup and fixed issue bug preventing no database from being selected
 * 0.8.0 - Add option for BookselfModel.read to read an array of ids. Fork bug fixes. Improved Logging.
 * 0.7.0 - Added forking option, more unit tests and refactoring

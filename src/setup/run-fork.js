@@ -32,7 +32,7 @@ var childSettings = {
  * @param    {Number}    port     [description]
  * @return   {Undefined}
  */
-function spawn(ceres, port) {
+function spawn(ceres, port, index) {
 	/**
 	 * Give each child a uniqueId
 	 * @type    {Number}
@@ -47,7 +47,10 @@ function spawn(ceres, port) {
 			PORT: port,
 
 			// And a unique ID. Only children get this
-			CERES_UNIQUE_ID: id
+			CERES_UNIQUE_ID: id,
+
+			// Let the children know their index
+			WORKER_INDEX: index
 		}
 	});
 
@@ -135,7 +138,7 @@ module.exports = function(ceres) {
 
 			ceres.log._ceres.debug('Master forking %d instances - %s', ports.length, ports.join(', '));
 			for (var i = 0; i < ports.length; i++) {
-				spawn(ceres, ports[i]);
+				spawn(ceres, ports[i], i);
 			}
 
 			// Clean up any workers
