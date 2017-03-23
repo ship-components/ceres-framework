@@ -32,7 +32,7 @@ var childSettings = {
  * @param    {Number}    port     [description]
  * @return   {Undefined}
  */
-function spawn(ceres, port, index) {
+function spawn(ceres, port, workerIndex) {
 	/**
 	 * Give each child a uniqueId
 	 * @type    {Number}
@@ -50,7 +50,7 @@ function spawn(ceres, port, index) {
 			CERES_UNIQUE_ID: id,
 
 			// Let the children know their index
-			WORKER_INDEX: index
+			WORKER_INDEX: workerIndex
 		}
 	});
 
@@ -90,7 +90,7 @@ function spawn(ceres, port, index) {
 		// a signal. Respawning on signals leads to endless recurision. It hurts.
 		if (code && code > 0 && childSettings.restart === true) {
 			ceres.log._ceres.info('Repawning new process...', worker.pid);
-			spawn(ceres, port);
+			spawn(ceres, port, workerIndex);
 		}
 	});
 }
