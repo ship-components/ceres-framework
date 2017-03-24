@@ -78,9 +78,9 @@ Ceres.prototype.run = function run() {
 		throw new Error('Unable to find secret.');
 	}
 	if (this.config.processManagement === 'fork') {
-		return runFork(this);
+		return runFork.call(this, this);
 	} else {
-		return runCluster(this);
+		return runCluster.call(this, this);
 	}
 };
 
