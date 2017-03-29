@@ -21,6 +21,20 @@ function BookshelfModel(props) {
 
 	// Setup bookself
 	this.model = this.database.Model.extend(this.table);
+
+	// Make bookself methods available directly on our model so we don't have to
+	// do `this.model.model[fn]` to access them.
+	for (var fnName in this.model) {
+		if (!this.model.hasOwnProperty(fnName)) {
+			continue;
+		} else if (typeof this.model[fnName] === 'function' && typeof this[fnName] !== 'undefined') {
+			// Ensure we don't override anything
+			throw new Error('bookshelf.' + fnName + ' conflicts with local model');
+		} else if (typeof this.model[fnName] === 'function') {
+			// Gotta bind to ensure the right this
+			this[fnName] = this.model[fnName].bind(this.model);
+		}
+	}
 }
 
 /**
@@ -76,14 +90,6 @@ BookshelfModel.prototype.readAll = function readAll() {
 BookshelfModel.prototype.find = function find(query) {
   assertNotNull(this.model);
   return new this.model(query).fetch(this.fetch); // eslint-disable-line new-cap
-};
-
-/**
- * Perform a query with the knex query builder
- */
-BookshelfModel.prototype.query = function query(queryBuilder) {
-  assertNotNull(this.model);
-  return this.model.query(queryBuilder).fetchAll(this.fetch);
 };
 
 /**
