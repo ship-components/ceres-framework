@@ -24,7 +24,7 @@ function getFullPath(controller, path) {
  * @return    {Express.route}
  */
 function wrapRoute(handler, ctx, ceres) {
-  return function(req, res) {
+  return function(req, res, next) {
     /**
      * Create this context
      *
@@ -42,6 +42,12 @@ function wrapRoute(handler, ctx, ceres) {
        * @type {Express.Responses}
        */
       res: res,
+
+			/**
+			 * Make the next callback available so we can pass the errors along
+			 * @type    {Function}
+			 */
+			next: next,
 
       /**
        * Ceres config

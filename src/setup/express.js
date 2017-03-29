@@ -177,6 +177,7 @@ module.exports = function Server(ceres) {
   } else {
     var errorMiddleware = require('../middleware/error')(ceres);
     app.use(errorMiddleware);
+		ceres.log._ceres.silly('Using default error handler');
   }
 
   // Allow user to override not found response
@@ -186,6 +187,7 @@ module.exports = function Server(ceres) {
   } else {
     var notFound = require('../middleware/notFound')(ceres);
     app.use(notFound);
+		ceres.log._ceres.silly('Using default not found handler');
   }
 
   return app;
