@@ -24,6 +24,7 @@ $ ./example.js run
 ```
 
 ## History
+* 0.10.0 - Removed BookshelfModel.query, Made native bookshelf functions available directly on BookshelfModel. Update error messaging middleware. Added promise support for controller methods
 * 0.9.4 - Updates the deepClone function and Ceres.prototype.run function's call scope
 * 0.9.3 - Added env variable so children know their index
 * 0.9.0 - Removed multer from default setup and fixed issue bug preventing no database from being selected
