@@ -1,10 +1,11 @@
 var express = require('express');
+var Promise = require('bluebird');
 
 /**
  * @file Automatically parse the routes option on a Controller.
  */
 var bindEach = require('../lib/bindAll');
-var Responses = require('../lib/Responses');
+var Responses = require('./Responses');
 
 /**
  * Get the full path of a controller endpoint
@@ -92,10 +93,24 @@ function wrapRoute(handler, ctx, ceres) {
 
     // Attempt to catch any errors and handle them gracefully
     try {
-      return handler.call(context, req, res, ceres);
-    } catch(err) {
-      return context.fail(err);
-    }
+			var result = handler.call(context, req, res, next, ceres);
+
+			if (result instanceof Promise) {
+				// If we see a promise then try to send the body automatically
+				return result
+					.then(function(body){
+						// Make sure the request is writable and that we have something to send
+						if (res.writable) {
+							context.send(body);
+						} else {
+							ceres.log._ceres.debug('Unable to write body', body);
+						}
+					})
+					.catch(next);
+				}
+		} catch(err) {
+			next(err);
+		}
   };
 }
 

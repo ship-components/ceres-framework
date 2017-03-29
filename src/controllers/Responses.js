@@ -22,9 +22,10 @@ var STATUS = {
 var Responses = {
   /**
    * OK Response
+   * @param     {Mixed}    data
    */
   send: function(data) {
-    this.res.status(STATUS.OK).json(data).end();
+		this.res.status(STATUS.OK).json(data).end();
   },
 
   /**
@@ -36,6 +37,7 @@ var Responses = {
 
   /**
    * Can't find it
+   * @param     {String}    context
    */
   notFound: function(context) {
 		var err = new Error('Not Found' + (typeof context === 'string' ? ': ' + context: ''));
@@ -45,6 +47,7 @@ var Responses = {
 
   /**
    * User doesn't have access
+   * @param     {String}    context
    */
   forbidden: function(context) {
 		var err = new Error('Forbidden' + (typeof context === 'string' ? ': ' + context: ''));
@@ -54,6 +57,7 @@ var Responses = {
 
   /**
    * Client sent a request that we can't process for some reason
+   * @param     {String}    context
    */
   badRequest: function(context) {
 		var err = new Error('Bad Request' + (typeof context === 'string' ? ': ' + context: ''));
@@ -66,6 +70,7 @@ var Responses = {
    * @param     {Mixed}    err
    */
   fail: function(err) {
+		// Throw and exit the call stack or promise chain
     this.next(err);
   }
 

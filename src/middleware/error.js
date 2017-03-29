@@ -4,35 +4,35 @@
  */
 var CommonErrors = [
 	{
-		code: /^EBADCSRFTOKEN$/,
-		status: 400,
-		level: 'warn',
-		defaultText: 'Bad Token'
-	},
-	{
-		message: /^Forbidden:?(.*)/,
+		message: /^Forbidden:?(.+)?/,
 		status: 401,
 		level: 'warn',
 		defaultText: 'Please login first'
 	},
 	{
-		message: /^Permission\s?Denied:?(.*)/,
+		message: /^Permission\s?Denied:?(.+)?/,
 		status: 403,
 		level: 'warn',
 		defaultText: 'You do not have permission to access this.'
 	},
 	{
-		message: /^Not\s?Found:?(.*)/,
+		message: /^Not\s?Found:?(.+)?/,
 		status: 404,
 		level: 'warn',
 		defaultText: 'Unable to find resource'
 	},
 	{
-		message: /^Bad\s?Request:?(.*)/,
+		message: /^Bad\s?Request:?(.+)?/,
 		status: 400,
 		level: 'warn',
 		defaultText: 'Bad Request'
-	}
+	},
+	{
+		code: /^EBADCSRFTOKEN$/,
+		status: 400,
+		level: 'warn',
+		defaultText: 'Bad Token'
+	},
 ];
 
 /**
@@ -41,7 +41,7 @@ var CommonErrors = [
  * @param    {Error}    err
  * @return   {Object}
  */
-function findCommonError(err) {
+function findCommonError(err, Ceres) {
 	// Attempt to match some common errors so we can apply the right status
 	return CommonErrors.map(function(commonError){
 		for (var key in commonError) {
@@ -50,15 +50,17 @@ function findCommonError(err) {
 			} else if (err[key] && commonError[key] instanceof RegExp && commonError[key].test(err[key])) {
 				// Attempt to grab some additional info from the commonError message
 				var parts = err[key].match(commonError[key]);
+				Ceres.log.silly('[ErrorHandler] Matched %s - error.message.%s like %s', commonError.defaultText, key, commonError[key].toString(), parts);
 				return {
-					message: parts[1].trim().length > 0 ? parts[1].trim() : commonError[key].defaultText,
-					status: commonError[key].status
+					message: parts[1] && parts[1].trim().length > 0 ? parts[1].trim() : commonError.defaultText,
+					status: commonError.status
 				};
 			} else if (err[key] && commonError[key] === err[key] && ['level', 'defaultText'].indexOf(key) === -1) {
+				Ceres.log.silly('[ErrorHandler] Matched %s - error.%s = %s', commonError.defaultText, key, err[key]);
 				// Match other values like `code`
 				return {
-					message: commonError[key].defaultText,
-					status: commonError[key].status
+					message: commonError.defaultText,
+					status: commonError.status
 				};
 			}
 		}
@@ -85,7 +87,7 @@ module.exports = function(Ceres) {
 		}
 
 		// Attempt to match some common errors so we can apply the right status
-		var commonErrorResponse = findCommonError(err);
+		var commonErrorResponse = findCommonError(err, Ceres);
 		if (commonErrorResponse) {
 			Object.assign(response, commonErrorResponse);
 		}
@@ -98,23 +100,30 @@ module.exports = function(Ceres) {
 			Ceres.log.error(err);
 		}
 
+		// Headers already sent so we can't end anything else
+		if (res.headerSent) {
+			return;
+		}
+
 		// Set the http status
 		res.status(response.status);
 
 		if (req.headers.accept.indexOf('application/json') > -1) {
 			// Json response if the client accepts it
 			res.json(response).end();
-		} else if (Ceres.config.env !== 'production' && response.stack) {
-			// Dev response
-			res.send(
-				'<h1>' + response.message + '</h1>' +
-				'<pre>' + response.stack.join('\n') + '</pre>'
-			).end();
-		} else {
-			// Default html response
-			res.send(
-				'<h1>' + response.message + '</h1>'
-			).end();
 		}
+
+		var html = '<html>';
+		html += '<head>';
+		html += '<title>' + response.message + '</title>';
+		html += '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/ionic/1.3.2/css/ionic.min.css" />';
+		html += '</head>';
+		html += '<body style="padding: 24px;">';
+		html += '<h1>' + Ceres.config.name + ': ' + response.message + '</h1>';
+		if (Ceres.config.env !== 'production' && response.stack) {
+			html += '<pre>' + response.stack.join('\n') + '</pre>'
+		}
+		html += '</html>';
+		res.send(html).end();
 	};
 };
