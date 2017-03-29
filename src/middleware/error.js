@@ -32,7 +32,7 @@ var CommonErrors = [
 		status: 400,
 		level: 'warn',
 		defaultText: 'Bad Token'
-	},
+	}
 ];
 
 /**
@@ -121,7 +121,7 @@ module.exports = function(Ceres) {
 		html += '<body style="padding: 24px;">';
 		html += '<h1>' + Ceres.config.name + ': ' + response.message + '</h1>';
 		if (Ceres.config.env !== 'production' && response.stack) {
-			html += '<pre>' + response.stack.join('\n') + '</pre>'
+			html += '<pre>' + response.stack.join('\n') + '</pre>';
 		}
 		html += '</html>';
 		res.send(html).end();
