@@ -14,7 +14,7 @@ function deepClone(obj) {
   if (obj === null || typeof obj !== 'object') {
     return obj;
   }
-  var src = {};
+  var src = obj instanceof Array ? [] : {};
   for (var key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       src[key] = deepClone(obj[key]);
