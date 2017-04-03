@@ -24,7 +24,7 @@ $ ./example.js run
 ```
 
 ## History
-* 0.9.5 - Updates the deepClone function to return the correct data format.
+* 0.9.5 - Extracts and optimized the deepCopy function (previously as deepClone) to return the correct data format.
 * 0.9.4 - Updates the deepClone function and Ceres.prototype.run function's call scope
 * 0.9.3 - Added env variable so children know their index
 * 0.9.0 - Removed multer from default setup and fixed issue bug preventing no database from being selected
