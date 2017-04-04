@@ -108,7 +108,7 @@ module.exports = function(Ceres) {
 		// Set the http status
 		res.status(response.status);
 
-		if (req.headers.accept.indexOf('application/json') > -1) {
+		if (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json|\*\/\*/i)) {
 			// Json response if the client accepts it
 			res.json(response).end();
 		}
@@ -122,6 +122,7 @@ module.exports = function(Ceres) {
 		html += '<h1>' + Ceres.config.name + ': ' + response.message + '</h1>';
 		if (Ceres.config.env !== 'production' && response.stack) {
 			html += '<pre>' + response.stack.join('\n') + '</pre>';
+
 		}
 		html += '</html>';
 		res.send(html).end();
