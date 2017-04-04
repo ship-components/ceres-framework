@@ -332,7 +332,9 @@ function controllerRoutes(controller, ceres) {
  * @return   {Express.Router}
  */
 module.exports = function controllerRouter(ceres) {
-	var router = new express.Router();
+	var router = new express.Router({
+    mergeParams: true
+  });
 	var routes = controllerRoutes(this, ceres);
 	routes.forEach(function(route){
 		router[route.method].apply(router, route.args);
