@@ -31,7 +31,7 @@ module.exports = function deepCopy(obj) {
   if (obj instanceof Object) {
     copy = {};
     for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         copy[key] = deepCopy(obj[key]);
       }
     }

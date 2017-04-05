@@ -64,10 +64,7 @@ describe('deepCopy', function(){
     var result = deepCopy(obj);
 
     expect(result.config.port).toBe(obj.config.port);
-    expect(result.config.host).toBe(obj.config.host);
-    expect(result.config.deepConfig.db).toBe(obj.config.deepConfig.db);
     expect(result.config.deepConfig.ssl).toBe(obj.config.deepConfig.ssl);
-    expect(result.config.cache.type).toBe(obj.config.cache.type);
   });
 
   it('should deeply copy an array of objects', function() {
@@ -108,63 +105,40 @@ describe('deepCopy', function(){
 
     expect(result.length).toEqual(arr.length);
     expect(result[0].config.port).toBe(arr[0].config.port);
-    expect(result[0].config.host).toBe(arr[0].config.host);
-    expect(result[1].config.deepConfig.db).toBe(arr[1].config.deepConfig.db);
     expect(result[1].config.deepConfig.ssl).toBe(arr[1].config.deepConfig.ssl);
-    expect(result[1].config.cache.type).toBe(arr[1].config.cache.type);
   });
 
-  it('should copy the object correctly, not reference copy', function() {
+  it('should copy the object correctly, no reference copy', function() {
     // Making sure it's actually copy
     // and not reference copy
-    var tree = {
-      'left'  : { 'left' : null, 'right' : null, 'data' : 3 },
-      'right' : null,
-      'data'  : 8
+    var obj = {
+      first: 'test 1',
+      second: true
     };
 
-    var result = deepCopy(tree);
+    var result = deepCopy(obj);
 
     // There are not a same object in memory
-    expect(result).not.toBe(tree);
-    expect(result.left).toEqual(tree.left);
-    expect(result.right).toEqual(tree.right);
+    expect(result).not.toBe(obj);
+    expect(result.first).toEqual(obj.first);
 
     // Now changing the source object,
-    // but result should not be changed
-    tree.right = tree.left;
+    // but result object should not be changed
+    obj.second = false;
 
-    // There are not a same object in memory
-    expect(result).not.toBe(tree);
-    expect(result.left).toEqual(tree.left);
-    expect(result.right).toEqual(null);
-    expect(result.right).not.toEqual(tree.right);
+    expect(result.second).not.toEqual(obj.second);
   });
 
   it('should copy the object correctly, not mutate', function() {
     // Mutating a source object should have
     // no effect on the result object
     var a = {
-      test: '1'
+      test: true
     };
 
-    var b = {
-      example: '2'
-    };
+    var result = deepCopy(a);
+    result.changed = true;
 
-    var test1 = deepCopy(a);
-    var test2 = deepCopy(b);
-
-    expect(a).not.toBe(b);
-    expect(test1).not.toBe(test2);
-
-    expect(typeof a.example).toBe('undefined');
-    expect(typeof test1.example).toBe('undefined');
-
-    expect(typeof b.test).toBe('undefined');
-    expect(typeof test2.test).toBe('undefined');
-
-    expect(test1.test).toEqual(a.test);
-    expect(test2.example).toEqual(b.example);
+    expect(result.changed).not.toBe(a.changed);
   });
 });
