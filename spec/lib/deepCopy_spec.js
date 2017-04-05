@@ -108,27 +108,6 @@ describe('deepCopy', function(){
     expect(result[1].config.deepConfig.ssl).toBe(arr[1].config.deepConfig.ssl);
   });
 
-  it('should copy the object correctly, no reference copy', function() {
-    // Making sure it's actually copy
-    // and not reference copy
-    var obj = {
-      first: 'test 1',
-      second: true
-    };
-
-    var result = deepCopy(obj);
-
-    // There are not a same object in memory
-    expect(result).not.toBe(obj);
-    expect(result.first).toEqual(obj.first);
-
-    // Now changing the source object,
-    // but result object should not be changed
-    obj.second = false;
-
-    expect(result.second).not.toEqual(obj.second);
-  });
-
   it('should copy the object correctly, not mutate', function() {
     // Mutating a source object should have
     // no effect on the result object
