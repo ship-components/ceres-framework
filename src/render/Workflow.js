@@ -4,24 +4,7 @@ var React = require('react');
 var fs = require('fs');
 var ejs = require('ejs');
 
-/**
- * Recursive object clone
- *
- * @param     {Object}    obj
- * @return    {Object}
- */
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-  var src = {};
-  for (var key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      src[key] = deepClone(obj[key]);
-    }
-  }
-  return src;
-}
+var deepCopy = require('../lib/deepCopy');
 
 module.exports.setup = function(config, props) {
   /**
@@ -57,7 +40,7 @@ module.exports.setup = function(config, props) {
           return;
         }
         try {
-          html = ReactDOMServer.renderToString(React.createElement(options.component, deepClone(results.props)));
+          html = ReactDOMServer.renderToString(React.createElement(options.component, deepCopy(results.props)));
         } catch (err) { // Catch any errors in the front end so they dont' crash the backend
           require('../index').log.error('ReactRenderError', err);
         } finally {
