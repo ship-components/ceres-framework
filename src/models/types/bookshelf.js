@@ -47,7 +47,11 @@ BookshelfModel.prototype.create = function create(body) {
   assertNotNull(this.model);
   return new this.model(body).save(null, { // eslint-disable-line new-cap
     method: 'insert'
-  });
+  })
+  .then(function(model){
+    // Look up any relations
+    return this.read(model.id);
+  }.bind(this));
 };
 
 /**
