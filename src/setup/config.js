@@ -1,15 +1,63 @@
 /*******************************************************************************
- * bootstrap
+ * Config
  *
- * @author       Isaac Suttell <isaac_suttell@playstation.sony.com>
+ * @author       Isaac Suttell <isaac.suttell@sony.com>
  * @file         Load application settings
  ******************************************************************************/
 
 // Modules
 var fs = require('fs');
 var path = require('path');
-
 var merge = require('../lib/merge');
+
+function Config(cli) {
+	if (typeof cli !== 'object') {
+		cli = {};
+	}
+
+	// Framework defaults
+	var defaultConfig = require('../../config/default');
+
+	// Get global config
+	var config = this.requireConfig('default');
+
+	// Get the environment
+	var env = this.getEnv(cli, config);
+
+	// Get env specific config
+	var envConfig = this.requireConfig(env);
+
+	// listen for the port as an environmental variable. If we see it, use it.
+	if (process.env.PORT) {
+		envConfig.port = process.env.PORT;
+	}
+
+	// Get the location of the machine config file
+	var rcPath = this.getRCPath([cli, envConfig, config]);
+
+	// Get machine specific settings
+	var rc = this.rcConfig(rcPath);
+
+	// Merge config sources together
+	config = merge({}, defaultConfig, config, envConfig, rc, cli);
+
+	config.rc = rcPath;
+
+	// Resolve all paths
+	for (var folder in config.folders) {
+		if (config.folders.hasOwnProperty(folder)) {
+			config.folders[folder] = path.resolve(config.folders[folder]);
+		}
+	}
+
+  // Grab webpack config if we have it
+	config.webpackConfig = this.getWebpack(env);
+
+  // Assign to this
+	Object.assign(this, config);
+
+  return this;
+}
 
 /**
  * Read the config RC File
@@ -17,7 +65,7 @@ var merge = require('../lib/merge');
  * @param     {Object}    options
  * @return    {Object}
  */
-function rcConfig(file) {
+Config.prototype.rcConfig = function rcConfig(file) {
 	file = path.resolve(file || '.configrc');
 
 	// Must exist
@@ -32,7 +80,24 @@ function rcConfig(file) {
 	rc = JSON.parse(rc);
 
 	return rc;
-}
+};
+
+/**
+ * Get the env
+ * @param    {Object}    cli
+ * @param    {Object}    config
+ * @return   {String}
+ */
+Config.prototype.getEnv = function(cli, config) {
+  if (typeof cli !== 'object') {
+    throw new TypeError('cli is not an object');
+  } else if (typeof config !== 'object') {
+    throw new TypeError('config is not an object');
+  }
+  return [cli.env, config.env, process.env.NODE_ENV, 'production'].find(function(item){
+		return typeof item === 'string';
+	});
+};
 
 /**
  * Require a config file
@@ -40,7 +105,7 @@ function rcConfig(file) {
  * @param  {String} env
  * @return {Object}
  */
-function requireConfig(env) {
+Config.prototype.requireConfig = function requireConfig(env) {
 	env = env || 'default';
 	var fileName = process.cwd() + '/config/' + env + '.js';
 	try {
@@ -50,26 +115,26 @@ function requireConfig(env) {
 		return {};
 	}
   return require(fileName);
-}
+};
 
 /**
  * Grab the path to the machine config
  * @param    {Array<Object>}    configs
  * @return   {String}
  */
-function getRCPath(configs) {
+Config.prototype.getRCPath = function getRCPath(configs) {
 	var config = configs.find(function(conf){
 		return typeof conf === 'object' && conf.rc;
 	});
 	return config ? path.resolve(config.rc) : void 0;
-}
+};
 
 /**
  * Search for webpack config
  * @param    {String}    env
  * @return   {Object}
  */
-function getWebpack(env) {
+Config.prototype.getWebpack = function getWebpack(env) {
 	var files = [process.cwd() + '/config/webpack' + env + '.js', process.cwd() + '/config/webpack.default.js', process.cwd() + '/config/webpack.config.js'];
 	var index = files.length;
 	while (--index > 0) {
@@ -83,51 +148,6 @@ function getWebpack(env) {
 		}
 	}
 	return {};
-}
-
-module.exports = function(cli) {
-	if (typeof cli !== 'object') {
-		cli = {};
-	}
-
-	// Framework defaults
-	var defaultConfig = require('../../config/default');
-
-	// Get global config
-	var config = requireConfig();
-
-	// Get the environment
-	var env = [cli.env, config.env, process.env.NODE_ENV, 'production'].find(function(item){
-		return typeof item === 'string';
-	});
-
-	// Get env specific config
-	var envConfig = requireConfig(env);
-
-	// listen for the port as an environmental variable. If we see it, use it.
-	if (process.env.PORT) {
-		envConfig.port = process.env.PORT;
-	}
-
-	// Get the location of the machine config file
-	var rcPath = getRCPath([cli, envConfig, config]);
-
-	// Get machine specific settings
-	var rc = rcConfig(rcPath);
-
-	// Merge config sources together
-	config = merge({}, defaultConfig, config, envConfig, rc, cli);
-
-	config.rc = rcPath;
-
-	// Resolve all paths
-	for (var folder in config.folders) {
-		if (config.folders.hasOwnProperty(folder)) {
-			config.folders[folder] = path.resolve(config.folders[folder]);
-		}
-	}
-
-	config.webpackConfig = getWebpack(env);
-
-	return config;
 };
+
+module.exports = Config;
