@@ -45,14 +45,11 @@ function requireConfig(env) {
 	var fileName = process.cwd() + '/config/' + env + '.js';
 	try {
 		fs.accessSync(fileName);
-		return require(fileName);
 	} catch(accessError) {
-		if (accessError.message.indexOf('ENOENT') === 0) {
-			return {};
-		} else {
-			throw accessError;
-		}
+    // Can't find the file
+		return {};
 	}
+  return require(fileName);
 }
 
 /**
