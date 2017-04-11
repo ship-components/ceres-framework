@@ -9,7 +9,7 @@ var path = require('path');
 var Promise = require('bluebird');
 var EventEmitter = require('events');
 
-var setupConfig = require('./setup/config');
+var Config = require('./setup/Config');
 var setupCache = require('./setup/cache');
 var setupLogs = require('./setup/logs');
 var runCluster = require('./setup/run-cluster');
@@ -142,7 +142,7 @@ Ceres.prototype.configure = function(options) {
   return new Promise(function(resolve, reject){
     try {
       // Bootstrap config
-      this.config = setupConfig(options);
+      this.config = new Config(options);
     } catch (err) {
       reject(err);
 			return;

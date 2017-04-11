@@ -33,6 +33,18 @@ module.exports = function(config, Ceres) {
      */
     db.bookshelf = require('bookshelf')(db.knex);
 
+    var pg = require('pg');
+
+    // convert bigint to number since we typically don't deal in actual bigints
+    pg.types.setTypeParser(20, function(value) {
+      return parseInt(value, 10);
+    });
+
+    // convert numeric to string since we don't need ultra percision
+    pg.types.setTypeParser(1700, function(value) {
+      return parseFloat(value);
+    });
+
     // Check to see if we want to enable live queries
     if (config.db.liveDb) {
       // Only require this if we need it

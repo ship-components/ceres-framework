@@ -34,7 +34,6 @@ describe('Model.bookself', function(){
 		expect(typeof model.updateAll).toBe('function');
 		expect(typeof model.del).toBe('function');
 		expect(typeof model.find).toBe('function');
-		expect(typeof model.query).toBe('function');
 	});
 
 	it('should be extendable', function() {

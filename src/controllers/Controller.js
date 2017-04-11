@@ -4,7 +4,7 @@
 
 var EventEmitter = require('events');
 
-var Responses = require('../lib/Responses');
+var Responses = require('./Responses');
 var Router = require('./Router');
 
 /**

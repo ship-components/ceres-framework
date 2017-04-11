@@ -22,9 +22,10 @@ var STATUS = {
 var Responses = {
   /**
    * OK Response
+   * @param     {Mixed}    data
    */
   send: function(data) {
-    this.res.status(STATUS.OK).json(data).end();
+		this.res.status(STATUS.OK).json(data).end();
   },
 
   /**
@@ -36,50 +37,41 @@ var Responses = {
 
   /**
    * Can't find it
+   * @param     {String}    context
    */
-  notFound: function() {
-    this.res.status(STATUS.NOT_FOUND).json({
-      message: 'Unable to find resource'
-    }).end();
+  notFound: function(context) {
+		var err = new Error('Not Found' + (typeof context === 'string' ? ': ' + context: ''));
+		err.status = 404;
+    this.fail(err);
   },
 
   /**
    * User doesn't have access
+   * @param     {String}    context
    */
-  forbidden: function() {
-    this.res.status(STATUS.FORBIDDEN).json({
-      message: 'Access forbidden'
-    }).end();
+  forbidden: function(context) {
+		var err = new Error('Forbidden' + (typeof context === 'string' ? ': ' + context: ''));
+		err.status = 403;
+    this.fail(err);
   },
 
   /**
-   * Client sent a request that we can't process
+   * Client sent a request that we can't process for some reason
+   * @param     {String}    context
    */
   badRequest: function(context) {
-    this.res.status(STATUS.BAD_REQUEST).json({
-      message: 'Bad Request',
-      context: context
-    }).end();
+		var err = new Error('Bad Request' + (typeof context === 'string' ? ': ' + context: ''));
+		err.status = 400;
+		this.fail(err);
   },
 
   /**
    * There was an error!!!
-   *
    * @param     {Mixed}    err
    */
   fail: function(err) {
-    var response = {
-      message: 'Interal Server Error'
-    };
-
-    if (this.config.env !== 'production' && err instanceof Error) {
-      response.context = err.stack.split('\n');
-    } else if (this.config.env !== 'production') {
-      response.context = err.toString();
-    }
-
-    this.res.status(STATUS.ERROR).json(response).end();
-    throw err;
+		// Throw and exit the call stack or promise chain
+    this.next(err);
   }
 
 };
