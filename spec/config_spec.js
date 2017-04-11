@@ -58,4 +58,24 @@ describe('config', function(){
 		}).not.toThrow();
 	});
 
+  it('should throw an error if the environment config has an error', function(){
+		expect(function(){
+			var result = new Config(testConfig({
+        configFolder: './spec/helpers/errors',
+				env: 'TestErrorConfig'
+			}));
+      expect(typeof result).toBe('object');
+		}).toThrow();
+	});
+
+  it('should throw an error if the environment config does not return an object', function(){
+		expect(function(){
+			var result = new Config(testConfig({
+        configFolder: './spec/helpers/errors',
+				env: 'TestErrorReturnUndefined'
+			}));
+      expect(typeof result).toBe('object');
+		}).toThrow();
+	});
+
 });

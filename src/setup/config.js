@@ -15,6 +15,12 @@ function Config(cli) {
 		cli = {};
 	}
 
+  Object.assign(this, {
+    configFolder: process.cwd() + '/config'
+  }, cli);
+
+  this.configFolder = path.resolve(this.configFolder);
+
 	// Framework defaults
 	var defaultConfig = require('../../config/default');
 
@@ -29,7 +35,7 @@ function Config(cli) {
 
 	// listen for the port as an environmental variable. If we see it, use it.
 	if (process.env.PORT) {
-		envConfig.port = process.env.PORT;
+		envConfig.port = parseInt(process.env.PORT, 10);
 	}
 
 	// Get the location of the machine config file
@@ -107,14 +113,26 @@ Config.prototype.getEnv = function(cli, config) {
  */
 Config.prototype.requireConfig = function requireConfig(env) {
 	env = env || 'default';
-	var fileName = process.cwd() + '/config/' + env + '.js';
+	var fileName = this.configFolder + '/' + env + '.js';
 	try {
 		fs.accessSync(fileName);
 	} catch(accessError) {
     // Can't find the file
 		return {};
 	}
-  return require(fileName);
+  // Import
+  var conf = require(fileName);
+
+  // If its a function call it. We can use it to isolate scope if we want
+  if (typeof conf === 'function') {
+    conf = conf(this);
+  }
+
+  if (typeof conf === 'object') {
+    return conf;
+  } else {
+    throw new TypeError(fileName + ' does not export an object or function that returns an object');
+  }
 };
 
 /**
