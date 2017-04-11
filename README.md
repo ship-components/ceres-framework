@@ -25,6 +25,7 @@ $ ./example.js run
 
 ## History
 * 0.10.0 - Removed BookshelfModel.query, Made native bookshelf functions available directly on BookshelfModel. Update error messaging middleware. Added promise support for controller methods. Switched bigints in postgres from strings to numbers. Merged parents params into children routers. Default postCreate method for bookself now returns relations
+* 0.9.5 - Extracts and optimized the deepCopy function (previously as deepClone) to return the correct data format.
 * 0.9.4 - Updates the deepClone function and Ceres.prototype.run function's call scope
 * 0.9.3 - Added env variable so children know their index
 * 0.9.0 - Removed multer from default setup and fixed issue bug preventing no database from being selected
