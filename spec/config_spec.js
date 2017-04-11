@@ -9,6 +9,7 @@ var Original = {
 
 function testConfig(obj) {
   return Object.assign({
+    configFolder: './spec/helpers',
     rc: './spec/helpers/config_rc.json'
   }, obj);
 }
@@ -28,6 +29,14 @@ describe('config', function(){
       test: true
     }));
     expect(result.test).toBe(true);
+  });
+
+  it('should throw an error if there is no valid rc file', function(){
+    expect(function(){
+      new Config({
+        rc: 'does-not-exist.json'
+      });
+    }).toThrow();
   });
 
   it('should read from the default config', function(){
@@ -52,7 +61,7 @@ describe('config', function(){
 	it('should not throw an error if the environment config does not exist', function(){
 		expect(function(){
 			var result = new Config(testConfig({
-				env: 'does not exist'
+				env: 'does-not-exist'
 			}));
       expect(typeof result).toBe('object');
 		}).not.toThrow();
@@ -78,4 +87,28 @@ describe('config', function(){
 		}).toThrow();
 	});
 
+  it('should take the port from an env var', function(){
+    var port = 5000;
+    process.env.PORT = port;
+    var result = new Config(testConfig());
+    expect(result.port).toBe(port);
+  });
+
+  it('should import a webpack config if it can find it', function(){
+    var result = new Config(testConfig({
+      env: 'client'
+    }));
+    var mockWebpackConfig = require('./helpers/webpack.client');
+    expect(typeof result.webpackConfig).toBe('object');
+    expect(result.webpackConfig.entry).toBe(mockWebpackConfig.entry);
+  });
+
+  it('should support not requiring an rc file', function(){
+    expect(function(){
+      var result = new Config(undefined, {
+        requireRc: false
+      });
+      expect(typeof result).toBe('object');
+    }).not.toThrow();
+  });
 });
