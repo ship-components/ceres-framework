@@ -25,7 +25,11 @@ var Responses = {
    * @param     {Mixed}    data
    */
   send: function(data) {
-		this.res.status(STATUS.OK).json(data).end();
+    if (this.res.headersSent || this.res.finished) {
+      this.log.error('%s %s', this.req.method, this.req.originalUrl, new Error('Headers already sent'));
+      return;
+    }
+    this.res.status(STATUS.OK).json(data).end();
   },
 
   /**
