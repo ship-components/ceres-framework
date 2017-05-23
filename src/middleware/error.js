@@ -95,9 +95,9 @@ module.exports = function(Ceres) {
 		// Make sure to log it
 		if (typeof Ceres.log[response.level] === 'function') {
 			// We set common errors to warnings to make them easier to filter later
-			Ceres.log[response.level](err);
+			Ceres.log[response.level](req.method, req.originalUrl, err);
 		} else {
-			Ceres.log.error(err);
+			Ceres.log.error(req.method, req.originalUrl, err);
 		}
 
 		// Headers already sent so we can't end anything else

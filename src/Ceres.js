@@ -12,6 +12,7 @@ var EventEmitter = require('events');
 var Config = require('./setup/Config');
 var setupCache = require('./setup/cache');
 var setupLogs = require('./setup/logs');
+var runStickyCluster = require('./setup/run-sticky-cluster');
 var runCluster = require('./setup/run-cluster');
 var runFork = require('./setup/run-fork');
 
@@ -31,15 +32,15 @@ function Ceres() {
     }
   }
 
-	// Setup event emitter
-	this._events = new EventEmitter();
-	this.on = this._events.on.bind(this._events);
-	this.removeListener = this._events.removeListener.bind(this._events);
-	this.emit = this._events.emit.bind(this._events);
+  // Setup event emitter
+  this._events = new EventEmitter();
+  this.on = this._events.on.bind(this._events);
+  this.removeListener = this._events.removeListener.bind(this._events);
+  this.emit = this._events.emit.bind(this._events);
 
-	this.on('configured', function(){
-		this.HashIds = this.HashIds.call(this, this);
-	}.bind(this));
+  this.on('configured', function(){
+    this.HashIds = this.HashIds.call(this, this);
+  }.bind(this));
 }
 
 /**
@@ -73,15 +74,17 @@ Ceres.prototype.Pipeline = require(path.resolve(__dirname + '/render/Pipeline'))
  * Alias to run
  */
 Ceres.prototype.run = function run() {
-	// Ensure secret is present
-	if (!this.config.secret) {
-		throw new Error('Unable to find secret.');
-	}
-	if (this.config.processManagement === 'fork') {
-		return runFork.call(this, this);
-	} else {
-		return runCluster.call(this, this);
-	}
+  // Ensure secret is present
+  if (!this.config.secret) {
+    throw new Error('Unable to find secret.');
+  }
+  if (this.config.processManagement === 'fork') {
+    return runFork.call(this, this);
+  } else if (this.config.processManagement === 'sticky-cluster') {
+    return runStickyCluster.call(this, this);
+  } else {
+    return runCluster.call(this, this);
+  }
 };
 
 /**
@@ -90,43 +93,43 @@ Ceres.prototype.run = function run() {
  */
 Ceres.prototype.connect = function() {
   return new Promise(function(resolve, reject){
-		if (typeof this.config !== 'object') {
-			reject(new Error('Ceres has not been configured yet'));
-			return;
-		}
+    if (typeof this.config !== 'object') {
+      reject(new Error('Ceres has not been configured yet'));
+      return;
+    }
 
-		var type = this.config.db.type;
+    var type = this.config.db.type;
     if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type) === -1) {
-			this.log._ceres.debug('Skipping database setup');
-			return setupCache(this)
-				.then(function(cache){
-					this.Cache = cache;
-					return this;
-				}.bind(this))
-				.then(resolve)
-				.catch(reject);
+      this.log._ceres.debug('Skipping database setup');
+      return setupCache(this)
+        .then(function(cache){
+          this.Cache = cache;
+          return this;
+        }.bind(this))
+        .then(resolve)
+        .catch(reject);
     }
 
     this.log._ceres.debug('Setting up ' + type);
 
-		// Expose these for any help function
-		if (type === 'bookshelf') {
-			this.Model.Bookshelf = require('./models/types/bookshelf');
-		} else if (type === 'rethinkdb') {
-			this.Model.Rethinkdb = require('./models/types/rethinkdb');
-		} else if (type === 'mongodb') {
-			this.Model.Mongodb = require('./models/types/mongodb');
-		}
+    // Expose these for any help function
+    if (type === 'bookshelf') {
+      this.Model.Bookshelf = require('./models/types/bookshelf');
+    } else if (type === 'rethinkdb') {
+      this.Model.Rethinkdb = require('./models/types/rethinkdb');
+    } else if (type === 'mongodb') {
+      this.Model.Mongodb = require('./models/types/mongodb');
+    }
 
     var connect = require(__dirname + '/db')(this.config, this);
 
     return connect.then(function(db){
         this.Database = db;
         return setupCache(this);
-			}.bind(this))
-			.then(function(cache){
-				this.Cache = cache;
-				return this;
+      }.bind(this))
+      .then(function(cache){
+        this.Cache = cache;
+        return this;
       }.bind(this))
       .then(resolve)
       .catch(reject);
@@ -145,21 +148,21 @@ Ceres.prototype.configure = function(options) {
       this.config = new Config(options);
     } catch (err) {
       reject(err);
-			return;
+      return;
     }
 
-		// Bind config and allow custom loggers
-		this.logger = setupLogs.logger.bind(this, this.config);
+    // Bind config and allow custom loggers
+    this.logger = setupLogs.logger.bind(this, this.config);
 
-		// Setup default app logger
-		this.log = this.logger();
+    // Setup default app logger
+    this.log = this.logger();
 
-		// Setup internal logger
-		this.log._ceres = setupLogs.init(this);
+    // Setup internal logger
+    this.log._ceres = setupLogs.init(this);
 
-		this.emit('configured');
-		this.log._ceres.debug('Configured');
-		resolve(this);
+    this.emit('configured');
+    this.log._ceres.debug('Configured');
+    resolve(this);
   }.bind(this));
 };
 
@@ -173,10 +176,10 @@ Ceres.prototype.load = function(options) {
   return instance
     .configure(options)
     .then(instance.connect)
-		.then(function(ceres){
-			this.emit('before:run');
-			return ceres;
-		}.bind(this))
+    .then(function(ceres){
+      this.emit('before:run');
+      return ceres;
+    }.bind(this))
     .catch(function(err){
       if (instance.log) {
         instance.log._ceres.error(err);
@@ -194,10 +197,10 @@ Ceres.prototype.exec = function(command, options) {
   var instance = this;
   return instance
     .configure(options)
-		.then(function(ceres){
-			this.emit('before:run');
-			return ceres;
-		}.bind(this))
+    .then(function(ceres){
+      this.emit('before:run');
+      return ceres;
+    }.bind(this))
     .then(command.bind(this, this))
     .catch(function(err){
       if (instance.log) {
