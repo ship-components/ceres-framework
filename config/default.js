@@ -70,6 +70,12 @@ var config = {
   instances: require('os').cpus().length,
 
   /**
+   * Turn on request compression
+   * @type    {Boolean}
+   */
+  compression: true,
+
+  /**
    * Where is the stuff?
    *
    * @type    {Object}
