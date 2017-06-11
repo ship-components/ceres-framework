@@ -111,11 +111,11 @@ Ceres.prototype.connect = function() {
 
   // Expose these for any help function
   if (type === 'bookshelf') {
-    this.Model.Bookshelf = require('./models/types/bookshelf');
+    this.Model.Bookshelf = require('./models/types/BookshelfModel');
   } else if (type === 'rethinkdb') {
-    this.Model.Rethinkdb = require('./models/types/rethinkdb');
+    this.Model.Rethinkdb = require('./models/types/RethinkdbModel');
   } else if (type === 'mongodb') {
-    this.Model.Mongodb = require('./models/types/mongodb');
+    this.Model.Mongodb = require('./models/types/MongodbModel');
   }
 
   var connect = require(__dirname + '/db')(this.config, this);

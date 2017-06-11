@@ -8,7 +8,7 @@ var _ = require('lodash');
  * Init
  * @param    {Object}    props
  */
-function RethinkModel(props) {
+function RethinkdbModel(props) {
 	Object.assign(this, props);
 
 	// Ensure the right context
@@ -18,7 +18,7 @@ function RethinkModel(props) {
 	this.table = this.Database.r.table.bind(this.Database.r, this.table.tableName);
 }
 
-Object.assign(RethinkModel.prototype, {
+Object.assign(RethinkdbModel.prototype, {
   /**
    * Create model and return a promise
    *
@@ -110,5 +110,5 @@ Object.assign(RethinkModel.prototype, {
  */
 module.exports.extend = function extend(props) {
 	props.Database = props.Database || this.Database;
-  return new RethinkModel(props);
+  return new RethinkdbModel(props);
 };

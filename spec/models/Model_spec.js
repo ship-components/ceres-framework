@@ -16,6 +16,9 @@ describe('Model', function(){
 				bookshelf: {
 					Model: {
 						extend: function() {}
+					},
+					knex: {
+						raw: function() {}
 					}
 				}
 			}
