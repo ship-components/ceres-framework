@@ -1,6 +1,6 @@
 {
   "name": "ceres-framework",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Node.js Framework for React Applications",
   "main": "src/index.js",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "npm run lint && ./node_modules/.bin/istanbul cover -x 'spec/**' -x 'config/**' ./node_modules/.bin/jasmine",
-		"coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "lint": "./node_modules/.bin/eslint cli/ src/ config/",
     "watch:test": "./node_modules/.bin/chokidar --initial --verbose -p 'spec/**/*.js' -p 'src/**/*.js' -c 'npm test'"
   },
