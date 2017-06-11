@@ -92,48 +92,42 @@ Ceres.prototype.run = function run() {
  * @return {Promise}
  */
 Ceres.prototype.connect = function() {
-  return new Promise(function(resolve, reject){
-    if (typeof this.config !== 'object') {
-      reject(new Error('Ceres has not been configured yet'));
-      return;
-    }
+  if (typeof this.config !== 'object') {
+    Promise.reject(new Error('Ceres has not been configured yet'));
+    return;
+  }
 
-    var type = this.config.db.type;
-    if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type) === -1) {
-      this.log._ceres.debug('Skipping database setup');
-      return setupCache(this)
-        .then(function(cache){
-          this.Cache = cache;
-          return this;
-        }.bind(this))
-        .then(resolve)
-        .catch(reject);
-    }
-
-    this.log._ceres.debug('Setting up ' + type);
-
-    // Expose these for any help function
-    if (type === 'bookshelf') {
-      this.Model.Bookshelf = require('./models/types/bookshelf');
-    } else if (type === 'rethinkdb') {
-      this.Model.Rethinkdb = require('./models/types/rethinkdb');
-    } else if (type === 'mongodb') {
-      this.Model.Mongodb = require('./models/types/mongodb');
-    }
-
-    var connect = require(__dirname + '/db')(this.config, this);
-
-    return connect.then(function(db){
-        this.Database = db;
-        return setupCache(this);
-      }.bind(this))
+  var type = this.config.db.type;
+  if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type) === -1) {
+    this.log._ceres.debug('Skipping database setup');
+    return setupCache(this)
       .then(function(cache){
         this.Cache = cache;
         return this;
-      }.bind(this))
-      .then(resolve)
-      .catch(reject);
-  }.bind(this));
+      }.bind(this));
+  }
+
+  this.log._ceres.debug('Setting up ' + type);
+
+  // Expose these for any help function
+  if (type === 'bookshelf') {
+    this.Model.Bookshelf = require('./models/types/bookshelf');
+  } else if (type === 'rethinkdb') {
+    this.Model.Rethinkdb = require('./models/types/rethinkdb');
+  } else if (type === 'mongodb') {
+    this.Model.Mongodb = require('./models/types/mongodb');
+  }
+
+  var connect = require(__dirname + '/db')(this.config, this);
+
+  return connect.then(function(db){
+      this.Database = db;
+      return setupCache(this);
+    }.bind(this))
+    .then(function(cache){
+      this.Cache = cache;
+      return this;
+    }.bind(this));
 };
 
 /**
