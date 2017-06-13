@@ -78,6 +78,7 @@ Ceres.prototype.run = function run() {
   if (!this.config.secret) {
     throw new Error('Unable to find secret.');
   }
+  this.log._ceres.silly('Running application in %s mode', this.config.processManagement);
   if (this.config.processManagement === 'fork') {
     return runFork.call(this, this);
   } else if (this.config.processManagement === 'sticky-cluster') {
