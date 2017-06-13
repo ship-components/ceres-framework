@@ -76,6 +76,24 @@ var config = {
   compression: true,
 
   /**
+   * Logging options
+   * @type    {Object}
+   */
+  logging: {
+    /**
+     * Include json logs
+     * @type    {Boolean}
+     */
+    json: true,
+
+    /**
+     * Include human readable logs
+     * @type    {Boolean}
+     */
+    human: true
+  },
+
+  /**
    * Where is the stuff?
    *
    * @type    {Object}
