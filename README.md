@@ -24,6 +24,7 @@ $ ./example.js run
 ```
 
 ## History
+* 0.13.0 - Added human readable log option. Fixed issue where pid wasn't created for single instance of cluster, updated dependency versions.
 * 0.12.0 - Removed rotating access logs. Added option to enable access log skipping. Added trustProxy options. Made compression configurable. Added options to make cookies configurable
 * 0.11.0 - Made default processManagement cluster option not sticky and moved sticky cluster to it's own option
 * 0.10.1 - Added a check to see if headers have already been sent

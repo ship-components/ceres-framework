@@ -27,7 +27,7 @@ function Config(cli, options) {
   this.configFolder = path.resolve(this.configFolder);
 
 	// Framework defaults
-	var defaultConfig = require('../../config/default');
+	var defaultConfig = require(path.resolve(__dirname, '../../config/default'));
 
 	// Get global config
 	var config = this.requireConfig('default', options);

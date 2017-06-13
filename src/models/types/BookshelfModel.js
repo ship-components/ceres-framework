@@ -22,6 +22,9 @@ function BookshelfModel(props) {
 	// Setup bookself
 	this.model = this.database.Model.extend(this.table);
 
+  // Make raw function from knex available directly on the model
+  this.raw = this.database.knex.raw;
+
 	// Make bookself methods available directly on our model so we don't have to
 	// do `this.model.model[fn]` to access them.
 	for (var fnName in this.model) {

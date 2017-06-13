@@ -16,6 +16,9 @@ describe('Model.bookself', function(){
 				bookshelf: {
 					Model: {
 						extend: function() {}
+					},
+					knex: {
+						raw: function() {}
 					}
 				}
 			}
@@ -42,4 +45,11 @@ describe('Model.bookself', function(){
 		});
 		expect(typeof model.randomMethod).toBe('function');
 	});
+
+  it('should make an alias to the knex.raw function', function(){
+    ceres.Database.bookshelf.knex.raw = jasmine.createSpy();
+    var model = new Model(ceres, {});
+		model.raw();
+		expect(ceres.Database.bookshelf.knex.raw).toHaveBeenCalled();
+  });
 });

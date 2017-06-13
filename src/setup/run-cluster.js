@@ -11,7 +11,6 @@ var logStartTime = require('../lib/logStartTime');
  * @return {Promise}
  */
 
-
 /**
  * Make sure everything is setup the way we need to be before we start Listening
  * @param  {Ceres}    ceres
@@ -24,6 +23,11 @@ module.exports = function(ceres) {
     .then(function listen() {
       return new Promise(function(resolve, reject){
         try {
+          if (ceres.config.pid) {
+            // Setup Pid if we're configure
+            ceres.pid = new Pid(ceres.config.pid);
+            ceres.log._ceres.silly('pid %d written to %s', ceres.pid.id, ceres.pid.options.path);
+          }
 
           if (!ceres.config.instances || ceres.config.instances === 1) {
             // If we only have a single instance no need to run the cluster
@@ -36,12 +40,6 @@ module.exports = function(ceres) {
           }
 
           if (cluster.isMaster) {
-            if (ceres.config.pid) {
-              // Setup Pid if we're configure
-              ceres.pid = new Pid(ceres.config.pid);
-              ceres.log._ceres.silly('pid %d written to %s', ceres.pid.id, ceres.pid.options.path);
-            }
-
             // Fork children
             for (var i = 0; i < ceres.config.instances; i++) {
               cluster.fork();

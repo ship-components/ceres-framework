@@ -9,7 +9,7 @@ var Promise = require('bluebird');
  * Initial model
  * @param    {[type]}    props    [description]
  */
-function MongoModel(props) {
+function MongodbModel(props) {
 	// Overview defaults
 	Object.assign(this, props);
 
@@ -20,7 +20,7 @@ function MongoModel(props) {
 	this.collection = this.Database.collection(this.table.tableName);
 }
 
-MongoModel.prototype = Object.assign(MongoModel.prototype, {
+MongodbModel.prototype = Object.assign(MongodbModel.prototype, {
   /**
    * Create model and return a promise
    *
@@ -151,5 +151,5 @@ MongoModel.prototype = Object.assign(MongoModel.prototype, {
  */
 module.exports.extend = function extend(props) {
 	props.Database = props.Database || this.Database;
-  return new MongoModel(props);
+  return new MongodbModel(props);
 };
