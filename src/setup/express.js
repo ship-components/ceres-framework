@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var compression = require('compression');
 var session = require('express-session');
+var fs = require('fs');
 
 var routes = require('./routes');
 
@@ -34,7 +35,7 @@ module.exports = function Server(ceres) {
   /*****************************************************************************
    * Cookies
    */
-  app.use(cookieParser());
+  app.use(cookieParser(ceres.config.secret, ceres.config.cookie));
   ceres.log._ceres.silly('Cookie parser configured');
 
   /*****************************************************************************
@@ -63,7 +64,8 @@ module.exports = function Server(ceres) {
       secret: ceres.config.secret,
       resave: true,
       saveUninitialized: true,
-      name: ceres.config.name
+      name: ceres.config.name,
+      cookie: ceres.config.cookie
     });
     // Save it so sockets can use later
     app.set('sharedSession', sessionStore);
@@ -71,6 +73,14 @@ module.exports = function Server(ceres) {
     app.use(sessionStore);
     ceres.log._ceres.silly('Redis session store setup');
 	}
+
+  /*****************************************************************************
+   * Proxies
+   * @see https://expressjs.com/en/guide/behind-proxies.html
+   */
+  if (typeof ceres.config.trustProxy !== 'undefined') {
+    app.set('trust proxy', ceres.config.trustProxy);
+  }
 
   /*****************************************************************************
    * Views
@@ -90,8 +100,10 @@ module.exports = function Server(ceres) {
   /*****************************************************************************
    * Compression
    */
-  app.use(compression());
-  ceres.log._ceres.silly('Request compression enabled');
+  if (ceres.config.compression) {
+    app.use(compression());
+    ceres.log._ceres.silly('Request compression enabled');
+  }
 
   if (ceres.config.env !== 'production' && ceres.config.webpack && ceres.config.webpackConfig) {
     /*****************************************************************************
@@ -117,22 +129,20 @@ module.exports = function Server(ceres) {
    * Logging
    */
   if (ceres.config.env === 'production') {
-    // Setup rotating logs
-    var accessLogStream = require('file-stream-rotator').getStream({
-      filename: ceres.config.folders.logs + '/access.log.%DATE%',
-      frequency: 'daily',
-      verbose: false,
-      date_format: 'YYYY-MM-DD'
-    });
+    // Setup logs
+    var accessLogStream = fs.createWriteStream(ceres.config.folders.logs + '/access.log', {flags: 'a'});
 
     app.use(morgan('combined', {
-      stream: accessLogStream
+      stream: accessLogStream,
+      skip: ceres.config.logging && ceres.config.logging.skip
     }));
 
     ceres.log._ceres.silly('Access logs configured');
   } else {
     // Log to console
-    app.use(morgan('dev'));
+    app.use(morgan('dev',{
+      skip: ceres.config.logging && ceres.config.logging.skip
+    }));
     ceres.log._ceres.silly('Access logs (dev) configured');
   }
 
@@ -177,6 +187,7 @@ module.exports = function Server(ceres) {
   } else {
     var errorMiddleware = require('../middleware/error')(ceres);
     app.use(errorMiddleware);
+		ceres.log._ceres.silly('Using default error handler');
   }
 
   // Allow user to override not found response
@@ -186,6 +197,7 @@ module.exports = function Server(ceres) {
   } else {
     var notFound = require('../middleware/notFound')(ceres);
     app.use(notFound);
+		ceres.log._ceres.silly('Using default not found handler');
   }
 
   return app;

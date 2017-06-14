@@ -24,6 +24,11 @@ $ ./example.js run
 ```
 
 ## History
+* 0.13.0 - Added human readable log option. Fixed issue where pid wasn't created for single instance of cluster, updated dependency versions.
+* 0.12.0 - Removed rotating access logs. Added option to enable access log skipping. Added trustProxy options. Made compression configurable. Added options to make cookies configurable
+* 0.11.0 - Made default processManagement cluster option not sticky and moved sticky cluster to it's own option
+* 0.10.1 - Added a check to see if headers have already been sent
+* 0.10.0 - Removed BookshelfModel.query, Made native bookshelf functions available directly on BookshelfModel. Update error messaging middleware. Added promise support for controller methods. Switched bigints in postgres from strings to numbers. Merged parents params into children routers. Default postCreate method for bookself now returns relations
 * 0.9.5 - Extracts and optimized the deepCopy function (previously as deepClone) to return the correct data format.
 * 0.9.4 - Updates the deepClone function and Ceres.prototype.run function's call scope
 * 0.9.3 - Added env variable so children know their index
