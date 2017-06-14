@@ -134,7 +134,7 @@ var config = {
 
   /**
    * Session configuration
-   *
+   * @see https://github.com/expressjs/session
    * @type    {Object}
    */
   session: {
@@ -143,6 +143,28 @@ var config = {
      * @type {Number}
      */
     ttl: 3600,
+
+    /**
+     * Forces the session to be saved back to the session store, even if the
+     * session was never modified during the request.
+     * @type    {Boolean}
+     */
+    resave: false,
+
+    /**
+     * Forces a session that is "uninitialized" to be saved to the store. A
+     * session is uninitialized when it is new but not modified.
+     * @type    {Boolean}
+     */
+    saveUninitialized: false,
+
+    /**
+     * Force a session identifier cookie to be set on every response. The
+     * expiration is reset to the original maxAge, resetting the expiration
+     * countdown.
+     * @type    {Boolean}
+     */
+    rolling: true,
 
     /**
      * Settings for Redis Session Store

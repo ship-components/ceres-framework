@@ -62,8 +62,9 @@ module.exports = function Server(ceres) {
     var sessionStore = session({
       store: new RedisStore(ceres.config.session.redis),
       secret: ceres.config.secret,
-      resave: true,
-      saveUninitialized: true,
+      resave: !!ceres.config.session.resave,
+      saveUninitialized: !!ceres.config.session.saveUninitialized,
+      rolling: !!ceres.config.session.rolling,
       name: ceres.config.name,
       cookie: ceres.config.cookie
     });
