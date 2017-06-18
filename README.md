@@ -24,7 +24,7 @@ $ ./example.js run
 ```
 
 ## History
-* 0.13.2 - Reduce log spam related to cron scripts.
+* 0.13.2 - Reduce log spam related to cron scripts. Fixed issue with access log not always saving and made its format configurable.
 * 0.13.1 - Made session resave, saveUninitialized, and rolling configurable. Fixed view cache typo
 * 0.13.0 - Added human readable log option. Fixed issue where pid wasn't created for single instance of cluster, updated dependency versions.
 * 0.12.0 - Removed rotating access logs. Added option to enable access log skipping. Added trustProxy options. Made compression configurable. Added options to make cookies configurable
