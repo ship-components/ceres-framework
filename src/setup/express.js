@@ -129,23 +129,14 @@ module.exports = function Server(ceres) {
   /*****************************************************************************
    * Logging
    */
-  if (ceres.config.env === 'production') {
-    // Setup logs
-    var accessLogStream = fs.createWriteStream(ceres.config.folders.logs + '/access.log', {flags: 'a'});
-
-    app.use(morgan('combined', {
-      stream: accessLogStream,
-      skip: ceres.config.logging && ceres.config.logging.skip
-    }));
-
-    ceres.log._ceres.silly('Access logs configured');
-  } else {
-    // Log to console
-    app.use(morgan('dev',{
-      skip: ceres.config.logging && ceres.config.logging.skip
-    }));
-    ceres.log._ceres.silly('Access logs (dev) configured');
-  }
+  var logFilename = ceres.config.folders.logs + '/access.log';
+  var accessLogStream = fs.createWriteStream(logFilename, {flags: 'a'});
+  // Log to console
+  app.use(morgan(ceres.config.logging.accessLogFormat, {
+    stream: accessLogStream,
+    skip: ceres.config.logging && ceres.config.logging.skip
+  }));
+  ceres.log._ceres.silly('%s sccess log saving to %s', ceres.config.logging.accessLogFormat, logFilename);
 
   /*****************************************************************************
    * Throttle all requests

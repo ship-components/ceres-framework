@@ -140,7 +140,7 @@ module.exports.init = function(ceres) {
     transports: setupTransports(ceres.config, 'ceres')
   });
 
-  winston.info('Writing logs to %s', ceres.config.folders.logs);
+  winston.silly('Writing logs to %s', ceres.config.folders.logs);
 
   return winston;
 };

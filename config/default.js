@@ -80,6 +80,13 @@ var config = {
    * @type    {Object}
    */
   logging: {
+
+    /**
+     * What log format to use for access logs. Typically dev or combined
+     * @type    {String}
+     */
+    accessLogFormat: 'combined',
+
     /**
      * Include json logs
      * @type    {Boolean}
