@@ -39,7 +39,9 @@ function Ceres() {
   this.emit = this._events.emit.bind(this._events);
 
   this.on('configured', function(){
-    this.HashIds = this.HashIds.call(this, this);
+    if (typeof this.config.hashids === 'object' && this.config.HashIds !== null) {
+      this.HashIds = this.HashIds.call(this, this);
+    }
   }.bind(this));
 }
 
