@@ -63,6 +63,24 @@ var config = {
   env: 'production',
 
   /**
+   * Turn on debugging
+   * @type    {Boolean}
+   */
+  debug: false,
+
+  /**
+   * Cache html
+   * @type    {Boolean}
+   */
+  viewCache: true,
+
+  /**
+   * View engine to use for express
+   * @type    {String}
+   */
+  viewEngine: 'ejs',
+
+  /**
    * How many worker instances to run at one time
    *
    * @type    {Number}
