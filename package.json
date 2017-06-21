@@ -1,6 +1,6 @@
 {
   "name": "ceres-framework",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "description": "Node.js Framework for React Applications",
   "main": "src/index.js",
   "bin": {
@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/isuttell/ceres-framework.git"
+    "url": "git+https://github.com/ship-components/ceres-framework.git"
   },
   "dependencies": {
     "async": "^0.9.2",
