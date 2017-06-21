@@ -158,6 +158,8 @@ BookshelfModel.prototype.del = function del(id) {
   }).destroy();
 };
 
+module.exports = BookshelfModel;
+
 /**
  * Helper function to create new models
  * @param     {Object}    props
