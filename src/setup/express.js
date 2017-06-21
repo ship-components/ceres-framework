@@ -47,7 +47,7 @@ module.exports = function Server(ceres) {
   /*****************************************************************************
    * Response Time
    */
-  if (ceres.config.env !== 'production') {
+  if (ceres.config.responseTime) {
     // Adds the X-Response-Time header
     var responseTime = require('response-time');
     app.use(responseTime());
@@ -86,11 +86,11 @@ module.exports = function Server(ceres) {
   /*****************************************************************************
    * Views
    */
-  app.set('view engine', 'ejs');
+  app.set('view engine', ceres.config.viewEngine);
   app.set('views', ceres.config.folders.views);
-  ceres.log._ceres.silly('View engine setup: %s', 'ejs');
+  ceres.log._ceres.silly('View engine setup: %s', ceres.config.viewEngine);
 
-  if (ceres.config.env === 'production') {
+  if (ceres.config.viewCache) {
     app.enable('view cache');
     ceres.log._ceres.silly('View cache enabled');
   } else {
@@ -106,7 +106,7 @@ module.exports = function Server(ceres) {
     ceres.log._ceres.silly('Request compression enabled');
   }
 
-  if (ceres.config.env !== 'production' && ceres.config.webpack && ceres.config.webpackConfig) {
+  if (ceres.config.webpack && ceres.config.webpackConfig) {
     /*****************************************************************************
      * Webpack middleware for dev. Needs to go before static assets to override them
      */
@@ -183,7 +183,7 @@ module.exports = function Server(ceres) {
   }
 
   // Allow user to override not found response
-  if(typeof ceres.config.middleware.notFound === 'function') {
+  if (typeof ceres.config.middleware.notFound === 'function') {
     app.use(ceres.config.middleware.notFound);
     ceres.log._ceres.silly('User supplied 404 middleware configured');
   } else {

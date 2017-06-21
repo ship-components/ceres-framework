@@ -82,7 +82,7 @@ module.exports = function(Ceres) {
 		};
 
 		// For development pass the stack along
-		if (Ceres.config.env !== 'production' && err instanceof Error) {
+		if (Ceres.config.debug && err instanceof Error) {
 			response.stack = err.stack.split('\n');
 		}
 
@@ -108,7 +108,7 @@ module.exports = function(Ceres) {
 		// Set the http status
 		res.status(response.status);
 
-		if (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json|\*\/\*/i)) {
+		if (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i)) {
 			// Json response if the client accepts it
 			res.json(response).end();
       return;
@@ -117,11 +117,11 @@ module.exports = function(Ceres) {
 		var html = '<html>';
 		html += '<head>';
 		html += '<title>' + response.message + '</title>';
-		html += '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/ionic/1.3.2/css/ionic.min.css" />';
+		html += '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.amber-blue.min.css" />';
 		html += '</head>';
 		html += '<body style="padding: 24px;">';
 		html += '<h1>' + Ceres.config.name + ': ' + response.message + '</h1>';
-		if (Ceres.config.env !== 'production' && response.stack) {
+		if (Ceres.config.debug && response.stack) {
 			html += '<pre>' + response.stack.join('\n') + '</pre>';
 		}
 		html += '</html>';
