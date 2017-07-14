@@ -7,16 +7,16 @@ module.exports = function(config) {
       var version = require('rethinkdb/package.json').version;
 
       r.connect(config.db)
-      .then(function(connection){
-        resolve({
-          r: r,
-          version: version,
-          connection: connection
+        .then(function(connection){
+          resolve({
+            r: r,
+            version: version,
+            connection: connection
+          });
+        })
+        .catch(function(err){
+          reject(err);
         });
-      })
-      .catch(function(err){
-        reject(err);
-      });
     } catch (err) {
       reject(err);
     }

@@ -10,14 +10,14 @@ var Promise = require('bluebird');
  * @param    {[type]}    props    [description]
  */
 function MongodbModel(props) {
-	// Overview defaults
-	Object.assign(this, props);
+  // Overview defaults
+  Object.assign(this, props);
 
-	// Ensure correct context
-	_.bindAll(this);
+  // Ensure correct context
+  _.bindAll(this);
 
-	// Setup Mongo
-	this.collection = this.Database.collection(this.table.tableName);
+  // Setup Mongo
+  this.collection = this.Database.collection(this.table.tableName);
 }
 
 MongodbModel.prototype = Object.assign(MongodbModel.prototype, {
@@ -150,6 +150,6 @@ MongodbModel.prototype = Object.assign(MongodbModel.prototype, {
  * @return    {Object}
  */
 module.exports.extend = function extend(props) {
-	props.Database = props.Database || this.Database;
+  props.Database = props.Database || this.Database;
   return new MongodbModel(props);
 };

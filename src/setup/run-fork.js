@@ -22,7 +22,7 @@ var workers = [];
  * @type    {Object}
  */
 var childSettings = {
-	restart: true
+  restart: true
 };
 
 /**
@@ -33,66 +33,66 @@ var childSettings = {
  * @return   {Undefined}
  */
 function spawn(ceres, port, workerIndex) {
-	/**
+  /**
 	 * Give each child a uniqueId
 	 * @type    {Number}
 	 */
-	var id = ++uniqueIds;
+  var id = ++uniqueIds;
 
-	// Rerun with the same arguments
-	var worker = fork(process.argv[1], process.argv, {
-		env: {
+  // Rerun with the same arguments
+  var worker = fork(process.argv[1], process.argv, {
+    env: {
 
-			// Each process gets a unique port
-			PORT: port,
+      // Each process gets a unique port
+      PORT: port,
 
-			// And a unique ID. Only children get this
-			CERES_UNIQUE_ID: id,
+      // And a unique ID. Only children get this
+      CERES_UNIQUE_ID: id,
 
-			// Let the children know their index
-			WORKER_INDEX: workerIndex
-		}
-	});
+      // Let the children know their index
+      WORKER_INDEX: workerIndex
+    }
+  });
 
-	// Loggin
-	ceres.log._ceres.debug('Spawned child #%s - %s', id, worker.pid);
+  // Loggin
+  ceres.log._ceres.debug('Spawned child #%s - %s', id, worker.pid);
 
-	// Keep track of the active workers
-	workers.push(worker);
+  // Keep track of the active workers
+  workers.push(worker);
 
-	// Log any errors
-	worker.on('error', function(err){
-		ceres.log._ceres.error(err);
-	});
+  // Log any errors
+  worker.on('error', function(err){
+    ceres.log._ceres.error(err);
+  });
 
-	// Listen to messages from the parent
-	worker.on('message', function(obj){
-		ceres.log._ceres.error('%s recieved %s', worker.pid, obj);
-		if (typeof obj === 'object') {
-			Object.assign(childSettings, obj);
-		}
-	});
+  // Listen to messages from the parent
+  worker.on('message', function(obj){
+    ceres.log._ceres.error('%s recieved %s', worker.pid, obj);
+    if (typeof obj === 'object') {
+      Object.assign(childSettings, obj);
+    }
+  });
 
-	// Attempt to respawn unexcepted crashes
-	worker.on('exit', function(code, signal){
-		if (code && code > 0) {
-			ceres.log._ceres.error('%s exited with %s', worker.pid, code);
-		} else if (signal) {
-			ceres.log._ceres.debug('%s received %s', worker.pid, signal);
-		}
+  // Attempt to respawn unexcepted crashes
+  worker.on('exit', function(code, signal){
+    if (code && code > 0) {
+      ceres.log._ceres.error('%s exited with %s', worker.pid, code);
+    } else if (signal) {
+      ceres.log._ceres.debug('%s received %s', worker.pid, signal);
+    }
 
-		var index = workers.indexOf(worker);
-		if (index !== -1) {
-			workers.splice(index, 1);
-		}
+    var index = workers.indexOf(worker);
+    if (index !== -1) {
+      workers.splice(index, 1);
+    }
 
-		// Respawn the child if we get an error code. Do not respawn if we received
-		// a signal. Respawning on signals leads to endless recurision. It hurts.
-		if (code && code > 0 && childSettings.restart === true) {
-			ceres.log._ceres.info('Repawning new process...', worker.pid);
-			spawn(ceres, port, workerIndex);
-		}
-	});
+    // Respawn the child if we get an error code. Do not respawn if we received
+    // a signal. Respawning on signals leads to endless recurision. It hurts.
+    if (code && code > 0 && childSettings.restart === true) {
+      ceres.log._ceres.info('Repawning new process...', worker.pid);
+      spawn(ceres, port, workerIndex);
+    }
+  });
 }
 
 /**
@@ -101,17 +101,17 @@ function spawn(ceres, port, workerIndex) {
  * @return {Promise}
  */
 function listen(ceres) {
-	return new Promise(function(resolve, reject){
-		try {
-			Server.call(ceres, ceres).listen(ceres.config.port, function(){
-				logStartTime('Child took %ds to start listening', ceres);
-				ceres.log._ceres.info('Child #%s listening on %d (%s)', process.env.CERES_UNIQUE_ID, ceres.config.port, ceres.config.env);
-				resolve();
-			});
-		} catch(err) {
-			reject(err);
-		}
-	});
+  return new Promise(function(resolve, reject){
+    try {
+      Server.call(ceres, ceres).listen(ceres.config.port, function(){
+        logStartTime('Child took %ds to start listening', ceres);
+        ceres.log._ceres.info('Child #%s listening on %d (%s)', process.env.CERES_UNIQUE_ID, ceres.config.port, ceres.config.env);
+        resolve();
+      });
+    } catch(err) {
+      reject(err);
+    }
+  });
 }
 
 /**
@@ -120,47 +120,47 @@ function listen(ceres) {
  * @return {Promise}
  */
 module.exports = function(ceres) {
-	return new Promise(function(resolve, reject){
-		// CERES_UNIQUE_ID gets automatically assigned to children
-		var isMaster = !process.env.CERES_UNIQUE_ID;
+  return new Promise(function(resolve, reject){
+    // CERES_UNIQUE_ID gets automatically assigned to children
+    var isMaster = !process.env.CERES_UNIQUE_ID;
 
-		if (isMaster && ceres.config.pid) {
-			// Setup Pid for the master process
-			ceres.pid = new Pid(ceres.config.pid);
-			ceres.log._ceres.silly('pid %d written to %s', ceres.pid.id, ceres.pid.options.path);
-		}
+    if (isMaster && ceres.config.pid) {
+      // Setup Pid for the master process
+      ceres.pid = new Pid(ceres.config.pid);
+      ceres.log._ceres.silly('pid %d written to %s', ceres.pid.id, ceres.pid.options.path);
+    }
 
-		if (isMaster) {
-			// Master
+    if (isMaster) {
+      // Master
 
-			// Ensure we always have an array
-			var ports = ceres.config.port instanceof Array ? ceres.config.port : [ceres.config.port];
+      // Ensure we always have an array
+      var ports = ceres.config.port instanceof Array ? ceres.config.port : [ceres.config.port];
 
-			ceres.log._ceres.debug('Master forking %d instances - %s', ports.length, ports.join(', '));
-			for (var i = 0; i < ports.length; i++) {
-				spawn(ceres, ports[i], i);
-			}
+      ceres.log._ceres.debug('Master forking %d instances - %s', ports.length, ports.join(', '));
+      for (var i = 0; i < ports.length; i++) {
+        spawn(ceres, ports[i], i);
+      }
 
-			// Clean up any workers
-			['SIGTERM', 'SIGINT'].forEach(function(signal){
-				process.on(signal, function(){
-					ceres.log._ceres.debug('Master received ' + signal + '. Cleaning up workers...');
-					workers.forEach(function(worker){
-						worker.send({
-							restart: false
-						});
-						worker.kill('SIGKILL');
-					});
-				});
-			});
+      // Clean up any workers
+      ['SIGTERM', 'SIGINT'].forEach(function(signal){
+        process.on(signal, function(){
+          ceres.log._ceres.debug('Master received ' + signal + '. Cleaning up workers...');
+          workers.forEach(function(worker){
+            worker.send({
+              restart: false
+            });
+            worker.kill('SIGKILL');
+          });
+        });
+      });
 
-			resolve();
-		} else {
-			// Child
-			ceres.connect.call(ceres, ceres)
-				.then(listen.bind(ceres, ceres))
-				.then(resolve)
-				.catch(reject);
-		}
-	});
+      resolve();
+    } else {
+      // Child
+      ceres.connect.call(ceres, ceres)
+        .then(listen.bind(ceres, ceres))
+        .then(resolve)
+        .catch(reject);
+    }
+  });
 };
