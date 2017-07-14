@@ -51,17 +51,17 @@ function findCommonError(err, Ceres) {
 				// Attempt to grab some additional info from the commonError message
 				var parts = err[key].match(commonError[key]);
 				Ceres.log.silly('[ErrorHandler] Matched %s - error.message.%s like %s', commonError.defaultText, key, commonError[key].toString(), parts);
-				return {
+				return Object.assign({}, commonError, {
 					message: parts[1] && parts[1].trim().length > 0 ? parts[1].trim() : commonError.defaultText,
 					status: commonError.status
-				};
+				});
 			} else if (err[key] && commonError[key] === err[key] && ['level', 'defaultText'].indexOf(key) === -1) {
 				Ceres.log.silly('[ErrorHandler] Matched %s - error.%s = %s', commonError.defaultText, key, err[key]);
 				// Match other values like `code`
-				return {
+				return Object.assign({}, commonError, {
 					message: commonError.defaultText,
 					status: commonError.status
-				};
+				});
 			}
 		}
 		return;
@@ -107,8 +107,7 @@ module.exports = function(Ceres) {
 
 		// Set the http status
 		res.status(response.status);
-
-		if (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i)) {
+		if (req.originalUrl.match(/^\/api/) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
 			// Json response if the client accepts it
 			res.json(response).end();
       return;

@@ -183,6 +183,7 @@ Ceres.prototype.load = function(options) {
       } else {
         console.error(err.stack);
       }
+      process.exit(1);
     });
 };
 
@@ -205,6 +206,7 @@ Ceres.prototype.exec = function(command, options) {
       } else {
         console.error(err.stack);
       }
+      process.exit(1);
     });
 };
 
