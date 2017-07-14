@@ -107,8 +107,7 @@ module.exports = function(Ceres) {
 
 		// Set the http status
 		res.status(response.status);
-
-		if (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i)) {
+		if (req.originalUrl.match(/^\/api/) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
 			// Json response if the client accepts it
 			res.json(response).end();
       return;
