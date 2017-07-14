@@ -26,7 +26,7 @@ function processExists(pid) {
     return process.kill(pid, 0);
   } catch (err) {
     return err.code === 'EPERM';
- }
+  }
 }
 
 /**
@@ -124,11 +124,11 @@ Pid.prototype.remove = function remove() {
 Pid.prototype.create = function create(callback) {
   // Open up file descriptor. By default fail if it exists
   fs.open(this.options.path, this.options.overwrite ? 'w' : 'wx', function(err, fd){
-     if (err) {
-       throw err;
-     }
-     writePid(fd, callback);
-   });
+    if (err) {
+      throw err;
+    }
+    writePid(fd, callback);
+  });
 };
 
 module.exports = Pid;

@@ -73,7 +73,7 @@ module.exports = function Server(ceres) {
     // Apply
     app.use(sessionStore);
     ceres.log._ceres.silly('Redis session store setup');
-	}
+  }
 
   /*****************************************************************************
    * Proxies
@@ -179,7 +179,7 @@ module.exports = function Server(ceres) {
   } else {
     var errorMiddleware = require('../middleware/error')(ceres);
     app.use(errorMiddleware);
-		ceres.log._ceres.silly('Using default error handler');
+    ceres.log._ceres.silly('Using default error handler');
   }
 
   // Allow user to override not found response
@@ -189,7 +189,7 @@ module.exports = function Server(ceres) {
   } else {
     var notFound = require('../middleware/notFound')(ceres);
     app.use(notFound);
-		ceres.log._ceres.silly('Using default not found handler');
+    ceres.log._ceres.silly('Using default not found handler');
   }
 
   return app;

@@ -9,13 +9,13 @@ var _ = require('lodash');
  * @param    {Object}    props
  */
 function RethinkdbModel(props) {
-	Object.assign(this, props);
+  Object.assign(this, props);
 
-	// Ensure the right context
-	_.bindAll(this);
+  // Ensure the right context
+  _.bindAll(this);
 
-	// Setup r
-	this.table = this.Database.r.table.bind(this.Database.r, this.table.tableName);
+  // Setup r
+  this.table = this.Database.r.table.bind(this.Database.r, this.table.tableName);
 }
 
 Object.assign(RethinkdbModel.prototype, {
@@ -84,9 +84,9 @@ Object.assign(RethinkdbModel.prototype, {
     delete body.updated_at; // Handled by DB
 
     return this.table()
-        .get(id)
-        .update(body)
-        .run(this.connection);
+      .get(id)
+      .update(body)
+      .run(this.connection);
   },
 
   /**
@@ -109,6 +109,6 @@ Object.assign(RethinkdbModel.prototype, {
  * @return    {Object}
  */
 module.exports.extend = function extend(props) {
-	props.Database = props.Database || this.Database;
+  props.Database = props.Database || this.Database;
   return new RethinkdbModel(props);
 };

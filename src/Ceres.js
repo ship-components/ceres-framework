@@ -124,9 +124,9 @@ Ceres.prototype.connect = function() {
   var connect = require(__dirname + '/db')(this.config, this);
 
   return connect.then(function(db){
-      this.Database = db;
-      return setupCache(this);
-    }.bind(this))
+    this.Database = db;
+    return setupCache(this);
+  }.bind(this))
     .then(function(cache){
       this.Cache = cache;
       return this;

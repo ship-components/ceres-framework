@@ -18,8 +18,8 @@
     "type": "git",
     "url": "git+https://github.com/ship-components/ceres-framework.git"
   },
-  "engines" : {
-    "node" : ">=4"
+  "engines": {
+    "node": ">=4"
   },
   "dependencies": {
     "async": "^0.9.2",
@@ -64,7 +64,8 @@
   "devDependencies": {
     "chokidar-cli": "^1.2.0",
     "coveralls": "^2.13.1",
-    "eslint": "^3.19.0",
+    "eslint": ">=4",
+    "eslint-config-ship-components-base": "^1.1.0",
     "istanbul": "^0.4.5",
     "jasmine": "^2.6.0"
   }
