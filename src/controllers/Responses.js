@@ -44,8 +44,8 @@ var Responses = {
    * @param     {String}    context
    */
   notFound: function(context) {
-		var err = new Error('Not Found' + (typeof context === 'string' ? ': ' + context: ''));
-		err.status = 404;
+    var err = new Error('Not Found' + (typeof context === 'string' ? ': ' + context: ''));
+    err.status = 404;
     this.fail(err);
   },
 
@@ -54,8 +54,8 @@ var Responses = {
    * @param     {String}    context
    */
   forbidden: function(context) {
-		var err = new Error('Forbidden' + (typeof context === 'string' ? ': ' + context: ''));
-		err.status = 403;
+    var err = new Error('Forbidden' + (typeof context === 'string' ? ': ' + context: ''));
+    err.status = 403;
     this.fail(err);
   },
 
@@ -64,9 +64,9 @@ var Responses = {
    * @param     {String}    context
    */
   badRequest: function(context) {
-		var err = new Error('Bad Request' + (typeof context === 'string' ? ': ' + context: ''));
-		err.status = 400;
-		this.fail(err);
+    var err = new Error('Bad Request' + (typeof context === 'string' ? ': ' + context: ''));
+    err.status = 400;
+    this.fail(err);
   },
 
   /**
@@ -74,7 +74,7 @@ var Responses = {
    * @param     {Mixed}    err
    */
   fail: function(err) {
-		// Throw and exit the call stack or promise chain
+    // Throw and exit the call stack or promise chain
     this.next(err);
   }
 

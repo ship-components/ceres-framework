@@ -47,13 +47,13 @@ var config = {
    */
   pid: 'ceres.pid',
 
-	/**
+  /**
 	 * Either cluster or fork. Determines how multiple instances of the app
 	 * are run to take advantage of multiple cores. fork is recommended when
 	 * being a reverse proxy
 	 * @type    {String}
 	 */
-	processManagement: 'cluster',
+  processManagement: 'cluster',
 
   /**
    * What mode to run in

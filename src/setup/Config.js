@@ -11,9 +11,9 @@ var path = require('path');
 var merge = require('../lib/merge');
 
 function Config(cli, options) {
-	if (typeof cli !== 'object') {
-		cli = {};
-	}
+  if (typeof cli !== 'object') {
+    cli = {};
+  }
 
   // Options specific to setting up config
   options = Object.assign({
@@ -26,46 +26,46 @@ function Config(cli, options) {
 
   this.configFolder = path.resolve(this.configFolder);
 
-	// Framework defaults
-	var defaultConfig = require(path.resolve(__dirname, '../../config/default'));
+  // Framework defaults
+  var defaultConfig = require(path.resolve(__dirname, '../../config/default'));
 
-	// Get global config
-	var config = this.requireConfig('default', options);
+  // Get global config
+  var config = this.requireConfig('default', options);
 
-	// Get the environment
-	var env = this.getEnv(cli, config);
+  // Get the environment
+  var env = this.getEnv(cli, config);
 
-	// Get env specific config
-	var envConfig = this.requireConfig(env, options);
+  // Get env specific config
+  var envConfig = this.requireConfig(env, options);
 
-	// listen for the port as an environmental variable. If we see it, use it.
-	if (process.env.PORT) {
-		envConfig.port = parseInt(process.env.PORT, 10);
-	}
+  // listen for the port as an environmental variable. If we see it, use it.
+  if (process.env.PORT) {
+    envConfig.port = parseInt(process.env.PORT, 10);
+  }
 
-	// Get the location of the machine config file
-	var rcPath = this.getRCPath([cli, envConfig, config]);
+  // Get the location of the machine config file
+  var rcPath = this.getRCPath([cli, envConfig, config]);
 
-	// Get machine specific settings
-	var rc = this.rcConfig(rcPath, options);
+  // Get machine specific settings
+  var rc = this.rcConfig(rcPath, options);
 
-	// Merge config sources together
-	config = merge({}, defaultConfig, config, envConfig, rc, cli);
+  // Merge config sources together
+  config = merge({}, defaultConfig, config, envConfig, rc, cli);
 
-	config.rc = rcPath;
+  config.rc = rcPath;
 
-	// Resolve all paths
-	for (var folder in config.folders) {
-		if (config.folders.hasOwnProperty(folder)) {
-			config.folders[folder] = path.resolve(config.folders[folder]);
-		}
-	}
+  // Resolve all paths
+  for (var folder in config.folders) {
+    if (config.folders.hasOwnProperty(folder)) {
+      config.folders[folder] = path.resolve(config.folders[folder]);
+    }
+  }
 
   // Grab webpack config if we have it
-	config.webpackConfig = this.getWebpack(env);
+  config.webpackConfig = this.getWebpack(env);
 
   // Assign to this
-	Object.assign(this, config);
+  Object.assign(this, config);
 
   return this;
 }
@@ -77,27 +77,27 @@ function Config(cli, options) {
  * @return    {Object}
  */
 Config.prototype.rcConfig = function rcConfig(file, options) {
-	file = path.resolve(file);
+  file = path.resolve(file);
 
-	try {
+  try {
     fs.accessSync(file);
-   } catch(accessError) {
-     if (options.requireRc){
-       throw accessError;
-     } else {
-       return {};
-     }
-   }
+  } catch(accessError) {
+    if (options.requireRc){
+      throw accessError;
+    } else {
+      return {};
+    }
+  }
 
-	// Read
-	var rc = fs.readFileSync(file, {
-		encoding: 'utf8'
-	});
+  // Read
+  var rc = fs.readFileSync(file, {
+    encoding: 'utf8'
+  });
 
-	// Convert to JS
-	rc = JSON.parse(rc);
+  // Convert to JS
+  rc = JSON.parse(rc);
 
-	return rc;
+  return rc;
 };
 
 /**
@@ -108,8 +108,8 @@ Config.prototype.rcConfig = function rcConfig(file, options) {
  */
 Config.prototype.getEnv = function(cli, config) {
   return [cli.env, config.env, process.env.NODE_ENV, 'production'].find(function(item){
-		return typeof item === 'string';
-	});
+    return typeof item === 'string';
+  });
 };
 
 /**
@@ -119,13 +119,13 @@ Config.prototype.getEnv = function(cli, config) {
  * @return {Object}
  */
 Config.prototype.requireConfig = function requireConfig(env) {
-	var fileName = this.configFolder + '/' + env + '.js';
-	try {
-		fs.accessSync(fileName);
-	} catch(accessError) {
+  var fileName = this.configFolder + '/' + env + '.js';
+  try {
+    fs.accessSync(fileName);
+  } catch(accessError) {
     // Can't find the file
-		return {};
-	}
+    return {};
+  }
   // Import
   var conf = require(fileName);
 
@@ -147,10 +147,10 @@ Config.prototype.requireConfig = function requireConfig(env) {
  * @return   {String}
  */
 Config.prototype.getRCPath = function getRCPath(configs) {
-	var config = configs.find(function(conf){
-		return typeof conf === 'object' && conf.rc;
-	});
-	return config ? path.resolve(config.rc) : void 0;
+  var config = configs.find(function(conf){
+    return typeof conf === 'object' && conf.rc;
+  });
+  return config ? path.resolve(config.rc) : void 0;
 };
 
 /**
@@ -159,7 +159,7 @@ Config.prototype.getRCPath = function getRCPath(configs) {
  * @return   {Object}
  */
 Config.prototype.getWebpack = function getWebpack(env) {
-	var files = [
+  var files = [
     this.configFolder + '/webpack.' + env + '.js',
     this.configFolder + '/webpack.default.js',
     this.configFolder + '/webpack.config.js'
@@ -167,18 +167,18 @@ Config.prototype.getWebpack = function getWebpack(env) {
     return path.resolve(file);
   });
 
-	var index = files.length;
-	while (--index > -1) {
-		try {
-			fs.accessSync(files[index]);
-		} catch(accessError) {
+  var index = files.length;
+  while (--index > -1) {
+    try {
+      fs.accessSync(files[index]);
+    } catch(accessError) {
       // If we can access it, skip it
-			continue;
-		}
+      continue;
+    }
     // throw new Error('wt')
     return require(files[index]);
-	}
-	return {};
+  }
+  return {};
 };
 
 module.exports = Config;
