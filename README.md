@@ -24,7 +24,7 @@ $ ./example.js run
 ```
 
 ## History
-* 0.13.5 - Improved error logging and handling of worker exits
+* 0.13.5 - Improved error logging and handling of worker exits. Fixed memory leak warning.
 * 0.13.4 - Fixed issue with multiple instances of ceres being run at the same time, fixed issue with the wrong log level being using in error middleware
 * 0.13.3 - Added more confiruation options for express: viewCache, viewEngine. Switched production env switch to a debug config switch since not all prod environments are called production
 * 0.13.2 - Reduce log spam related to cron scripts. Fixed issue with access log not always saving and made its format configurable.
