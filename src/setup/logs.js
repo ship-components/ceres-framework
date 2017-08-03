@@ -54,7 +54,8 @@ function setupTransports(config, name, options) {
         filename: config.folders.logs + '/production.json',
         level: productionLogLevel,
         label: name,
-        json: true
+        json: true,
+        logstash: true
       }))
     );
 
@@ -64,7 +65,8 @@ function setupTransports(config, name, options) {
         name: 'errors-json',
         filename: config.folders.logs + '/errors.json',
         label: name,
-        json: true
+        json: true,
+        logstash: true
       }))
     );
   }
