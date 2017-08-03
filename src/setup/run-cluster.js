@@ -6,10 +6,16 @@ var Pid = require('../lib/Pid');
 var logStartTime = require('../lib/logStartTime');
 
 /**
- * Setup and start listening
- * @param  {Ceres} ceres
- * @return {Promise}
+ * Fork a new worker and listen for log any errors
+ * @param    {Ceres}    ceres
  */
+function forkWorker(ceres, env) {
+  env = typeof env === 'object' ? env : {};
+  var worker = cluster.fork(env);
+  worker.on('error', function(err) {
+    ceres.log._ceres.error(err);
+  });
+}
 
 /**
  * Make sure everything is setup the way we need to be before we start Listening
@@ -42,13 +48,17 @@ module.exports = function(ceres) {
           if (cluster.isMaster) {
             // Fork children
             for (var i = 0; i < ceres.config.instances; i++) {
-              cluster.fork();
+              forkWorker(ceres);
             }
 
             // Attempt to restart children that crash
             cluster.on('exit', function(worker, code, signal){
-              ceres.log._ceres.error('%s exited with %s. Starting new worker...', worker.process.pid, code || signal);
-              cluster.fork();
+              if (signal) {
+                ceres.log._ceres.info('worker %s was killed by %s', worker.process.pid, signal);
+              } else if (code !== 0) {
+                ceres.log._ceres.error('worker %s exited with %s. Starting new worker...', worker.process.pid);
+                forkWorker(ceres);
+              }
             });
 
             ceres.log._ceres.info('Master spawned %d children', ceres.config.instances);

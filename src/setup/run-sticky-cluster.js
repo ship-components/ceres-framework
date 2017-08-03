@@ -6,13 +6,6 @@ var Pid = require('../lib/Pid');
 var logStartTime = require('../lib/logStartTime');
 
 /**
- * Setup and start listening
- * @param  {Ceres} ceres
- * @return {Promise}
- */
-
-
-/**
  * Make sure everything is setup the way we need to be before we start Listening
  * @param  {Ceres}    ceres
  * @return {Promise}
