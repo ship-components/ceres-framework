@@ -10,6 +10,7 @@
     "test": "npm run lint && ./node_modules/.bin/istanbul cover --include-all-sources -x 'cli/**' -x 'spec/**' -x 'config/**' ./node_modules/.bin/jasmine",
     "coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "lint": "./node_modules/.bin/eslint cli/ src/ config/",
+    "lint:fix": "./node_modules/.bin/eslint --fix cli/ src/ config/",
     "watch:test": "./node_modules/.bin/chokidar --initial --verbose -p 'spec/**/*.js' -p 'src/**/*.js' -c 'npm test'"
   },
   "author": "Isaac Suttell",
