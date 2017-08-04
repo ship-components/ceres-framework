@@ -56,7 +56,10 @@ module.exports = function(ceres) {
               if (signal) {
                 ceres.log._ceres.info('worker %s was killed by %s', worker.process.pid, signal);
               } else if (code !== 0) {
-                ceres.log._ceres.error('worker %s exited with %s. Starting new worker...', worker.process.pid);
+                ceres.log._ceres.error('worker %s exited with %s. Starting new worker...', worker.process.pid, code, {
+                  exitCode: code,
+                  argv: process.argv
+                });
                 forkWorker(ceres);
               }
             });
