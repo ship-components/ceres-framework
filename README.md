@@ -24,7 +24,7 @@ $ ./example.js run
 ```
 
 ## History
-* 0.13.7 - Updated pg to address security advisory
+* 0.13.7 - Updated pg to address security advisory. Removed extra fields from error responses
 * 0.13.6 - Fixed missing exit code in logging and added argv to error to better track which process is exiting
 * 0.13.5 - Improved error logging and handling of worker exits. Fixed memory leak warning. Updated dependencies. Added logstash option to json logs
 * 0.13.4 - Fixed issue with multiple instances of ceres being run at the same time, fixed issue with the wrong log level being using in error middleware
