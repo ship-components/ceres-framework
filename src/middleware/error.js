@@ -89,7 +89,13 @@ module.exports = function(Ceres) {
     // Attempt to match some common errors so we can apply the right status
     var commonErrorResponse = findCommonError(err, Ceres);
     if (commonErrorResponse) {
-      Object.assign(response, commonErrorResponse);
+      ['status', 'message']
+        .filter(function(key) {
+          return typeof commonErrorResponse[key] !== 'undefined';
+        })
+        .forEach(function(key) {
+          response[key] = commonErrorResponse[key];
+        });
     }
 
     // Make sure to log it
