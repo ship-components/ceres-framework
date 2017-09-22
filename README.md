@@ -24,6 +24,7 @@ $ ./example.js run
 ```
 
 ## History
+* 0.13.8 - Replaced the fetch function for updating to read - to fix the bug with fetch returns null.
 * 0.13.7 - Updated pg to address security advisory. Removed extra fields from error responses
 * 0.13.6 - Fixed missing exit code in logging and added argv to error to better track which process is exiting
 * 0.13.5 - Improved error logging and handling of worker exits. Fixed memory leak warning. Updated dependencies. Added logstash option to json logs
