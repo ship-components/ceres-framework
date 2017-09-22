@@ -17,6 +17,42 @@ function writePid(fd, callback) {
 }
 
 /**
+ * Check to see if a specific process id is actually running
+ * @param    {Number}    pid
+ * @return   {Boolean}
+ */
+function processExists(pid) {
+  try {
+    return process.kill(pid, 0);
+  } catch (err) {
+    return err.code === 'EPERM';
+  }
+}
+
+/**
+ * Look up a pid and check if the process is already running
+ * @param    {String}    filename    Location of the pid file
+ * @return   {Number}
+ */
+function getExisitingProcessId(filename) {
+  try {
+    // Does the pid file exists?
+    fs.accessSync(filename);
+  } catch (e) {
+    return NaN;
+  }
+
+  // Read
+  var pid = parseInt(fs.readFileSync(filename, 'utf8'), 10);
+
+  // Check
+  if (!isNaN(pid) && processExists(pid)) {
+    return pid;
+  }
+  return NaN;
+}
+
+/**
  * Create Pid
  * @param  {String} path Path to save
  * @param  {Object} options (optional) Settings
@@ -54,6 +90,12 @@ function Pid(filename, options) {
     return;
   }
 
+  // Check to see if the process is already running
+  var existingPid = getExisitingProcessId(filename);
+  if (!isNaN(existingPid)) {
+    throw new Error('process is already running - ' + existingPid);
+  }
+
   // Write pid file
   this.create(function(){
     if (this.options.removeOnExit) {
@@ -82,11 +124,11 @@ Pid.prototype.remove = function remove() {
 Pid.prototype.create = function create(callback) {
   // Open up file descriptor. By default fail if it exists
   fs.open(this.options.path, this.options.overwrite ? 'w' : 'wx', function(err, fd){
-     if (err) {
-       throw err;
-     }
-     writePid(fd, callback);
-   });
+    if (err) {
+      throw err;
+    }
+    writePid(fd, callback);
+  });
 };
 
 module.exports = Pid;

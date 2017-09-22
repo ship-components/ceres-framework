@@ -33,11 +33,11 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
        */
       res: res,
 
-			/**
+      /**
 			 * Make the next callback available so we can pass the errors along
 			 * @type    {Function}
 			 */
-			next: next,
+      next: next,
 
       /**
        * Ceres config
@@ -75,23 +75,23 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
 
     // Attempt to catch any errors and handle them gracefully
     try {
-			var result = handler.call(context, req, res, next, ceres);
+      var result = handler.call(context, req, res, next, ceres);
 
-			if (result instanceof Promise) {
-				// If we see a promise then try to send the body automatically
-				return result
-					.then(function(body){
-						// Make sure the request is writable and that we have something to send
-						if (res.writable) {
-							context.send(body);
-						} else {
-							ceres.log._ceres.debug('Unable to write body', body);
-						}
-					})
-					.catch(next);
-				}
-		} catch(err) {
-			next(err);
-		}
+      if (result instanceof Promise) {
+        // If we see a promise then try to send the body automatically
+        return result
+          .then(function(body){
+            // Make sure the request is writable and that we have something to send
+            if (res.writable) {
+              context.send(body);
+            } else {
+              ceres.log._ceres.debug('Unable to write body', body);
+            }
+          })
+          .catch(next);
+      }
+    } catch(err) {
+      next(err);
+    }
   };
 };

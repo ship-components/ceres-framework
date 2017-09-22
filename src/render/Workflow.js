@@ -14,7 +14,7 @@ module.exports.setup = function(config, props) {
    */
   var assetFactory = require('./AssetFactory.js')(config);
 
-   /**
+  /**
    * This object contains methods that return Async.auto objects. Each item has a
    * list of dependencies it requires. Async.auto attempts to run them as many
    * things in parallel as it can.

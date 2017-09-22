@@ -39,7 +39,9 @@ function Ceres() {
   this.emit = this._events.emit.bind(this._events);
 
   this.on('configured', function(){
-    this.HashIds = this.HashIds.call(this, this);
+    if (typeof this.config.hashids === 'object' && this.config.HashIds !== null) {
+      this.HashIds = this.HashIds.call(this, this);
+    }
   }.bind(this));
 }
 
@@ -122,9 +124,9 @@ Ceres.prototype.connect = function() {
   var connect = require(__dirname + '/db')(this.config, this);
 
   return connect.then(function(db){
-      this.Database = db;
-      return setupCache(this);
-    }.bind(this))
+    this.Database = db;
+    return setupCache(this);
+  }.bind(this))
     .then(function(cache){
       this.Cache = cache;
       return this;
@@ -162,6 +164,23 @@ Ceres.prototype.configure = function(options) {
 };
 
 /**
+ * Error handler
+ * @param    {Error}    err
+ */
+function handleError(err) {
+  // The logger may or may not be setup by the time this is called
+  if (this.log && typeof this.log._ceres === 'object') {
+    this.log._ceres.error(err);
+  }
+
+  // Always log to the stderr
+  console.error(err.stack);
+
+  // Make sure we exit with a non zero error code so we don't get stuck
+  process.exit(1);
+}
+
+/**
  * Load the app
  * @deprecated
  * @param  {Object} options
@@ -175,13 +194,7 @@ Ceres.prototype.load = function(options) {
       this.emit('before:run');
       return ceres;
     }.bind(this))
-    .catch(function(err){
-      if (instance.log) {
-        instance.log._ceres.error(err);
-      } else {
-        console.error(err.stack);
-      }
-    });
+    .catch(handleError.bind(this));
 };
 
 /**
@@ -197,13 +210,7 @@ Ceres.prototype.exec = function(command, options) {
       return ceres;
     }.bind(this))
     .then(command.bind(this, this))
-    .catch(function(err){
-      if (instance.log) {
-        instance.log._ceres.error(err);
-      } else {
-        console.error(err.stack);
-      }
-    });
+    .catch(handleError.bind(this));
 };
 
 module.exports = Ceres;

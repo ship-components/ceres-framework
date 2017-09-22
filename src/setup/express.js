@@ -47,7 +47,7 @@ module.exports = function Server(ceres) {
   /*****************************************************************************
    * Response Time
    */
-  if (ceres.config.env !== 'production') {
+  if (ceres.config.responseTime) {
     // Adds the X-Response-Time header
     var responseTime = require('response-time');
     app.use(responseTime());
@@ -62,8 +62,9 @@ module.exports = function Server(ceres) {
     var sessionStore = session({
       store: new RedisStore(ceres.config.session.redis),
       secret: ceres.config.secret,
-      resave: true,
-      saveUninitialized: true,
+      resave: !!ceres.config.session.resave,
+      saveUninitialized: !!ceres.config.session.saveUninitialized,
+      rolling: !!ceres.config.session.rolling,
       name: ceres.config.name,
       cookie: ceres.config.cookie
     });
@@ -72,7 +73,7 @@ module.exports = function Server(ceres) {
     // Apply
     app.use(sessionStore);
     ceres.log._ceres.silly('Redis session store setup');
-	}
+  }
 
   /*****************************************************************************
    * Proxies
@@ -85,11 +86,11 @@ module.exports = function Server(ceres) {
   /*****************************************************************************
    * Views
    */
-  app.set('view engine', 'ejs');
+  app.set('view engine', ceres.config.viewEngine);
   app.set('views', ceres.config.folders.views);
-  ceres.log._ceres.silly('View engine setup: %s', 'ejs');
+  ceres.log._ceres.silly('View engine setup: %s', ceres.config.viewEngine);
 
-  if (ceres.config.env === 'production') {
+  if (ceres.config.viewCache) {
     app.enable('view cache');
     ceres.log._ceres.silly('View cache enabled');
   } else {
@@ -105,7 +106,7 @@ module.exports = function Server(ceres) {
     ceres.log._ceres.silly('Request compression enabled');
   }
 
-  if (ceres.config.env !== 'production' && ceres.config.webpack && ceres.config.webpackConfig) {
+  if (ceres.config.webpack && ceres.config.webpackConfig) {
     /*****************************************************************************
      * Webpack middleware for dev. Needs to go before static assets to override them
      */
@@ -128,23 +129,14 @@ module.exports = function Server(ceres) {
   /*****************************************************************************
    * Logging
    */
-  if (ceres.config.env === 'production') {
-    // Setup logs
-    var accessLogStream = fs.createWriteStream(ceres.config.folders.logs + '/access.log', {flags: 'a'});
-
-    app.use(morgan('combined', {
-      stream: accessLogStream,
-      skip: ceres.config.logging && ceres.config.logging.skip
-    }));
-
-    ceres.log._ceres.silly('Access logs configured');
-  } else {
-    // Log to console
-    app.use(morgan('dev',{
-      skip: ceres.config.logging && ceres.config.logging.skip
-    }));
-    ceres.log._ceres.silly('Access logs (dev) configured');
-  }
+  var logFilename = ceres.config.folders.logs + '/access.log';
+  var accessLogStream = fs.createWriteStream(logFilename, {flags: 'a'});
+  // Log to console
+  app.use(morgan(ceres.config.logging.accessLogFormat, {
+    stream: accessLogStream,
+    skip: ceres.config.logging && ceres.config.logging.skip
+  }));
+  ceres.log._ceres.silly('%s sccess log saving to %s', ceres.config.logging.accessLogFormat, logFilename);
 
   /*****************************************************************************
    * Throttle all requests
@@ -187,17 +179,17 @@ module.exports = function Server(ceres) {
   } else {
     var errorMiddleware = require('../middleware/error')(ceres);
     app.use(errorMiddleware);
-		ceres.log._ceres.silly('Using default error handler');
+    ceres.log._ceres.silly('Using default error handler');
   }
 
   // Allow user to override not found response
-  if(typeof ceres.config.middleware.notFound === 'function') {
+  if (typeof ceres.config.middleware.notFound === 'function') {
     app.use(ceres.config.middleware.notFound);
     ceres.log._ceres.silly('User supplied 404 middleware configured');
   } else {
     var notFound = require('../middleware/notFound')(ceres);
     app.use(notFound);
-		ceres.log._ceres.silly('Using default not found handler');
+    ceres.log._ceres.silly('Using default not found handler');
   }
 
   return app;

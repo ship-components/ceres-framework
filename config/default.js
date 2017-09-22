@@ -47,13 +47,13 @@ var config = {
    */
   pid: 'ceres.pid',
 
-	/**
+  /**
 	 * Either cluster or fork. Determines how multiple instances of the app
 	 * are run to take advantage of multiple cores. fork is recommended when
 	 * being a reverse proxy
 	 * @type    {String}
 	 */
-	processManagement: 'cluster',
+  processManagement: 'cluster',
 
   /**
    * What mode to run in
@@ -61,6 +61,24 @@ var config = {
    * @type    {String}
    */
   env: 'production',
+
+  /**
+   * Turn on debugging
+   * @type    {Boolean}
+   */
+  debug: false,
+
+  /**
+   * Cache html
+   * @type    {Boolean}
+   */
+  viewCache: true,
+
+  /**
+   * View engine to use for express
+   * @type    {String}
+   */
+  viewEngine: 'ejs',
 
   /**
    * How many worker instances to run at one time
@@ -80,6 +98,13 @@ var config = {
    * @type    {Object}
    */
   logging: {
+
+    /**
+     * What log format to use for access logs. Typically dev or combined
+     * @type    {String}
+     */
+    accessLogFormat: 'combined',
+
     /**
      * Include json logs
      * @type    {Boolean}
@@ -134,7 +159,7 @@ var config = {
 
   /**
    * Session configuration
-   *
+   * @see https://github.com/expressjs/session
    * @type    {Object}
    */
   session: {
@@ -143,6 +168,28 @@ var config = {
      * @type {Number}
      */
     ttl: 3600,
+
+    /**
+     * Forces the session to be saved back to the session store, even if the
+     * session was never modified during the request.
+     * @type    {Boolean}
+     */
+    resave: false,
+
+    /**
+     * Forces a session that is "uninitialized" to be saved to the store. A
+     * session is uninitialized when it is new but not modified.
+     * @type    {Boolean}
+     */
+    saveUninitialized: false,
+
+    /**
+     * Force a session identifier cookie to be set on every response. The
+     * expiration is reset to the original maxAge, resetting the expiration
+     * countdown.
+     * @type    {Boolean}
+     */
+    rolling: true,
 
     /**
      * Settings for Redis Session Store

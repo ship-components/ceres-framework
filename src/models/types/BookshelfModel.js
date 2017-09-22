@@ -13,31 +13,31 @@ var assertDefined = require('../../lib/assert').assertDefined;
  * @param    {Object}    props
  */
 function BookshelfModel(props) {
-	// Override defaults
+  // Override defaults
   Object.assign(this, props);
 
-	// Ensure correct this context
+  // Ensure correct this context
   _.bindAll(this);
 
-	// Setup bookself
-	this.model = this.database.Model.extend(this.table);
+  // Setup bookself
+  this.model = this.database.Model.extend(this.table);
 
   // Make raw function from knex available directly on the model
   this.raw = this.database.knex.raw;
 
-	// Make bookself methods available directly on our model so we don't have to
-	// do `this.model.model[fn]` to access them.
-	for (var fnName in this.model) {
-		if (!this.model.hasOwnProperty(fnName)) {
-			continue;
-		} else if (typeof this.model[fnName] === 'function' && typeof this[fnName] !== 'undefined') {
-			// Ensure we don't override anything
-			throw new Error('bookshelf.' + fnName + ' conflicts with local model');
-		} else if (typeof this.model[fnName] === 'function') {
-			// Gotta bind to ensure the right this
-			this[fnName] = this.model[fnName].bind(this.model);
-		}
-	}
+  // Make bookself methods available directly on our model so we don't have to
+  // do `this.model.model[fn]` to access them.
+  for (var fnName in this.model) {
+    if (!this.model.hasOwnProperty(fnName)) {
+      continue;
+    } else if (typeof this.model[fnName] === 'function' && typeof this[fnName] !== 'undefined') {
+      // Ensure we don't override anything
+      throw new Error('bookshelf.' + fnName + ' conflicts with local model');
+    } else if (typeof this.model[fnName] === 'function') {
+      // Gotta bind to ensure the right this
+      this[fnName] = this.model[fnName].bind(this.model);
+    }
+  }
 }
 
 /**
@@ -51,10 +51,10 @@ BookshelfModel.prototype.create = function create(body) {
   return new this.model(body).save(null, { // eslint-disable-line new-cap
     method: 'insert'
   })
-  .then(function(model){
+    .then(function(model){
     // Look up any relations
-    return this.read(model.id);
-  }.bind(this));
+      return this.read(model.id);
+    }.bind(this));
 };
 
 /**
@@ -66,8 +66,8 @@ BookshelfModel.prototype.create = function create(body) {
 BookshelfModel.prototype.read = function read(id) {
   assertNotNull(this.model);
   assertDefined(id, 'id');
-	if (id instanceof Array) {
-		return this.model.where('id', 'IN', id).fetchAll(this.fetch);
+  if (id instanceof Array) {
+    return this.model.where('id', 'IN', id).fetchAll(this.fetch);
   } else if (_.isObject(id)) {
     return new this.model({ // eslint-disable-line new-cap
       id: id.id
@@ -158,13 +158,15 @@ BookshelfModel.prototype.del = function del(id) {
   }).destroy();
 };
 
+module.exports = BookshelfModel;
+
 /**
  * Helper function to create new models
  * @param     {Object}    props
  * @return    {Object}
  */
 module.exports.extend = function extend(props) {
-	props.database = props.database || this.Database.bookshelf;
+  props.database = props.database || this.Database.bookshelf;
   return new BookshelfModel(props);
 };
 
