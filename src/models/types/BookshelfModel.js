@@ -124,9 +124,9 @@ BookshelfModel.prototype.update = function update(body, id) {
   }).save(body, {
     patch: true,
     method: 'update'
-  }).then(function(model) {
+  }).then(function() {
     // Get relations
-    return model.fetch(this.fetch);
+    return this.read(id);
   }.bind(this));
 };
 
