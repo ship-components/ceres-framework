@@ -27,6 +27,7 @@ ceres create example
 
 ## History
 
+* 0.13.10 - Added stack trace for unrecognized errors
 * 0.13.9 - Updated engine property in package.json to node >= v4.5 and fixed issue with default error logging
 * 0.13.8 - Replaced the fetch function for updating to read - to fix the bug with fetch returns null
 * 0.13.7 - Updated pg to address security advisory. Removed extra fields from error responses

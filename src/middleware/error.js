@@ -107,7 +107,7 @@ module.exports = function(Ceres) {
       username: req.user && req.user.username,
       referrer: req.headers.referrer,
       useragent: req.headers['user-agent'],
-      stack: commonErrorResponse && commonErrorResponse.level !== 'warn' ? err.stack : undefined
+      stack: !commonErrorResponse || (commonErrorResponse && commonErrorResponse.level === 'error') ? err.stack : undefined
     }];
 
     // Make sure to log it
@@ -125,7 +125,7 @@ module.exports = function(Ceres) {
 
     // Set the http status
     res.status(response.status);
-    if (req.originalUrl.match(/^\/api/) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
+    if (req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
       // Json response if the client accepts it
       res.json(response).end();
       return;
