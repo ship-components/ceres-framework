@@ -1,4 +1,5 @@
-# Ceres
+# ceres-framework
+
 Opinionated node.js framework for React single page applications
 
 [![npm](https://img.shields.io/npm/v/ceres-framework.svg?maxAge=2592000)](https://www.npmjs.com/package/ceres-framework)
@@ -27,6 +28,7 @@ ceres create example
 
 ## History
 
+* 0.13.11 - Switched to jest unit test framework, added junit test results, added clover.xml coverage. Limited React to v15 for now.
 * 0.13.10 - Added stack trace for unrecognized errors
 * 0.13.9 - Updated engine property in package.json to node >= v4.5 and fixed issue with default error logging
 * 0.13.8 - Replaced the fetch function for updating to read - to fix the bug with fetch returns null

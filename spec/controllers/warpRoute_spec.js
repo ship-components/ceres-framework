@@ -64,7 +64,7 @@ describe('wrapRoute', function(){
       throw new Error('ERROR');
     };
     var ctx = {};
-    var next = jasmine.createSpy();
+    var next = jest.fn();
     var fn = wrapRoute(handler, ctx, ceres);
     fn({}, {}, next);
     expect(next).toHaveBeenCalled();
@@ -80,7 +80,7 @@ describe('wrapRoute', function(){
       });
     };
     var ctx = {
-      send: jasmine.createSpy()
+      send: jest.fn()
     };
     var res = {
       writable: true
@@ -89,6 +89,8 @@ describe('wrapRoute', function(){
     fn({}, res, function(){})
       .then(function(){
         expect(ctx.send).toHaveBeenCalledWith(expected);
+      })
+      .finally(() => {
         done();
       });
   });
@@ -103,7 +105,7 @@ describe('wrapRoute', function(){
       });
     };
     var ctx = {
-      send: jasmine.createSpy()
+      send: jest.fn()
     };
     var res = {
       writable: false
