@@ -34,7 +34,7 @@ describe('Model', function(){
 	});
 
 	it('should call the init function if provided', function(){
-		var spy = jasmine.createSpy();
+		var spy = jest.fn();
 		var model = new Model(ceres, {
 			init: spy
 		});
