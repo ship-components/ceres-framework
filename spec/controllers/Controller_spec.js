@@ -30,15 +30,6 @@ describe('Controller', function(){
     expect(controller instanceof ControllerModule).toBeTruthy();
   });
 
-  it('should have some fethod methods',function(){
-    var controller = new Controller();
-    expect(typeof controller.getAll).toBe('function');
-    expect(typeof controller.getOne).toBe('function');
-    expect(typeof controller.postCreate).toBe('function');
-    expect(typeof controller.putUpdate).toBe('function');
-    expect(typeof controller.deleteOne).toBe('function');
-  });
-
   it('should call the init function if found', function() {
     var spy = jest.fn();
     new Controller({ // eslint-disable-line
