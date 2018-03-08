@@ -28,6 +28,7 @@ ceres create example
 
 ## History
 
+* 0.13.12 - Updated express and moment, fixed issue with headers already sent log spam
 * 0.13.11 - Switched to jest unit test framework, added junit test results, added clover.xml coverage. Limited React to v15 for now.
 * 0.13.10 - Added stack trace for unrecognized errors
 * 0.13.9 - Updated engine property in package.json to node >= v4.5 and fixed issue with default error logging

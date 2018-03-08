@@ -119,7 +119,7 @@ module.exports = function(Ceres) {
     }
 
     // Headers already sent so we can't end anything else
-    if (res.headerSent) {
+    if (res.headersSent) {
       return;
     }
 

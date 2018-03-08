@@ -26,7 +26,7 @@ var Responses = {
    */
   send: function(data) {
     if (this.res.headersSent || this.res.finished) {
-      this.log.error('%s %s', this.req.method, this.req.originalUrl, new Error('Headers already sent'));
+      this.log.warn('%s %s', this.req.method, this.req.originalUrl, new Error('Headers already sent'));
       return;
     }
     this.res.status(STATUS.OK).json(data).end();
