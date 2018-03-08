@@ -61,7 +61,7 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
 
     /**
      * User overridden responses
-     * @type    {Oject}
+     * @type    {Object}
      */
     var responses = Object.assign({}, Responses, ctx.responses);
 
@@ -81,11 +81,17 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
         // If we see a promise then try to send the body automatically
         return result
           .then(function(body){
-            // Make sure the request is writable and that we have something to send
-            if (res.writable) {
+            // If the body is empty then we can skip sending the response
+            if (body === null || typeof body === 'undefined') {
+              return;
+            }
+            // Make sure the request is writable
+            if (res.writable && !res.headersSent) {
               context.send(body);
             } else {
-              ceres.log._ceres.debug('Unable to write body', body);
+              const err = new Error('Unable to write body to response from promise chain. Please return null if you are handling the response elsewhere.');
+              err.body = body;
+              throw err;
             }
           })
           .catch(next);
