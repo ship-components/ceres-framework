@@ -28,6 +28,7 @@ ceres create example
 
 ## History
 
+* 0.13.13 - fixed "tuple concurrently updated" issue with liveDb
 * 0.13.12 - Updated express and moment, fixed issue with headers already sent log spam
 * 0.13.11 - Switched to jest unit test framework, added junit test results, added clover.xml coverage. Limited React to v15 for now.
 * 0.13.10 - Added stack trace for unrecognized errors

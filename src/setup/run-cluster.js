@@ -48,7 +48,7 @@ module.exports = function(ceres) {
           if (cluster.isMaster) {
             // Fork children
             for (var i = 0; i < ceres.config.instances; i++) {
-              forkWorker(ceres);
+              forkWorker(ceres, { CERES_UNIQUE_ID: i });
             }
 
             // Attempt to restart children that crash
@@ -60,7 +60,7 @@ module.exports = function(ceres) {
                   exitCode: code,
                   argv: process.argv
                 });
-                forkWorker(ceres);
+                forkWorker(ceres, { CERES_UNIQUE_ID: worker.process.env.CERES_UNIQUE_ID });
               }
             });
 
