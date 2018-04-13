@@ -58,8 +58,8 @@ module.exports = function(config, Ceres) {
 
       Ceres.log._ceres.silly('Setting up livePG connection');
 
-      // Setup live db connection
-      db.liveDb = new LivePG(connection, config.db.database);
+      // Setup live db connection using a unique channel for each instance
+      db.liveDb = new LivePG(connection, config.db.database + '_' + process.env.CERES_UNIQUE_ID);
 
       // Clean up on exit
       process.on('exit', function() {
