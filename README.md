@@ -1,4 +1,5 @@
-# Ceres
+# ceres-framework
+
 Opinionated node.js framework for React single page applications
 
 [![npm](https://img.shields.io/npm/v/ceres-framework.svg?maxAge=2592000)](https://www.npmjs.com/package/ceres-framework)
@@ -9,28 +10,34 @@ Opinionated node.js framework for React single page applications
 ## Installation
 
 ### Command Line Interface
+
 Ceres comes with a simple CLI to help setup the framework. Just install the package globally and it'll be available everywhere.
-```
-$ npm install ceres-framework -g
+
+```shell
+npm install ceres-framework -g
 ```
 
 ### Bootstrapping a new application
 
-```
-$ mkdir example && cd example/
-$ ceres create example
-$ ./example.js init
-$ ./example.js run
+```shell
+mkdir example && cd example/
+ceres create example
+./example.js init
+./example.js run
 ```
 
 ## History
-* 0.13.9 - update engine property in package.json to node >= v4.5
+
+* 0.13.12 - Updated express and moment, fixed issue with headers already sent log spam
+* 0.13.11 - Switched to jest unit test framework, added junit test results, added clover.xml coverage. Limited React to v15 for now.
+* 0.13.10 - Added stack trace for unrecognized errors
+* 0.13.9 - Updated engine property in package.json to node >= v4.5 and fixed issue with default error logging
 * 0.13.8 - Replaced the fetch function for updating to read - to fix the bug with fetch returns null
 * 0.13.7 - Updated pg to address security advisory. Removed extra fields from error responses
 * 0.13.6 - Fixed missing exit code in logging and added argv to error to better track which process is exiting
 * 0.13.5 - Improved error logging and handling of worker exits. Fixed memory leak warning. Updated dependencies. Added logstash option to json logs
 * 0.13.4 - Fixed issue with multiple instances of ceres being run at the same time, fixed issue with the wrong log level being using in error middleware
-* 0.13.3 - Added more confiruation options for express: viewCache, viewEngine. Switched production env switch to a debug config switch since not all prod environments are called production
+* 0.13.3 - Added more configuration options for express: viewCache, viewEngine. Switched production env switch to a debug config switch since not all prod environments are called production
 * 0.13.2 - Reduce log spam related to cron scripts. Fixed issue with access log not always saving and made its format configurable.
 * 0.13.1 - Made session resave, saveUninitialized, and rolling configurable. Fixed view cache typo
 * 0.13.0 - Added human readable log option. Fixed issue where pid wasn't created for single instance of cluster, updated dependency versions.
@@ -52,6 +59,7 @@ $ ./example.js run
 This creates the basic folder structure and a default configuration in the current folder.
 
 ## Documentation
+
 * [Config](docs/config.md)
 * [Controllers](docs/controllers.md)
 * [Models](docs/models.md)

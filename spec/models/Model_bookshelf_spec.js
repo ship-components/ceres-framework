@@ -47,7 +47,7 @@ describe('Model.bookself', function(){
 	});
 
   it('should make an alias to the knex.raw function', function(){
-    ceres.Database.bookshelf.knex.raw = jasmine.createSpy();
+    ceres.Database.bookshelf.knex.raw = jest.fn();
     var model = new Model(ceres, {});
 		model.raw();
 		expect(ceres.Database.bookshelf.knex.raw).toHaveBeenCalled();

@@ -98,22 +98,34 @@ module.exports = function(Ceres) {
         });
     }
 
+    // Combine extra data to log
+    var metadata = ['%s %s - %s', req.method, req.originalUrl, err.message, {
+      http_verb: req.method,
+      http_request: req.originalUrl,
+      method: req.method,
+      clientip: req.ip,
+      username: req.user && req.user.username,
+      referrer: req.headers.referrer,
+      useragent: req.headers['user-agent'],
+      stack: !commonErrorResponse || (commonErrorResponse && commonErrorResponse.level === 'error') ? err.stack : undefined
+    }];
+
     // Make sure to log it
-    if (typeof Ceres.log[response.level] === 'function') {
+    if (commonErrorResponse && typeof Ceres.log[commonErrorResponse.level] === 'function') {
       // We set common errors to warnings to make them easier to filter later
-      Ceres.log[response.level](req.method, req.originalUrl, err);
+      Ceres.log[commonErrorResponse.level].apply(Ceres.log, metadata);
     } else {
-      Ceres.log.error(req.method, req.originalUrl, err);
+      Ceres.log.error.apply(Ceres.log, metadata);
     }
 
     // Headers already sent so we can't end anything else
-    if (res.headerSent) {
+    if (res.headersSent) {
       return;
     }
 
     // Set the http status
     res.status(response.status);
-    if (req.originalUrl.match(/^\/api/) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
+    if (req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
       // Json response if the client accepts it
       res.json(response).end();
       return;

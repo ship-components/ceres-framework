@@ -1,17 +1,17 @@
 {
   "name": "ceres-framework",
-  "version": "0.13.9",
+  "version": "0.13.12",
   "description": "Node.js Framework for React Applications",
   "main": "src/index.js",
   "bin": {
     "ceres": "./cli/index.js"
   },
   "scripts": {
-    "test": "npm run lint && ./node_modules/.bin/istanbul cover --include-all-sources -x 'cli/**' -x 'spec/**' -x 'config/**' ./node_modules/.bin/jasmine",
+    "test": "npm run lint && ./node_modules/.bin/jest",
     "coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "lint": "./node_modules/.bin/eslint cli/ src/ config/",
     "lint:fix": "./node_modules/.bin/eslint --fix cli/ src/ config/",
-    "watch:test": "./node_modules/.bin/chokidar --initial --verbose -p 'spec/**/*.js' -p 'src/**/*.js' -c 'npm test'"
+    "watch:test": "./node_modules/.bin/jest --watch --coverage=false"
   },
   "author": "Isaac Suttell",
   "license": "MIT",
@@ -20,7 +20,7 @@
     "url": "git+https://github.com/ship-components/ceres-framework.git"
   },
   "engines": {
-    "node": ">=4.5.0 <7"
+    "node": ">=4.5.0 <9"
   },
   "dependencies": {
     "async": "0.9.2",
@@ -38,12 +38,12 @@
     "knex": "^0.12.9",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
-    "moment": "^2.18.1",
+    "moment": "^2.21.0",
     "morgan": "^1.8.2",
     "multer": "^1.3.0",
     "redis": "^2.7.1",
     "response-time": "^2.3.2",
-    "winston": "^2.3.1"
+    "winston": "^2.4.0"
   },
   "optionalDependencies": {
     "express-socket.io-session": "^1.3.1",
@@ -53,20 +53,38 @@
     "pg-live-select": ">=1.0.3",
     "pg": ">=7.3.0",
     "bookshelf": "^0.10.3",
-    "react": ">=15",
-    "react-dom": ">=15",
+    "react": "15.x",
+    "react-dom": "15.x",
     "sticky-session": "^1.1.2",
     "webpack": "^1.13.3",
     "webpack-dev-middleware": "^1.10.2"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
-    "chokidar-cli": "^1.2.0",
     "coveralls": "^2.13.1",
     "eslint": "^4.3.0",
     "eslint-config-ship-components-base": "^1.1.0",
     "eslint-plugin-react": "^7.1.0",
-    "istanbul": "^0.4.5",
-    "jasmine": "^2.7.0"
+    "jest": "^21.2.1",
+    "jest-junit": "^3.1.0"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "./coverage",
+    "testResultsProcessor": "jest-junit",
+    "testMatch": [
+      "**/*_spec.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
+  },
+  "jest-junit": {
+    "suiteName": "ceres-framework Tests",
+    "output": "./test-reports/junit.xml",
+    "classNameTemplate": "{classname}-{title}",
+    "titleTemplate": "{classname}-{title}",
+    "ancestorSeparator": " › ",
+    "usePathForSuiteName": "true"
   }
 }
