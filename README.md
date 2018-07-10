@@ -28,6 +28,7 @@ ceres create example
 
 ## History
 
+* 0.15.0 - Added error_id to errors for better error tracking, added more metadata to error logging
 * 0.14.0 - Updated React dependencies (for React 16 compatibility)
 * 0.13.13 - fixed "tuple concurrently updated" issue with liveDb
 * 0.13.12 - Updated express and moment, fixed issue with headers already sent log spam
