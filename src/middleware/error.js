@@ -1,3 +1,6 @@
+var uuidv4 = require('uuid/v4');
+var Youch = require('youch');
+
 /**
  * Common errors and how to detect them
  * @type    {Array}
@@ -72,13 +75,17 @@ function findCommonError(err, Ceres) {
 
 module.exports = function(Ceres) {
   return function(err, req, res, next){ // eslint-disable-line no-unused-vars
+    // Generate a unique id we can use to track this error
+    const errorId = uuidv4();
+
     /**
-		 * Default response
-		 * @type    {Object}
-		 */
+     * Default response
+     * @type    {Object}
+     */
     var response = {
       status: 500,
-      message: err.message
+      message: err.message,
+      error_id: errorId
     };
 
     // For development pass the stack along
@@ -100,13 +107,17 @@ module.exports = function(Ceres) {
 
     // Combine extra data to log
     var metadata = ['%s %s - %s', req.method, req.originalUrl, err.message, {
+      statusCode: response.status,
       http_verb: req.method,
       http_request: req.originalUrl,
+      protocol: req.protocol,
+      host: req.get('host'),
       method: req.method,
       clientip: req.ip,
       username: req.user && req.user.username,
       referrer: req.headers.referrer,
       useragent: req.headers['user-agent'],
+      error_id: errorId,
       stack: !commonErrorResponse || (commonErrorResponse && commonErrorResponse.level === 'error') ? err.stack : undefined
     }];
 
@@ -123,25 +134,42 @@ module.exports = function(Ceres) {
       return;
     }
 
+    // Save it in the headers so we always can get to it
+    res.set('X-Error-Id', errorId);
+
     // Set the http status
-    res.status(response.status);
-    if (req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
+    res.status(response.status || 500);
+
+    // RESPONSES
+
+    if (Ceres.config.debug) {
+      // Youch generates pretty errors for us while in debug mode
+      var youch = new Youch(err, req);
+
+      youch
+        .toHTML()
+        .then((prettyErrorResponse) => {
+          res.send(prettyErrorResponse).end();
+        });
+      return null;
+    }  else if (req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
       // Json response if the client accepts it
       res.json(response).end();
-      return;
+    } else {
+      var html = '<html>';
+      html += '<head>';
+      html += '<title>' + response.message + '</title>';
+      html += '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.amber-blue.min.css" />';
+      html += '</head>';
+      html += '<body style="padding: 24px;">';
+      html += '<h1>' + Ceres.config.name + '</h1>';
+      html += '<h2>' + response.message + '</h2>';
+      html += '<div>Error ID: ' + response.error_id + '</div>';
+      if (Ceres.config.debug && response.stack) {
+        html += '<pre>' + response.stack.join('\n') + '</pre>';
+      }
+      html += '</html>';
+      res.send(html).end();
     }
-
-    var html = '<html>';
-    html += '<head>';
-    html += '<title>' + response.message + '</title>';
-    html += '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.amber-blue.min.css" />';
-    html += '</head>';
-    html += '<body style="padding: 24px;">';
-    html += '<h1>' + Ceres.config.name + ': ' + response.message + '</h1>';
-    if (Ceres.config.debug && response.stack) {
-      html += '<pre>' + response.stack.join('\n') + '</pre>';
-    }
-    html += '</html>';
-    res.send(html).end();
   };
 };
