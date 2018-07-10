@@ -44,7 +44,8 @@
     "redis": "^2.7.1",
     "response-time": "^2.3.2",
     "uuid": "^3.3.2",
-    "winston": "^2.4.0"
+    "winston": "^2.4.0",
+    "youch": "^2.0.8"
   },
   "optionalDependencies": {
     "bookshelf": "^0.10.3",
