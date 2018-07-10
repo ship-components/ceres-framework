@@ -79,9 +79,9 @@ module.exports = function(Ceres) {
     const errorId = uuidv4();
 
     /**
-		 * Default response
-		 * @type    {Object}
-		 */
+     * Default response
+     * @type    {Object}
+     */
     var response = {
       status: 500,
       message: err.message,
