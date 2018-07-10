@@ -134,6 +134,9 @@ module.exports = function(Ceres) {
       return;
     }
 
+    // Save it in the headers so we always can get to it
+    res.set('X-Error-Id', errorId);
+
     // Set the http status
     res.status(response.status || 500);
 
