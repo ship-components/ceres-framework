@@ -143,6 +143,7 @@ module.exports = function(Ceres) {
     // RESPONSES
 
     if (Ceres.config.debug) {
+      req.headers['x-error-id'] = errorId;
       // Youch generates pretty errors for us while in debug mode
       var youch = new Youch(err, req);
 
