@@ -167,6 +167,16 @@ module.exports = function Server(ceres) {
    * Error and Missing Resources
    */
 
+  // Allow user to override not found response
+  if (typeof ceres.config.middleware.notFound === 'function') {
+    app.use(ceres.config.middleware.notFound);
+    ceres.log._ceres.silly('User supplied 404 middleware configured');
+  } else {
+    var notFound = require('../middleware/notFound')(ceres);
+    app.use(notFound);
+    ceres.log._ceres.silly('Using default not found handler');
+  }
+
   // Allow user to override error responses
   if (ceres.config.middleware.error) {
     if (ceres.config.middleware.error instanceof Array !== true) {
@@ -180,16 +190,6 @@ module.exports = function Server(ceres) {
     var errorMiddleware = require('../middleware/error')(ceres);
     app.use(errorMiddleware);
     ceres.log._ceres.silly('Using default error handler');
-  }
-
-  // Allow user to override not found response
-  if (typeof ceres.config.middleware.notFound === 'function') {
-    app.use(ceres.config.middleware.notFound);
-    ceres.log._ceres.silly('User supplied 404 middleware configured');
-  } else {
-    var notFound = require('../middleware/notFound')(ceres);
-    app.use(notFound);
-    ceres.log._ceres.silly('Using default not found handler');
   }
 
   return app;
