@@ -28,7 +28,7 @@ ceres create example
 
 ## History
 
-* 0.15.1 - Fixed issue with 404 handler not triggering properly
+* 0.15.1 - Fixed issue with 404 handler not triggering properly, display error id in pretty error display
 * 0.15.0 - Added error_id to errors for better error tracking, added more metadata to error logging, added pretty error responses while in debug mode, update dependencies
 * 0.14.0 - Updated React dependencies (for React 16 compatibility)
 * 0.13.13 - fixed "tuple concurrently updated" issue with liveDb
