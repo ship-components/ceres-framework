@@ -60,7 +60,16 @@ module.exports = function(ceres) {
                   exitCode: code,
                   argv: process.argv
                 });
-                forkWorker(ceres, { CERES_UNIQUE_ID: worker.process.env.CERES_UNIQUE_ID });
+                try {
+                  forkWorker(ceres, { CERES_UNIQUE_ID: worker.process.env.CERES_UNIQUE_ID });
+                } catch(err) {
+                  // If we fail to form then just exit to prevent infinite loop
+                  ceres.log._ceres.error(err, function(e) {
+                    ceres.log._ceres.error(e);
+                    // Just kill the main process because this normally indices a bigger problem
+                    process.exit(1);
+                  });
+                }
               }
             });
 
