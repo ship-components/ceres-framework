@@ -110,7 +110,9 @@ Ceres.prototype.connect = function() {
       }.bind(this));
   }
 
-  this.log._ceres.debug('Setting up ' + type);
+  this.log._ceres.debug('Connecting to %s...', type);
+
+  var databaseStartTime = Date.now();
 
   // Expose these for any help function
   if (type === 'bookshelf') {
@@ -124,6 +126,10 @@ Ceres.prototype.connect = function() {
   var connect = require(__dirname + '/db')(this.config, this);
 
   return connect.then(function(db){
+    var databaseStartupTime = Date.now() - databaseStartTime;
+    this.log._ceres.info('Connected to %s - %ss', type, (databaseStartupTime / 1000).toLocaleString(), {
+      duration: databaseStartupTime
+    });
     this.Database = db;
     return setupCache(this);
   }.bind(this))
@@ -140,6 +146,7 @@ Ceres.prototype.connect = function() {
  */
 Ceres.prototype.configure = function(options) {
   return new Promise(function(resolve, reject){
+    const startTime = Date.now();
     try {
       // Bootstrap config
       this.config = new Config(options);
@@ -156,9 +163,12 @@ Ceres.prototype.configure = function(options) {
 
     // Setup internal logger
     this.log._ceres = setupLogs.init(this);
+    this.log._ceres.info('Starting %s...', this.config.name || 'application');
+    this.log._ceres.debug('Writing logs to %s', this.config.folders.logs);
 
     this.emit('configured');
-    this.log._ceres.debug('Configured');
+    var duration = (Date.now() - startTime);
+    this.log._ceres.debug('"%s" configuration loaded - %ss', this.config.env, (duration / 1000).toLocaleString(), { duration });
     resolve(this);
   }.bind(this));
 };
