@@ -15,7 +15,7 @@ describe('wrapRoute', function(){
     };
   });
 
-	it('should return a function', function(){
+  it('should return a function', function(){
     var handler = function() {};
     var ctx = {};
     var result;
@@ -34,10 +34,12 @@ describe('wrapRoute', function(){
       extend: true
     };
     expect(function(){
-      result = wrapRoute(handler, ctx, ceres);
-      result();
+      var wrappedFunction = wrapRoute(handler, ctx, ceres);
+      wrappedFunction()
+        .finally(() => {
+          expect(result.extend).toBe(ctx.extend);
+        });
     }).not.toThrow();
-    expect(result.extend).toBe(ctx.extend);
   });
 
   it('should assign "req", "res", "next" to "this" of the handler', function(){
@@ -51,23 +53,28 @@ describe('wrapRoute', function(){
     var res = {};
     var next = function(){};
     expect(function(){
-      result = wrapRoute(handler, ctx, ceres);
-      result(req, res, next);
+      var wrappedFunction = wrapRoute(handler, ctx, ceres);
+      wrappedFunction(req, res, next)
+        .finally(() => {
+          expect(result.req).toBe(req);
+          expect(result.res).toBe(res);
+          expect(result.next).toBe(next);
+        });
     }).not.toThrow();
-    expect(result.req).toBe(req);
-    expect(result.res).toBe(res);
-    expect(result.next).toBe(next);
   });
 
   it('should call the "next" handler if theres an error', function(){
+    var err = new Error('ERROR');
     var handler = function() {
-      throw new Error('ERROR');
+      throw err;
     };
     var ctx = {};
     var next = jest.fn();
-    var fn = wrapRoute(handler, ctx, ceres);
-    fn({}, {}, next);
-    expect(next).toHaveBeenCalled();
+    var wrappedFunction = wrapRoute(handler, ctx, ceres);
+    wrappedFunction({}, {}, next)
+      .then(() => {
+        expect(next).toHaveBeenCalledWith(err);
+      });
   });
 
   it('should automatically "send" the result of a promise', function(done){
