@@ -143,7 +143,5 @@ module.exports.init = function(ceres) {
     })
   });
 
-  winston.silly('Writing logs to %s', ceres.config.folders.logs);
-
   return winston;
 };

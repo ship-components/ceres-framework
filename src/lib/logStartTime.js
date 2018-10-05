@@ -11,5 +11,7 @@ module.exports = function logStartTime(str, ceres) {
   var loadTimeMs = Math.floor((ceres.loadTime[0] * 1e9 + ceres.loadTime[1]) / 1000000);
   var loadTimes = moment.duration(loadTimeMs).asSeconds();
   // Log it
-  ceres.log._ceres.debug(str, loadTimes);
+  ceres.log._ceres.info(str, loadTimes, {
+    duration: loadTimeMs
+  });
 };

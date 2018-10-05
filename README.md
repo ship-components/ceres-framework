@@ -28,6 +28,7 @@ ceres create example
 
 ## History
 
+* 1.0.1 - Fixed a big preventing results generated from promises from returning. Updated start up logging levels and messages.
 * 1.0.0 - Dropped support for node 4. Fixed infinite restart loop in cluster mode. Updated dependencies.
 * 0.15.1 - Fixed issue with 404 handler not triggering properly, display error id in pretty error display
 * 0.15.0 - Added error_id to errors for better error tracking, added more metadata to error logging, added pretty error responses while in debug mode, update dependencies

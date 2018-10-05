@@ -12,6 +12,7 @@ module.exports = function setupCache(ceres) {
      * Redis
      */
     if (typeof ceres.config.cache === 'object' && ceres.config.cache.type === 'redis') {
+      ceres.logger('cache').info('Starting redis cache...');
       // Import
       var RedisCache = require('../cache/RedisCache');
       try {

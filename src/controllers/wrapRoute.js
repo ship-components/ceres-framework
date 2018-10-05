@@ -63,7 +63,7 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
      * User overridden responses
      * @type    {Object}
      */
-    var responses = Object.assign({}, Responses, ctx.responses);
+    var responses = Object.assign({}, Responses, (ctx || {}).responses);
 
     /**
      * Bind req and res to each response
@@ -73,31 +73,27 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
     // Attach to context
     Object.assign(context, responses, ctx);
 
-    // Attempt to catch any errors and handle them gracefully
-    try {
-      var result = handler.call(context, req, res, next, ceres);
-
-      if (result instanceof Promise) {
-        // If we see a promise then try to send the body automatically
-        return result
-          .then(function(body){
-            // If the body is empty then we can skip sending the response
-            if (body === null || typeof body === 'undefined') {
-              return;
-            }
-            // Make sure the request is writable
-            if (res.writable && !res.headersSent) {
-              context.send(body);
-            } else {
-              const err = new Error('Unable to write body to response from promise chain. Please return null if you are handling the response elsewhere.');
-              err.body = body;
-              throw err;
-            }
-          })
-          .catch(next);
-      }
-    } catch(err) {
-      next(err);
-    }
+    // Start a promise chain so we can catch any errors
+    return Promise.bind(context)
+      .then(function() {
+        // Attempt to resolve the result of the handler. This can be a promise.
+        // Bluebird will handle both promies and direct values
+        return Promise.resolve(handler.call(context, req, res, next, ceres));
+      })
+      .then(function(body) {
+        if (body === null || typeof body === 'undefined') {
+          // If the body is empty then we can skip sending the response
+          return null;
+        } else if (res.writable && !res.headersSent) {
+          // Make sure the request is writable before we try to send it
+          context.send(body);
+          return null;
+        } else {
+          const err = new Error('Unable to write response. Please return null if you are handling the response elsewhere.');
+          err.body = body;
+          throw err;
+        }
+      })
+      .catch(next);
   };
 };
