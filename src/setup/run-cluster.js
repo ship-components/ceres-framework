@@ -2,7 +2,6 @@ var cluster = require('cluster');
 var Promise = require('bluebird');
 
 var Server = require('./Server');
-var Pid = require('../lib/Pid');
 var logStartTime = require('../lib/logStartTime');
 
 /**
@@ -29,12 +28,6 @@ module.exports = function(ceres) {
     .then(function listen() {
       return new Promise(function(resolve, reject){
         try {
-          if (ceres.config.pid) {
-            // Setup Pid if we're configure
-            ceres.pid = new Pid(ceres.config.pid);
-            ceres.log._ceres.silly('pid %d written to %s', ceres.pid.id, ceres.pid.options.path);
-          }
-
           if (!ceres.config.instances || ceres.config.instances === 1) {
             // If we only have a single instance no need to run the cluster
             Server.call(ceres, ceres).listen(ceres.config.port, function(){

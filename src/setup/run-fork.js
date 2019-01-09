@@ -124,12 +124,6 @@ module.exports = function(ceres) {
     // CERES_UNIQUE_ID gets automatically assigned to children
     var isMaster = !process.env.CERES_UNIQUE_ID;
 
-    if (isMaster && ceres.config.pid) {
-      // Setup Pid for the master process
-      ceres.pid = new Pid(ceres.config.pid);
-      ceres.log._ceres.silly('pid %d written to %s', ceres.pid.id, ceres.pid.options.path);
-    }
-
     if (isMaster) {
       // Master
 

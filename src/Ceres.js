@@ -15,6 +15,7 @@ var setupLogs = require('./setup/logs');
 var runStickyCluster = require('./setup/run-sticky-cluster');
 var runCluster = require('./setup/run-cluster');
 var runFork = require('./setup/run-fork');
+var Pid = require('./lib/Pid');
 
 function Ceres() {
   this.startTime = process.hrtime();
@@ -164,12 +165,31 @@ Ceres.prototype.configure = function(options) {
     // Setup internal logger
     this.log._ceres = setupLogs.init(this);
     this.log._ceres.info('Starting %s...', this.config.name || 'application');
-    this.log._ceres.debug('Writing logs to %s', this.config.folders.logs);
+    this.log._ceres.info('Writing logs to %s', this.config.folders.logs);
+
+    // Log SIGTERM exit events
+    process.on('SIGTERM', () => {
+      this.log._ceres.info('Received SIGTERM; exiting...');
+      process.exit(0);
+    });
 
     this.emit('configured');
     var duration = (Date.now() - startTime);
-    this.log._ceres.debug('"%s" configuration loaded - %ss', this.config.env, (duration / 1000).toLocaleString(), { duration });
-    resolve(this);
+    this.log._ceres.info('"%s" configuration loaded - %ss', this.config.env, (duration / 1000).toLocaleString(), { duration });
+
+    if (this.config.pid) {
+      // Setup Pid if we're configure
+      this.pid = new Pid(this.config.pid);
+      this.pid.on('created', (pid) => {
+        this.log._ceres.info('Wrote pid to %s - %s', pid.options.path, pid.id, {
+          pid: pid.id
+        });
+        resolve(this);
+      });
+      this.pid.on('error', reject);
+    } else {
+      resolve(this);
+    }
   }.bind(this));
 };
 
