@@ -28,7 +28,13 @@ module.exports = function routes(ceres, prop) {
       controller.name = name;
       controller.endpoint = endpoint;
       router.use(endpoint, controller.router(ceres));
-      ceres.log._ceres.silly('Setup endpoint %s from %s in %dms', endpoint, name, benchmark.stop());
+      benchmark.stop();
+      const SLOW_SETUP_CUTOFF_MS = 200;
+      if (benchmark.val() > SLOW_SETUP_CUTOFF_MS) {
+        ceres.log._ceres.debug('[%s] %s -> %s took longer than %dms to initialize - %ss', prop, endpoint, name, SLOW_SETUP_CUTOFF_MS, (benchmark.val() / 1000).toLocaleString(), { name, duration: benchmark.val() });
+      } else {
+        ceres.log._ceres.silly('[%s] %s -> %s initialized - %ss', prop, endpoint, name, (benchmark.val() / 1000).toLocaleString(), { name, duration: benchmark.val() });
+      }
     } catch(err) {
       ceres.log._ceres.error('Unable to setup', name);
       throw err;

@@ -111,7 +111,7 @@ Ceres.prototype.connect = function() {
       }.bind(this));
   }
 
-  this.log._ceres.debug('Connecting to %s...', type);
+  this.log._ceres.silly('Connecting to %s...', type);
 
   var databaseStartTime = Date.now();
 
