@@ -143,15 +143,20 @@ module.exports = function(Ceres) {
     // RESPONSES
 
     if (Ceres.config.debug) {
-      req.headers['x-error-id'] = errorId;
-      // Youch generates pretty errors for us while in debug mode
-      var youch = new Youch(err, req);
+      try {
+        req.headers['x-error-id'] = errorId;
+        // Youch generates pretty errors for us while in debug mode
+        var youch = new Youch(err, req);
 
-      youch
-        .toHTML()
-        .then((prettyErrorResponse) => {
-          res.send(prettyErrorResponse).end();
-        });
+        youch
+          .toHTML()
+          .then((prettyErrorResponse) => {
+            res.send(prettyErrorResponse).end();
+          });
+      } catch(e) {
+        Ceres.log.error(e);
+        res.send(err.stack).end();
+      }
       return null;
     }  else if (req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
       // Json response if the client accepts it
