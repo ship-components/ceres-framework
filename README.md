@@ -28,6 +28,7 @@ ceres create example
 
 ## History
 
+* 1.1.1 - Fixed some linting errors
 * 1.1.0 - On startup by default if an existing pid is running Ceres will send a sigterm signal to the old process to try to cleaning shut it down. Fixed issue with incorrect http status code for forbidden / permission dendied requests. Improved startup time logging. Added a catch statement for when youch fails.
 * 1.0.1 - Fixed a big preventing results generated from promises from returning. Updated start up logging levels and messages.
 * 1.0.0 - Dropped support for node 4. Fixed infinite restart loop in cluster mode. Updated dependencies.
@@ -35,7 +36,7 @@ ceres create example
 * 0.15.0 - Added error_id to errors for better error tracking, added more metadata to error logging, added pretty error responses while in debug mode, update dependencies
 * 0.14.0 - Updated React dependencies (for React 16 compatibility)
 * 0.13.13 - fixed "tuple concurrently updated" issue with liveDb
-* 0.13.12 - Updated express and moment, fixed issue with headers already sent log spam
+* 0.13.12 - Updated express and momentp fixed issue with headers already sent log spam
 * 0.13.11 - Switched to jest unit test framework, added junit test results, added clover.xml coverage. Limited React to v15 for now.
 * 0.13.10 - Added stack trace for unrecognized errors
 * 0.13.9 - Updated engine property in package.json to node >= v4.5 and fixed issue with default error logging

@@ -14,7 +14,7 @@ var fs = require('fs');
 var routes = require('./routes');
 var Benchmark = require('../lib/Benchmark');
 
-module.exports = function Server(ceres) {
+module.exports = function Server(ceres) { // eslint-disable-line complexity
   let benchmarks = {};
   /*****************************************************************************
    * Start Express

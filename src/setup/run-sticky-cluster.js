@@ -2,7 +2,6 @@ var sticky = require('sticky-session');
 var Promise = require('bluebird');
 
 var Server = require('./Server');
-var Pid = require('../lib/Pid');
 var logStartTime = require('../lib/logStartTime');
 
 /**
