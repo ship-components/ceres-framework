@@ -14,7 +14,8 @@ var STATUS = {
   OK: 200,
   NO_CONTENT: 204,
   BAD_REQUEST: 400,
-  FORBIDDEN: 403,
+  FORBIDDEN: 401,
+  PERMISSION_DENIED: 403,
   NOT_FOUND: 404,
   ERROR: 500
 };
@@ -45,7 +46,17 @@ var Responses = {
    */
   notFound: function(context) {
     var err = new Error('Not Found' + (typeof context === 'string' ? ': ' + context: ''));
-    err.status = 404;
+    err.status = STATUS.NOT_FOUND;
+    this.fail(err);
+  },
+
+   /**
+   * User doesn't have access
+   * @param     {String}    context
+   */
+  forbidden: function(context) {
+    var err = new Error('Forbidden' + (typeof context === 'string' ? ': ' + context: ''));
+    err.status = STATUS.FORBIDDEN;
     this.fail(err);
   },
 
@@ -53,9 +64,9 @@ var Responses = {
    * User doesn't have access
    * @param     {String}    context
    */
-  forbidden: function(context) {
+  permissionDenied: function(context) {
     var err = new Error('Forbidden' + (typeof context === 'string' ? ': ' + context: ''));
-    err.status = 403;
+    err.status = STATUS.PERMISSION_DENIED;
     this.fail(err);
   },
 
@@ -65,7 +76,7 @@ var Responses = {
    */
   badRequest: function(context) {
     var err = new Error('Bad Request' + (typeof context === 'string' ? ': ' + context: ''));
-    err.status = 400;
+    err.status = STATUS.BAD_REQUEST;
     this.fail(err);
   },
 

@@ -7,25 +7,25 @@ var Youch = require('youch');
  */
 var CommonErrors = [
   {
-    message: /^Forbidden:?(.+)?/,
+    message: /^Forbidden:?(.+)?/i,
     status: 401,
     level: 'warn',
     defaultText: 'Please login first'
   },
   {
-    message: /^Permission\s?Denied:?(.+)?/,
+    message: /^Permission\s?Denied:?(.+)?/i,
     status: 403,
     level: 'warn',
     defaultText: 'You do not have permission to access this.'
   },
   {
-    message: /^Not\s?Found:?(.+)?/,
+    message: /^Not\s?Found:?(.+)?/i,
     status: 404,
     level: 'warn',
     defaultText: 'Unable to find resource'
   },
   {
-    message: /^Bad\s?Request:?(.+)?/,
+    message: /^Bad\s?Request:?(.+)?/i,
     status: 400,
     level: 'warn',
     defaultText: 'Bad Request'
