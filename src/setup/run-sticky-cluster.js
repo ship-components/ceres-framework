@@ -2,7 +2,6 @@ var sticky = require('sticky-session');
 var Promise = require('bluebird');
 
 var Server = require('./Server');
-var Pid = require('../lib/Pid');
 var logStartTime = require('../lib/logStartTime');
 
 /**
@@ -21,6 +20,7 @@ module.exports = function(ceres) {
           var server = Server.call(ceres, ceres);
 
           if (!ceres.config.instances || ceres.config.instances === 1) {
+            ceres.log._ceres.info('Starting server in single instance mode...');
             // Skip sticky session setup if we only have a single instance. Allows
             // for debugging
             server.listen(ceres.config.port, function(){

@@ -30,7 +30,7 @@ var DefaultSettings = {
  * @param    {String}    name
  * @return   {Array<Object>}
  */
-function setupTransports(config, name, options) {
+function setupTransports(config, name, options) { // eslint-disable-line complexity
   // Ensure we're an object
   options = options || {};
 

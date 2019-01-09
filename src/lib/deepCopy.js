@@ -4,7 +4,7 @@
  * @param     {Mixed}    obj
  * @return    {Mixed}
  */
-module.exports = function deepCopy(obj) {
+module.exports = function deepCopy(obj) { // eslint-disable-line complexity
   var copy;
 
   if (obj === null || typeof obj !== 'object') {

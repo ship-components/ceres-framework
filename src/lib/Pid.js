@@ -100,6 +100,10 @@ Pid.prototype.remove = function remove() {
     this.emit('removed', this);
     return true;
   } catch(err) {
+    if (err.code === 'ENOENT') {
+      // Ignore any errors for missing files
+      return true;
+    }
     console.error(err);
     return false;
   }
@@ -119,6 +123,12 @@ Pid.prototype.create = function create(callback) {
       callback(e);
       return;
     }
+  }
+
+  if (pid === process.pid) {
+    // The pid file already exists and matches the current pid
+    callback();
+    return;
   }
 
   // Check to see if we can see the process running

@@ -50,7 +50,7 @@ var Responses = {
     this.fail(err);
   },
 
-   /**
+  /**
    * User doesn't have access
    * @param     {String}    context
    */

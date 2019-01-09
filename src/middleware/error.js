@@ -74,7 +74,7 @@ function findCommonError(err, Ceres) {
 }
 
 module.exports = function(Ceres) {
-  return function(err, req, res, next){ // eslint-disable-line no-unused-vars
+  return function(err, req, res, next){ // eslint-disable-line no-unused-vars, complexity
     // Generate a unique id we can use to track this error
     const errorId = uuidv4();
 
@@ -158,7 +158,7 @@ module.exports = function(Ceres) {
         res.send(err.stack).end();
       }
       return null;
-    }  else if (req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
+    } else if (req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
       // Json response if the client accepts it
       res.json(response).end();
     } else {

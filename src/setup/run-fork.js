@@ -2,7 +2,6 @@ var Promise = require('bluebird');
 var fork = require('child_process').fork;
 
 var Server = require('./Server');
-var Pid = require('../lib/Pid');
 var logStartTime = require('../lib/logStartTime');
 
 /**
