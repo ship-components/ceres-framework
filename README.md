@@ -28,7 +28,7 @@ ceres create example
 
 ## History
 
-* 1.1.1 - Fixed some linting errors
+* 1.1.1 - Fixed some linting errors. Bugfix for Pids
 * 1.1.0 - On startup by default if an existing pid is running Ceres will send a sigterm signal to the old process to try to cleaning shut it down. Fixed issue with incorrect http status code for forbidden / permission dendied requests. Improved startup time logging. Added a catch statement for when youch fails.
 * 1.0.1 - Fixed a big preventing results generated from promises from returning. Updated start up logging levels and messages.
 * 1.0.0 - Dropped support for node 4. Fixed infinite restart loop in cluster mode. Updated dependencies.

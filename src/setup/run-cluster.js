@@ -29,6 +29,7 @@ module.exports = function(ceres) {
       return new Promise(function(resolve, reject){
         try {
           if (!ceres.config.instances || ceres.config.instances === 1) {
+            ceres.log._ceres.info('Starting server in single instance mode...');
             // If we only have a single instance no need to run the cluster
             Server.call(ceres, ceres).listen(ceres.config.port, function(){
               logStartTime('Server took %ds to start listening', ceres);

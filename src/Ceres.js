@@ -168,22 +168,20 @@ Ceres.prototype.configure = function(options) {
     this.log._ceres.info('Writing logs to %s', this.config.folders.logs);
 
     // Log SIGTERM exit events
-    process.on('SIGTERM', () => {
+    process.on('SIGTERM', (code) => {
       this.log._ceres.info('Received SIGTERM; exiting...');
-      process.exit(0);
+      process.exit(code);
     });
 
     this.emit('configured');
     var duration = (Date.now() - startTime);
     this.log._ceres.info('"%s" configuration loaded - %ss', this.config.env, (duration / 1000).toLocaleString(), { duration });
 
-    if (this.config.pid) {
+    if (this.config.pid && !options.disablePid) {
       // Setup Pid if we're configure
       this.pid = new Pid(this.config.pid);
       this.pid.on('created', (pid) => {
-        this.log._ceres.info('Wrote pid to %s - %s', pid.options.path, pid.id, {
-          pid: pid.id
-        });
+        this.log._ceres.info('Wrote pid to %s - %s', pid.options.path, pid.id);
         resolve(this);
       });
       this.pid.on('error', reject);
@@ -216,6 +214,12 @@ function handleError(err) {
  * @param  {Object} options
  */
 Ceres.prototype.load = function(options) {
+
+  // Load is typically used for scripts which do not need a pid by default
+  if (typeof options.disablePid !== 'boolean') {
+    options.disablePid = true;
+  }
+
   var instance = this;
   return instance
     .configure(options)
