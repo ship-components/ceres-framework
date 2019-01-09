@@ -7,25 +7,25 @@ var Youch = require('youch');
  */
 var CommonErrors = [
   {
-    message: /^Forbidden:?(.+)?/,
+    message: /^Forbidden:?(.+)?/i,
     status: 401,
     level: 'warn',
     defaultText: 'Please login first'
   },
   {
-    message: /^Permission\s?Denied:?(.+)?/,
+    message: /^Permission\s?Denied:?(.+)?/i,
     status: 403,
     level: 'warn',
     defaultText: 'You do not have permission to access this.'
   },
   {
-    message: /^Not\s?Found:?(.+)?/,
+    message: /^Not\s?Found:?(.+)?/i,
     status: 404,
     level: 'warn',
     defaultText: 'Unable to find resource'
   },
   {
-    message: /^Bad\s?Request:?(.+)?/,
+    message: /^Bad\s?Request:?(.+)?/i,
     status: 400,
     level: 'warn',
     defaultText: 'Bad Request'
@@ -143,15 +143,20 @@ module.exports = function(Ceres) {
     // RESPONSES
 
     if (Ceres.config.debug) {
-      req.headers['x-error-id'] = errorId;
-      // Youch generates pretty errors for us while in debug mode
-      var youch = new Youch(err, req);
+      try {
+        req.headers['x-error-id'] = errorId;
+        // Youch generates pretty errors for us while in debug mode
+        var youch = new Youch(err, req);
 
-      youch
-        .toHTML()
-        .then((prettyErrorResponse) => {
-          res.send(prettyErrorResponse).end();
-        });
+        youch
+          .toHTML()
+          .then((prettyErrorResponse) => {
+            res.send(prettyErrorResponse).end();
+          });
+      } catch(e) {
+        Ceres.log.error(e);
+        res.send(err.stack).end();
+      }
       return null;
     }  else if (req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
       // Json response if the client accepts it

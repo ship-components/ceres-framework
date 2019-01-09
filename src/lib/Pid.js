@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var EventEmitter = require('events');
 var cluster = require('cluster');
 
 /**
@@ -27,29 +28,6 @@ function processExists(pid) {
   } catch (err) {
     return err.code === 'EPERM';
   }
-}
-
-/**
- * Look up a pid and check if the process is already running
- * @param    {String}    filename    Location of the pid file
- * @return   {Number}
- */
-function getExisitingProcessId(filename) {
-  try {
-    // Does the pid file exists?
-    fs.accessSync(filename);
-  } catch (e) {
-    return NaN;
-  }
-
-  // Read
-  var pid = parseInt(fs.readFileSync(filename, 'utf8'), 10);
-
-  // Check
-  if (!isNaN(pid) && processExists(pid)) {
-    return pid;
-  }
-  return NaN;
 }
 
 /**
@@ -85,32 +63,41 @@ function Pid(filename, options) {
 
   this.id = process.pid;
 
+  // Emitter
+  this._events = new EventEmitter();
+  this.on = this._events.on.bind(this._events);
+  this.once = this._events.once.bind(this._events);
+  this.off = this._events.removeListener.bind(this._events);
+  this.emit = this._events.emit.bind(this._events);
+
+  // Bindings
+  this.create = this.create.bind(this);
+  this.remote = this.remove.bind(this);
+
   if (!cluster.isMaster) {
     // Skip if this isn't the master
     return;
   }
 
-  // Check to see if the process is already running
-  var existingPid = getExisitingProcessId(filename);
-  if (!isNaN(existingPid)) {
-    throw new Error('process is already running - ' + existingPid);
-  }
-
   // Write pid file
-  this.create(function(){
-    if (this.options.removeOnExit) {
+  this.create(function(err){
+    if (err) {
+      this.emit('error', err);
+    } else if (this.options.removeOnExit) {
       process.on('exit', this.remove.bind(this));
     }
+    this.emit('created', this);
   }.bind(this));
 }
 
 /**
- * Sync rmeove pid
+ * Sync remove pid
  * @return {Boolean}
  */
 Pid.prototype.remove = function remove() {
   try {
     fs.unlinkSync(this.options.path);
+    this.emit('removed', this);
     return true;
   } catch(err) {
     console.error(err);
@@ -122,12 +109,37 @@ Pid.prototype.remove = function remove() {
  * Create pid file
  */
 Pid.prototype.create = function create(callback) {
-  // Open up file descriptor. By default fail if it exists
-  fs.open(this.options.path, this.options.overwrite ? 'w' : 'wx', function(err, fd){
-    if (err) {
-      throw err;
+  let pid = NaN;
+  try {
+    // Attempt to read the pid. Must be sync otherwise the rest of the app starts too quick
+    pid = parseInt(fs.readFileSync(this.options.path, 'utf8'), 10);
+  } catch(e) {
+    // If it doesn't exist that's cool. We'll make it later.
+    if (e.code !== 'ENOENT') {
+      callback(e);
+      return;
     }
-    writePid(fd, callback);
+  }
+
+  // Check to see if we can see the process running
+  const existingProcessRunning = !isNaN(pid) && processExists(pid);
+
+  if (this.options.overwrite && existingProcessRunning) {
+    // If we do find a pid and we see a process is running, try to close it
+    process.kill(pid, 'SIGTERM');
+  } else if (!this.options.overwrite && existingProcessRunning) {
+    // If we're not in overwrite mode and we see an existing PID throw
+    callback(new Error('application already running - ' + pid.toString()));
+    return;
+  }
+
+  // Open up file descriptor. By default fail if it exists
+  fs.open(this.options.path, this.options.overwrite ? 'w' : 'wx', function(err, fd) {
+    if (err) {
+      callback(err);
+    } else {
+      writePid(fd, callback);
+    }
   });
 };
 

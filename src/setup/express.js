@@ -12,13 +12,14 @@ var session = require('express-session');
 var fs = require('fs');
 
 var routes = require('./routes');
+var Benchmark = require('../lib/Benchmark');
 
 module.exports = function Server(ceres) {
+  let benchmarks = {};
   /*****************************************************************************
    * Start Express
    */
   var app = express();
-  ceres.log._ceres.silly('Configuring express server');
 
   /*****************************************************************************
    * Template Globals
@@ -30,13 +31,13 @@ module.exports = function Server(ceres) {
    * JSON
    */
   app.use(bodyParser.json());
-  ceres.log._ceres.silly('Json body configured');
+  ceres.log._ceres.silly('Global json body parser enabled');
 
   /*****************************************************************************
    * Cookies
    */
   app.use(cookieParser(ceres.config.secret, ceres.config.cookie));
-  ceres.log._ceres.silly('Cookie parser configured');
+  ceres.log._ceres.silly('Cookie parser enabled');
 
   /*****************************************************************************
    * Obfusticate
@@ -72,7 +73,7 @@ module.exports = function Server(ceres) {
     app.set('sharedSession', sessionStore);
     // Apply
     app.use(sessionStore);
-    ceres.log._ceres.silly('Redis session store setup');
+    ceres.log._ceres.silly('Redis session store enabled');
   }
 
   /*****************************************************************************
@@ -81,6 +82,7 @@ module.exports = function Server(ceres) {
    */
   if (typeof ceres.config.trustProxy !== 'undefined') {
     app.set('trust proxy', ceres.config.trustProxy);
+    ceres.log._ceres.silly('trust proxy: %s', ceres.config.trustProxy);
   }
 
   /*****************************************************************************
@@ -123,7 +125,7 @@ module.exports = function Server(ceres) {
     app.use('/assets', express.static(ceres.config.folders.public));
 
     // Load assets into a versioned folder for caching. This is just an alias
-    ceres.log._ceres.silly('Public assets configured to read from %s', ceres.config.folders.public);
+    ceres.log._ceres.info('Serving static assets from %s', ceres.config.folders.public);
   }
 
   /*****************************************************************************
@@ -136,7 +138,7 @@ module.exports = function Server(ceres) {
     stream: accessLogStream,
     skip: ceres.config.logging && ceres.config.logging.skip
   }));
-  ceres.log._ceres.silly('%s sccess log saving to %s', ceres.config.logging.accessLogFormat, logFilename);
+  ceres.log._ceres.info('Access (%s) logs writing to %s', ceres.config.logging.accessLogFormat, logFilename);
 
   /*****************************************************************************
    * Throttle all requests
@@ -146,7 +148,7 @@ module.exports = function Server(ceres) {
       logger: ceres.log._ceres
     }, ceres.config.throttle));
     app.use(throttle);
-    ceres.log._ceres.silly('Request throttling configured');
+    ceres.log._ceres.silly('Request throttling enabled');
   }
 
   /*****************************************************************************
@@ -158,8 +160,11 @@ module.exports = function Server(ceres) {
     if (!ceres.config.folders[prop] || !ceres.config[prop]) {
       return;
     }
+    benchmarks[prop] = new Benchmark();
     var router = routes(ceres, prop);
     app.use(router);
+    benchmarks[prop].stop();
+    ceres.log._ceres.info('%s setup complete - %ss', prop, (benchmarks[prop].val() / 1000).toLocaleString(), { duration: benchmarks[prop].val() });
   });
 
 

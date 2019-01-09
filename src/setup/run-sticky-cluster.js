@@ -21,12 +21,6 @@ module.exports = function(ceres) {
           var server = Server.call(ceres, ceres);
 
           if (!ceres.config.instances || ceres.config.instances === 1) {
-            if (ceres.config.pid) {
-              // Setup Pid
-              ceres.pid = new Pid(ceres.config.pid);
-              ceres.log._ceres.silly('pid %d written to %s', ceres.pid.id, ceres.pid.options.path);
-            }
-
             // Skip sticky session setup if we only have a single instance. Allows
             // for debugging
             server.listen(ceres.config.port, function(){
@@ -41,12 +35,6 @@ module.exports = function(ceres) {
           var isChild = sticky.listen(server, ceres.config.port, {
             workers: ceres.config.instances
           });
-
-          if (!isChild && ceres.config.pid) {
-            // Setup Pid
-            ceres.pid = new Pid(ceres.config.pid);
-            ceres.log._ceres.silly('pid %d written to %s', ceres.pid.id, ceres.pid.options.path);
-          }
 
           if (!isChild) {
             server.once('listening', function(){
