@@ -178,10 +178,10 @@ Ceres.prototype.configure = function(options) {
     var duration = (Date.now() - startTime);
     this.log._ceres.info('"%s" configuration loaded - %ss', this.config.env, (duration / 1000).toLocaleString(), { duration });
 
-    // Check to see if this process is a child. Children do not  need pid files as the parent handles that
-    const isChild = Boolean(!cluster.isMaster || (this.config.processManagement === 'fork' && !!process.env.CERES_UNIQUE_ID));
+    // Check to see if this process is a child. Children do not need pid files as the parent handles that
+    this.isMaster = Boolean(cluster.isMaster || (this.config.processManagement === 'fork' && !process.env.CERES_UNIQUE_ID));
 
-    if (!isChild && this.config.pid && !options.disablePid) {
+    if (this.isMaster && this.config.pid && !options.disablePid) {
       // Setup Pid if we're configure
       this.pid = new Pid(this.config.pid);
       this.pid.on('created', (pid) => {
