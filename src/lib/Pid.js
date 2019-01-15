@@ -74,11 +74,6 @@ function Pid(filename, options) {
   this.create = this.create.bind(this);
   this.remote = this.remove.bind(this);
 
-  if (!cluster.isMaster) {
-    // Skip if this isn't the master
-    return;
-  }
-
   // Write pid file
   this.create(function(err){
     if (err) {
