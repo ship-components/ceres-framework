@@ -149,12 +149,16 @@ Ceres.prototype.connect = function() {
 Ceres.prototype.configure = function(options) {
   return new Promise(function(resolve, reject){
     const startTime = Date.now();
-    try {
-      // Bootstrap config
-      this.config = new Config(options);
-    } catch (err) {
-      reject(err);
-      return;
+    if (options instanceof Config) {
+      this.config = options;
+    } else {
+      try {
+        // Bootstrap config
+        this.config = new Config(options);
+      } catch (err) {
+        reject(err);
+        return;
+      }
     }
 
     // Bind config and allow custom loggers
