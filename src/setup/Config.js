@@ -15,11 +15,6 @@ function Config(cli, options) {
     cli = {};
   }
 
-  // Options specific to setting up config
-  options = Object.assign({
-    requireRc: true
-  }, options);
-
   Object.assign(this, {
     configFolder: process.cwd() + '/config'
   }, cli);
@@ -30,27 +25,26 @@ function Config(cli, options) {
   var defaultConfig = require(path.resolve(__dirname, '../../config/default'));
 
   // Get global config
-  var config = this.requireConfig('default', options);
+  var appDefaultConfig = this.requireConfig('default');
 
   // Get the environment
-  var env = this.getEnv(cli, config);
+  var envStr = this.getEnv(cli, appDefaultConfig);
 
   // Get env specific config
-  var envConfig = this.requireConfig(env, options);
-
-  // listen for the port as an environmental variable. If we see it, use it.
-  if (process.env.PORT) {
-    envConfig.port = parseInt(process.env.PORT, 10);
-  }
+  var envConfig = this.requireConfig(envStr);
 
   // Get the location of the machine config file
-  var rcPath = this.getRCPath([cli, envConfig, config]);
+  var rcPath = this.getRCPath([cli, options, envConfig, appDefaultConfig, defaultConfig]);
 
-  // Get machine specific settings
-  var rc = this.rcConfig(rcPath, options);
+  var rc = {};
+
+  if (typeof rcPath === 'string') {
+    // Get machine specific settings if we found a rc path
+    rc = this.rcConfig(rcPath);
+  }
 
   // Merge config sources together
-  config = merge({}, defaultConfig, config, envConfig, rc, cli);
+  const config = merge({}, defaultConfig, appDefaultConfig, envConfig, options, rc, cli);
 
   config.rc = rcPath;
 
@@ -62,7 +56,7 @@ function Config(cli, options) {
   }
 
   // Grab webpack config if we have it
-  config.webpackConfig = this.getWebpack(env);
+  config.webpackConfig = this.getWebpack(envStr);
 
   // Assign to this
   Object.assign(this, config);
@@ -76,28 +70,24 @@ function Config(cli, options) {
  * @param     {Object}    options
  * @return    {Object}
  */
-Config.prototype.rcConfig = function rcConfig(file, options) {
-  file = path.resolve(file);
-
+Config.prototype.rcConfig = function rcConfig(file) {
   try {
-    fs.accessSync(file);
+    file = path.resolve(file);
+
+    // Read
+    var rc = fs.readFileSync(file, {
+      encoding: 'utf8'
+    });
+
+    // Convert to JS
+    rc = JSON.parse(rc);
+
+    return rc;
   } catch(accessError) {
-    if (options.requireRc){
-      throw accessError;
-    } else {
-      return {};
-    }
+    console.error(accessError.toString());
+    return {};
   }
 
-  // Read
-  var rc = fs.readFileSync(file, {
-    encoding: 'utf8'
-  });
-
-  // Convert to JS
-  rc = JSON.parse(rc);
-
-  return rc;
 };
 
 /**
