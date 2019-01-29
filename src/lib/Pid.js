@@ -130,6 +130,7 @@ Pid.prototype.create = function create(callback) {
   const existingProcessRunning = !isNaN(pid) && processExists(pid);
 
   if (this.options.overwrite && existingProcessRunning) {
+    this.emit('existing', pid, this.id);
     // If we do find a pid and we see a process is running, try to close it
     process.kill(pid, 'SIGTERM');
   } else if (!this.options.overwrite && existingProcessRunning) {
