@@ -28,6 +28,7 @@ ceres create example
 
 ## History
 
+* 1.2.1 - Fixed an issue with detecting master status for fork mode. Fixed missing port env config for fork mode.
 * 1.2.0 - Added support for pass in a preconfigure Config object so we can centralize configuration options across multiple service. Refactored how config is processed to better support injecting config.
 * 1.1.3 - Downgraded bookshelf until we can fix it
 * 1.1.2 - Updated dependencies, fixed a bug preventing the app from starting when running more than one instance

@@ -121,7 +121,7 @@ function listen(ceres) {
 module.exports = function(ceres) {
   return new Promise(function(resolve, reject){
     // CERES_UNIQUE_ID gets automatically assigned to children
-    var isMaster = !process.env.CERES_UNIQUE_ID;
+    var isMaster = typeof process.env.CERES_UNIQUE_ID !== 'string';
 
     if (isMaster) {
       // Master
@@ -137,13 +137,16 @@ module.exports = function(ceres) {
       // Clean up any workers
       ['SIGTERM', 'SIGINT'].forEach(function(signal){
         process.on(signal, function(){
-          ceres.log._ceres.debug('Master received ' + signal + '. Cleaning up workers...');
+          ceres.log._ceres.debug('Master %s received %s. Attempting to clean up workers...', process.pid, signal, {
+            pid: process.pid
+          });
           workers.forEach(function(worker){
             worker.send({
               restart: false
             });
             worker.kill('SIGKILL');
           });
+          process.exit(signal);
         });
       });
 

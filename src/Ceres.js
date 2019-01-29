@@ -169,21 +169,31 @@ Ceres.prototype.configure = function(options) {
 
     // Setup internal logger
     this.log._ceres = setupLogs.init(this);
-    this.log._ceres.info('Starting %s...', this.config.name || 'application');
+
+    // Check to see if this process is a child. Children do not need pid files as the parent handles that
+    this.isMaster = this.config.processManagement === 'fork' ? typeof process.env.CERES_UNIQUE_ID !== 'string' : cluster.isMaster;
+
+    this.log._ceres.info('Starting %s...', this.config.name || 'application', {
+      isMaster: this.isMaster,
+      pid: process.pid
+    });
     this.log._ceres.info('Writing logs to %s', this.config.folders.logs);
 
-    // Log SIGTERM exit events
-    process.on('SIGTERM', (code) => {
-      this.log._ceres.info('Received SIGTERM; exiting...');
-      process.exit(code);
-    });
+    // Fork mode handles this separatly
+    if (this.config.processManagement !== 'fork') {
+      // Log SIGTERM exit events
+      process.on('SIGTERM', (code) => {
+        this.log._ceres.info('%s process %s received SIGTERM; exiting...', this.isMaster ? 'Master' : 'Child', process.pid, {
+          isMaster: this.isMaster,
+          pid: process.pid
+        });
+        process.exit(code);
+      });
+    }
 
     this.emit('configured');
     var duration = (Date.now() - startTime);
     this.log._ceres.info('"%s" configuration loaded - %ss', this.config.env, (duration / 1000).toLocaleString(), { duration });
-
-    // Check to see if this process is a child. Children do not need pid files as the parent handles that
-    this.isMaster = Boolean(cluster.isMaster || (this.config.processManagement === 'fork' && !process.env.CERES_UNIQUE_ID));
 
     if (this.isMaster && this.config.pid && !options.disablePid) {
       // Setup Pid if we're configure
@@ -191,6 +201,17 @@ Ceres.prototype.configure = function(options) {
       this.pid.on('created', (pid) => {
         this.log._ceres.info('Wrote pid to %s - %s', pid.options.path, pid.id);
         resolve(this);
+      });
+      this.pid.on('existing', (existingPid, currentPid) => {
+        this.log._ceres.warn('Found an another active process at %s. Attempting to shut it down...', existingPid, {
+          existingPid,
+          pid: currentPid
+        });
+      });
+      this.pid.on('removed', (pid) => {
+        this.log._ceres.debug('Process exiting. Removed pid file %s', pid.options.path, {
+          pid: pid.id
+        });
       });
       this.pid.on('error', reject);
     } else {
