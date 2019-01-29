@@ -33,6 +33,12 @@ function Config(cli, options) {
   // Get env specific config
   var envConfig = this.requireConfig(envStr);
 
+  // listen for the port as an environmental variable. If we see it, use it.
+  // Used when in forking mode
+  if (typeof process.env.PORT === 'string') {
+    envConfig.port = parseInt(process.env.PORT, 10);
+  }
+
   // Get the location of the machine config file
   var rcPath = this.getRCPath([cli, options, envConfig, appDefaultConfig, defaultConfig]);
 
