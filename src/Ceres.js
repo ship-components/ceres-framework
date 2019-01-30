@@ -172,7 +172,7 @@ Ceres.prototype.configure = function(options) {
     this.logger = setupLogs.logger.bind(this, this.config);
 
     // Setup default app logger
-    this.log = this.logger();
+    this.log = this.logger(this.config);
 
     // Setup internal logger
     this.log._ceres = setupLogs.init(this);
@@ -180,7 +180,7 @@ Ceres.prototype.configure = function(options) {
     // Check to see if this process is a child. Children do not need pid files as the parent handles that
     this.isMaster = this.config.processManagement === 'fork' ? typeof process.env.CERES_UNIQUE_ID !== 'string' : cluster.isMaster;
 
-    this.log._ceres.info('Starting %s...', this.config.name || 'application', {
+    this.log._ceres.info('Starting %s...', this.config.name || 'ceres', {
       isMaster: this.isMaster,
       pid: process.pid
     });
