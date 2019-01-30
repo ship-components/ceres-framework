@@ -100,6 +100,13 @@ Ceres.prototype.connect = function() {
   if (typeof this.config !== 'object') {
     Promise.reject(new Error('Ceres has not been configured yet'));
     return;
+  } else if (this._databaseFactory) {
+    this.log._ceres.info('Using external database factory');
+    return new this._databaseFactory(this.config)
+      .then((results) => {
+        Object.assign(this, results);
+        return this;
+      });
   }
 
   var type = this.config.db.type;
@@ -236,6 +243,14 @@ function handleError(err) {
   // Make sure we exit with a non zero error code so we don't get stuck
   process.exit(1);
 }
+
+/**
+ * Store the database factory for later
+ */
+Ceres.prototype.database = function(factory) {
+  this._databaseFactory = factory;
+  return this;
+};
 
 /**
  * Load the app
