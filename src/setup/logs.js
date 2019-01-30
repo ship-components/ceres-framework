@@ -133,10 +133,9 @@ module.exports.logger = function logger(config, name) {
 module.exports.init = function(ceres) {
   // Make sure the folder exists
   mkdirp.sync(ceres.config.folders.logs);
-
   // Apply
   winston.configure({
-    transports: setupTransports(ceres.config, 'ceres', {
+    transports: setupTransports(ceres.config, ceres.config.name || 'ceres', {
       // Let the top level container handle exceptions
       handleExceptions: true,
       humanReadableUnhandledException: true
