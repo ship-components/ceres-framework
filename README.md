@@ -28,6 +28,7 @@ ceres create example
 
 ## History
 
+* 1.3.1 - Fixed issue where errors would always return html in debug mode
 * 1.3.0 - Added the ability to pass a database factory method for better decoupling of models. Update logging messages so its clearer when this used.
 * 1.2.1 - Fixed an issue with detecting master status for fork mode. Fixed missing port env config for fork mode.
 * 1.2.0 - Added support for pass in a preconfigure Config object so we can centralize configuration options across multiple service. Refactored how config is processed to better support injecting config.

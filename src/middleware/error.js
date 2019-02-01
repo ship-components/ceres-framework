@@ -84,6 +84,7 @@ module.exports = function(Ceres) {
      */
     var response = {
       status: 500,
+      name: err.name,
       message: err.message,
       error_id: errorId
     };
@@ -140,25 +141,32 @@ module.exports = function(Ceres) {
     // Set the http status
     res.status(response.status || 500);
 
-    // RESPONSES
+    // Determine if we should return in json
+    const acceptsJson = req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i));
 
+    // RESPONSES
     if (Ceres.config.debug) {
       try {
         req.headers['x-error-id'] = errorId;
         // Youch generates pretty errors for us while in debug mode
         var youch = new Youch(err, req);
 
-        youch
-          .toHTML()
+        youch[acceptsJson ? 'toJSON' : 'toHTML']()
           .then((prettyErrorResponse) => {
-            res.send(prettyErrorResponse).end();
+            if(acceptsJson) {
+              res.send(Object.assign(response, {
+                frames: prettyErrorResponse.error.frames
+              })).end();
+            } else {
+              res.send(prettyErrorResponse).end();
+            }
           });
-      } catch(e) {
+      } catch (e) {
         Ceres.log.error(e);
         res.send(err.stack).end();
       }
       return null;
-    } else if (req.originalUrl.match(/^\/api/i) || (typeof req.headers.accept === 'string' && req.headers.accept.match(/application\/json/i))) {
+    } else if (acceptsJson) {
       // Json response if the client accepts it
       res.json(response).end();
     } else {
