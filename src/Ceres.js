@@ -172,7 +172,7 @@ Ceres.prototype.configure = function(options) {
     this.logger = setupLogs.logger.bind(this, this.config);
 
     // Setup default app logger
-    this.log = this.logger(this.config);
+    this.log = this.logger();
 
     // Setup internal logger
     this.log._ceres = setupLogs.init(this);
