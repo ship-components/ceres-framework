@@ -1,7 +1,6 @@
 var fs = require('fs');
 var path = require('path');
 var EventEmitter = require('events');
-var cluster = require('cluster');
 
 /**
  * Write pid to file description
