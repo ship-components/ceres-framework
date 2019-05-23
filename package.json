@@ -7,11 +7,12 @@
     "ceres": "./cli/index.js"
   },
   "scripts": {
-    "test": "npm run lint && ./node_modules/.bin/jest",
+    "pretest": "npm run lint",
+    "test": "jest",
     "coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "lint": "./node_modules/.bin/eslint cli/ src/ config/",
-    "lint:fix": "./node_modules/.bin/eslint --fix cli/ src/ config/",
-    "watch:test": "./node_modules/.bin/jest --watch --coverage=false"
+    "lint": "eslint cli/ src/ config/",
+    "lint:fix": "eslint --fix cli/ src/ config/",
+    "watch:test": "npm test -- --watch --coverage=false"
   },
   "author": "Isaac Suttell <isaac.suttell@sony.com>",
   "contributors": [
@@ -79,7 +80,6 @@
   "jest": {
     "collectCoverage": true,
     "coverageDirectory": "./coverage",
-    "testResultsProcessor": "jest-junit",
     "testMatch": [
       "**/*_spec.js"
     ],
@@ -89,6 +89,10 @@
   },
   "jest-junit": {
     "suiteName": "ceres-framework Tests",
+    "reporters": [
+      "default",
+      "jest-junit"
+    ],
     "output": "./test-reports/junit.xml",
     "classNameTemplate": "{classname}-{title}",
     "titleTemplate": "{classname}-{title}",
