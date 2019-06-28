@@ -12,13 +12,6 @@ var async = require('async');
 var moment = require('moment');
 
 /**
- * Redis Client
- *
- * @type    {Redis}
- */
-var client = redis.createClient();
-
-/**
  * Defaults
  *
  * @type    {Object}
@@ -68,6 +61,20 @@ module.exports = function(options) {
   options = assign(defaults, options);
 
   var logger = options.logger;
+
+  /**
+   * Redis Client
+   *
+   * @type    {Redis}
+   */
+  var client = redis.createClient(Object.assign({
+    host: '127.0.0.1',
+    port: 6379,
+    ttl: 3600,
+    pass: '',
+    db: 0,
+    prefix: options.prefix
+  }, options.redis));
 
   /**
    * Middleware
