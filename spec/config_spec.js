@@ -1,3 +1,4 @@
+/* eslint-disable max-nested-callbacks */
 'use strict';
 
 var Config = require('../src/setup/Config');
@@ -104,6 +105,39 @@ describe('config', function(){
       });
       expect(new Config().port).not.toBe(expectedPort);
       expect(result.port).toBe(expectedPort);
+    }).not.toThrow();
+  });
+
+  it('should deeply merge environment config over the default config', function() {
+    expect(function(){
+      const expectedValue = 'test-value';
+
+      const spy = jest.spyOn(Config.prototype, 'requireConfig')
+        .mockImplementation((env) => {
+          if (env === 'test') {
+            return {
+              env,
+              nested: {
+                value: expectedValue
+              }
+            };
+          } else {
+            return {
+              env,
+              nested: {
+                value: 'the-wrong-value'
+              }
+            };
+          }
+        });
+
+      var result = new Config({
+        env: 'test'
+      });
+
+      expect(spy).toHaveBeenCalled();
+      expect(result.nested.value).toBe(expectedValue);
+      spy.mockClear();
     }).not.toThrow();
   });
 });

@@ -151,11 +151,7 @@ var config = {
    *
    * @type    {Object}
    */
-  throttle: {
-    limit: 1000, // per
-    period: 15 * 60, // seconds
-    ban: 15 * 60 // seconds
-  },
+  throttle: false,
 
   /**
    * Session configuration

@@ -105,8 +105,15 @@ var config = {
   throttle: {
     limit: 1000, // per
     period: 15 * 60, // seconds
-    ban: 15 * 60 // seconds
-  },
+    ban: 15 * 60, // seconds
+    redis: {
+      host: '127.0.0.1',
+      port: 6379,
+      ttl: 3600,
+      pass: '',
+      db: 0
+    }
+  } || false,
 
   /**
    * Session configuration
