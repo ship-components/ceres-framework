@@ -17,7 +17,7 @@ const Workflow = require('./Workflow');
  * @param     {Object}    options
  * @return    {Object}
  */
-module.exports.create = function(options) {
+module.exports.create = function create(options) {
   /**
    * Setup the work flow options
    *
@@ -67,18 +67,18 @@ module.exports.create = function(options) {
       if (_.isFunction(callback)) {
         // Callback
         async.auto(lines, callback);
-      } else {
-        // Or Promise
-        return new Promise(function(resolve, reject) {
-          async.auto(lines, function(err, results) {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(results.html);
-            }
-          });
-        });
+        return undefined;
       }
+      // Or Promise
+      return new Promise((resolve, reject) => {
+        async.auto(lines, (err, results) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(results.html);
+          }
+        });
+      });
     },
   };
 };

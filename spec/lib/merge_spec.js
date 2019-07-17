@@ -1,11 +1,11 @@
 const merge = require('../../src/lib/merge');
 
-describe('merge', function() {
-  it('should export a function', function() {
+describe('merge', () => {
+  it('should export a function', () => {
     expect(typeof merge).toBe('function');
   });
 
-  it('should merge two objects', function() {
+  it('should merge two objects', () => {
     const obj1 = {
       name: 'test',
       test: false,
@@ -21,7 +21,7 @@ describe('merge', function() {
     expect(result.name).toBe(obj1.name);
   });
 
-  it('should modify the original object', function() {
+  it('should modify the original object', () => {
     const obj1 = {};
     const obj2 = {
       name: 'test',
@@ -32,7 +32,7 @@ describe('merge', function() {
     expect(obj1.name).toBe(obj2.name);
   });
 
-  it('should return the result', function() {
+  it('should return the result', () => {
     const obj1 = {};
     const obj2 = {
       name: 'test',
@@ -43,7 +43,7 @@ describe('merge', function() {
     expect(result).toBe(obj1);
   });
 
-  it('should NOT deeply merge an array', function() {
+  it('should NOT deeply merge an array', () => {
     const obj1 = {
       arr: ['one'],
     };
@@ -56,7 +56,7 @@ describe('merge', function() {
     expect(result.arr.length).toBe(obj2.arr.length);
   });
 
-  it('should merge multiple objects', function() {
+  it('should merge multiple objects', () => {
     const obj1 = {
       name: 'one',
     };
@@ -74,7 +74,7 @@ describe('merge', function() {
     expect(result.name).toBe(obj3.name);
   });
 
-  it('should ignored undefined values', function() {
+  it('should ignored undefined values', () => {
     const obj1 = {
       port: 3000,
       name: 'test',
@@ -90,7 +90,7 @@ describe('merge', function() {
     expect(result.name).toBe(obj1.name);
   });
 
-  it('should deeply merge two objects', function() {
+  it('should deeply merge two objects', () => {
     const obj1 = {
       name: 'test',
       test: false,

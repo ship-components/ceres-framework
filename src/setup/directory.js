@@ -1,5 +1,6 @@
 const path = require('path');
 const _ = require('lodash');
+const fs = require('fs');
 
 /**
  * Setup the Regex to filter out *.js files
@@ -35,10 +36,10 @@ function loadModulesFromPath(dir) {
    *
    * @type    {Array}
    */
-  const list = require('fs').readdirSync(dir);
+  const list = fs.readdirSync(dir);
 
   // Cycle through each item in the directory
-  list.forEach(function(module) {
+  list.forEach(module => {
     // Check to see if with have a match and if we split it apartment
     module = module.match(jsFile);
     if (module) {
@@ -69,16 +70,13 @@ module.exports = function directory(dir, options) {
 
   const initialized = {};
 
-  for (const name in modules) {
-    if (!modules.hasOwnProperty(name)) {
-      continue;
-    }
+  Object.keys(modules).forEach(name => {
     if (_.isFunction(modules[name])) {
       initialized[name] = modules[name].call(this, options.config);
     } else {
       initialized[name] = modules[name];
     }
-  }
+  });
 
   return initialized;
 };

@@ -32,7 +32,7 @@ function RedisCache(options, logger) {
   /**
    * Log any errors
    */
-  this.client.on('error', function(err) {
+  this.client.on('error', err => {
     if (this.logger) {
       this.logger.error(err);
     } else {
@@ -62,19 +62,17 @@ RedisCache.prototype.get = function get(key) {
     this.logger.silly('Getting %s', key);
   }
 
-  return new Promise(
-    function(resolve, reject) {
-      this.client.get(key, function(err, reply) {
-        if (err) {
-          reject(err);
-        } else if (typeof reply !== 'string') {
-          resolve();
-        } else {
-          resolve(JSON.parse(reply.toString()));
-        }
-      });
-    }.bind(this)
-  );
+  return new Promise((resolve, reject) => {
+    this.client.get(key, (err, reply) => {
+      if (err) {
+        reject(err);
+      } else if (typeof reply !== 'string') {
+        resolve();
+      } else {
+        resolve(JSON.parse(reply.toString()));
+      }
+    });
+  });
 };
 
 /**
@@ -89,21 +87,19 @@ RedisCache.prototype.keys = function keys(search) {
     this.logger.silly('Gettings keysL %s', search);
   }
 
-  return new Promise(
-    function(resolve, reject) {
-      this.client.keys(search, function(err, reply) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(
-            reply.map(function(item) {
-              return JSON.parse(item.toString());
-            })
-          );
-        }
-      });
-    }.bind(this)
-  );
+  return new Promise((resolve, reject) => {
+    this.client.keys(search, (err, reply) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(
+          reply.map(item => {
+            return JSON.parse(item.toString());
+          })
+        );
+      }
+    });
+  });
 };
 
 /**
@@ -125,38 +121,32 @@ RedisCache.prototype.set = function set(key, body, options) {
     this.logger.silly('Setting %s to', key, body);
   }
 
-  return new Promise(
-    function(resolve, reject) {
-      this.client.set(
-        key,
-        JSON.stringify(body),
-        function(err) {
-          if (err) {
-            reject(err);
-            return;
-          }
+  return new Promise((resolve, reject) => {
+    this.client.set(key, JSON.stringify(body), err => {
+      if (err) {
+        reject(err);
+        return;
+      }
 
-          // Skip Expires
-          if (typeof options.expires !== 'number' || options.expires === 0) {
-            resolve(body);
-            return;
-          }
+      // Skip Expires
+      if (typeof options.expires !== 'number' || options.expires === 0) {
+        resolve(body);
+        return;
+      }
 
-          if (this.logger) {
-            this.logger.silly('Expiring %s after %ss', key, options.expires);
-          }
+      if (this.logger) {
+        this.logger.silly('Expiring %s after %ss', key, options.expires);
+      }
 
-          this.client.expire(key, options.expires, function(e) {
-            if (e) {
-              reject(e);
-            } else {
-              resolve(body);
-            }
-          });
-        }.bind(this)
-      );
-    }.bind(this)
-  );
+      this.client.expire(key, options.expires, e => {
+        if (e) {
+          reject(e);
+        } else {
+          resolve(body);
+        }
+      });
+    });
+  });
 };
 
 /**
@@ -171,17 +161,15 @@ RedisCache.prototype.del = function del(key) {
     this.logger.silly('Deleting %s to', key);
   }
 
-  return new Promise(
-    function(resolve, reject) {
-      this.client.del(key, function(err) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    }.bind(this)
-  );
+  return new Promise((resolve, reject) => {
+    this.client.del(key, err => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
 };
 
 module.exports = RedisCache;

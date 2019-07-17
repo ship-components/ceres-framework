@@ -15,7 +15,7 @@ function randomString(options) {
   }
 
   let key = '';
-  for (let i = 0; i < options.length; i++) {
+  for (let i = 0; i < options.length; i += 1) {
     key += set.charAt(Math.floor(Math.random() * set.length));
   }
 
@@ -54,7 +54,7 @@ function generateKey(options) {
     key = base32
       .encode(key)
       .toString()
-      .replace(/\=/g, '');
+      .replace(/=/g, '');
 
     return key;
   }
@@ -74,11 +74,11 @@ module.exports = function GenerateSecretKey(pkg, overrides) {
     length: 64,
   };
 
-  for (const prop in overrides) {
-    if (overrides.hasOwnProperty(prop) && overrides[prop]) {
+  Object.keys(overrides).forEach(prop => {
+    if (overrides[prop]) {
       options[prop] = overrides[prop];
     }
-  }
+  });
 
   const key = generateKey({
     symbols: true,
@@ -89,7 +89,7 @@ module.exports = function GenerateSecretKey(pkg, overrides) {
   // Chaining for semantics
   return {
     save(callback) {
-      callback = callback || function() {};
+      callback = callback || function noOp() {};
       try {
         let rc = {};
 

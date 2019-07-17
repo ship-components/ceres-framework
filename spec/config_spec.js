@@ -17,17 +17,17 @@ function testConfig(obj) {
   );
 }
 
-describe('config', function() {
-  it('should export a function', function() {
+describe('config', () => {
+  it('should export a function', () => {
     expect(typeof Config).toBe('function');
   });
 
-  it('should return an object', function() {
+  it('should return an object', () => {
     const result = new Config(testConfig());
     expect(typeof result).toBe('object');
   });
 
-  it('should take custom options', function() {
+  it('should take custom options', () => {
     const result = new Config(
       testConfig({
         test: true,
@@ -36,26 +36,26 @@ describe('config', function() {
     expect(result.test).toBe(true);
   });
 
-  it('should not throw an error if there is no valid rc file', function() {
-    expect(function() {
+  it('should not throw an error if there is no valid rc file', () => {
+    expect(() => {
       new Config({
         rc: 'does-not-exist.json',
       });
     }).not.toThrow();
   });
 
-  it('should read from the default config', function() {
+  it('should read from the default config', () => {
     const result = new Config(testConfig());
     expect(result.port).toBe(Original.config.port);
   });
 
-  it('should read from the a custom rc file', function() {
+  it('should read from the a custom rc file', () => {
     const result = new Config(testConfig());
     expect(result.env).toBe(Original.rc.env);
   });
 
-  it('should not throw an error if the machine config does not exist', function() {
-    expect(function() {
+  it('should not throw an error if the machine config does not exist', () => {
+    expect(() => {
       const result = new Config({
         rc: './spec/helpers/missing.json',
       });
@@ -63,8 +63,8 @@ describe('config', function() {
     }).not.toThrow();
   });
 
-  it('should not throw an error if the environment config does not exist', function() {
-    expect(function() {
+  it('should not throw an error if the environment config does not exist', () => {
+    expect(() => {
       const result = new Config(
         testConfig({
           env: 'does-not-exist',
@@ -74,8 +74,8 @@ describe('config', function() {
     }).not.toThrow();
   });
 
-  it('should throw an error if the environment config has an error', function() {
-    expect(function() {
+  it('should throw an error if the environment config has an error', () => {
+    expect(() => {
       const result = new Config(
         testConfig({
           configFolder: './spec/helpers/errors',
@@ -86,8 +86,8 @@ describe('config', function() {
     }).toThrow();
   });
 
-  it('should throw an error if the environment config does not return an object', function() {
-    expect(function() {
+  it('should throw an error if the environment config does not return an object', () => {
+    expect(() => {
       const result = new Config(
         testConfig({
           configFolder: './spec/helpers/errors',
@@ -98,7 +98,7 @@ describe('config', function() {
     }).toThrow();
   });
 
-  it('should import a webpack config if it can find it', function() {
+  it('should import a webpack config if it can find it', () => {
     const result = new Config(
       testConfig({
         env: 'client',
@@ -109,8 +109,8 @@ describe('config', function() {
     expect(result.webpackConfig.entry).toBe(mockWebpackConfig.entry);
   });
 
-  it('should let accept additional config in its second argument', function() {
-    expect(function() {
+  it('should let accept additional config in its second argument', () => {
+    expect(() => {
       const expectedPort = 4000;
       const result = new Config(undefined, {
         port: expectedPort,
@@ -120,8 +120,8 @@ describe('config', function() {
     }).not.toThrow();
   });
 
-  it('should deeply merge environment config over the default config', function() {
-    expect(function() {
+  it('should deeply merge environment config over the default config', () => {
+    expect(() => {
       const expectedValue = 'test-value';
 
       const spy = jest.spyOn(Config.prototype, 'requireConfig').mockImplementation(env => {

@@ -1,8 +1,8 @@
 const Hashids = require('hashids');
 
-module.exports = function(Ceres) {
+module.exports = function ids(Ceres) {
   if (typeof Ceres.config.hashIds !== 'object') {
-    const setupError = function() {
+    const setupError = () => {
       throw new Error('hashIds not configured');
     };
 
@@ -11,7 +11,10 @@ module.exports = function(Ceres) {
       encode: setupError,
     };
   }
-  Ceres.log._ceres.silly('HashIds enabled: Using secret "%s" for ids', Ceres.config.hashIds.secret);
+  Ceres.log.internal.silly(
+    'HashIds enabled: Using secret "%s" for ids',
+    Ceres.config.hashIds.secret
+  );
 
   return new Hashids(Ceres.config.hashIds.secret, Ceres.config.hashIds.minLength);
 };

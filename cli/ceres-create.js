@@ -12,28 +12,28 @@ const path = require('path');
 const Promise = require('bluebird');
 const mkdirp = require('mkdirp');
 const fs = require('fs');
-const spawn = require('child_process').spawn;
+const { spawn } = require('child_process');
 const Create = require('./lib/Create');
 
 const SERVER_ROOT = path.resolve(process.cwd(), './server');
 
 function runCmd(cmd, args, config) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     const command = spawn(cmd, args);
 
-    command.stdout.on('data', function(data) {
+    command.stdout.on('data', data => {
       if (config.verbose) {
         console.log(data.toString());
       }
     });
 
-    command.stderr.on('data', function(data) {
+    command.stderr.on('data', data => {
       if (config.verbose) {
         console.log(data.toString());
       }
     });
 
-    command.on('close', function(code) {
+    command.on('close', code => {
       if (code === 0) {
         resolve();
       } else {
@@ -44,8 +44,8 @@ function runCmd(cmd, args, config) {
 }
 
 function createDirectory(dir) {
-  return new Promise(function(resolve, reject) {
-    mkdirp(dir, function(err) {
+  return new Promise((resolve, reject) => {
+    mkdirp(dir, err => {
       if (err) {
         reject(err);
       } else {
@@ -56,7 +56,7 @@ function createDirectory(dir) {
 }
 
 function createDirectories(paths, config) {
-  return Promise.each(paths, function(dir) {
+  return Promise.each(paths, dir => {
     if (config.verbose) {
       console.log('Creating directory %s', dir);
     }
@@ -71,7 +71,7 @@ function createDirectories(paths, config) {
  * @return {Promise}
  */
 function copyFile(original, target) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     const source = fs.createReadStream(original);
     const dest = fs.createWriteStream(target);
 
@@ -90,7 +90,7 @@ program
   .version(pkg.version)
   .option('-v, --verbose', 'Display some extra details')
   .usage('[options] <name>')
-  .action(function(name, config) {
+  .action((name, config) => {
     if (typeof name !== 'string' || name.length === 0) {
       program.outputHelp();
       process.exit(0);
@@ -107,21 +107,21 @@ program
     ];
 
     createDirectories(paths, config)
-      .then(function() {
+      .then(() => {
         const filename = path.resolve(process.cwd(), './server/controllers/IndexController.js');
 
         if (config.verbose) {
           console.log('Creating controller %s', filename);
         }
 
-        return Create.controller(filename, 'IndexController').catch(function(err) {
+        return Create.controller(filename, 'IndexController').catch(err => {
           console.log('There was a problem writing %s, skipping...', filename);
           if (config.verbose) {
             console.error(err);
           }
         });
       })
-      .then(function() {
+      .then(() => {
         const files = [
           {
             from: path.resolve(__dirname, '../config/default.js'),
@@ -141,14 +141,14 @@ program
           },
         ];
 
-        return Promise.each(files, function(file) {
+        return Promise.each(files, file => {
           if (config.verbose) {
             console.log('Saving file to %s', file.to);
           }
           return copyFile(file.from, file.to);
         });
       })
-      .then(function() {
+      .then(() => {
         const commands = [
           {
             cmd: 'npm',
@@ -164,17 +164,17 @@ program
           },
         ];
 
-        return Promise.each(commands, function(item) {
+        return Promise.each(commands, item => {
           if (config.verbose) {
             console.log('Running %s %s', item.cmd, item.args.join(' '));
           }
           return runCmd(item.cmd, item.args, config);
         });
       })
-      .then(function() {
+      .then(() => {
         console.log('Success');
       })
-      .catch(function(err) {
+      .catch(err => {
         console.error(err.stack);
         process.exit(1);
       });

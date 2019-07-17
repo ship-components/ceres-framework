@@ -21,9 +21,9 @@ const Template = {
  * @return {Promise}
  */
 function checkIfExists(filename) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     // Check to see if we can access the file
-    fs.access(filename, function(err) {
+    fs.access(filename, err => {
       if (err) {
         resolve();
       } else {
@@ -35,19 +35,20 @@ function checkIfExists(filename) {
 
 module.exports = {
   controller(filename, name) {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       let str = '';
       try {
         str = ejs.render(Template.controller, {
           name,
         });
       } catch (err) {
-        return reject(err);
+        reject(err);
+        return undefined;
       }
 
       checkIfExists(filename)
-        .then(function() {
-          fs.writeFile(filename, str, function(err) {
+        .then(() => {
+          fs.writeFile(filename, str, err => {
             if (err) {
               reject(err);
             } else {
@@ -56,23 +57,25 @@ module.exports = {
           });
         })
         .catch(reject);
+      return undefined;
     });
   },
 
   model(filename, name) {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       let str = '';
       try {
         str = ejs.render(Template.model, {
           name,
         });
       } catch (err) {
-        return reject(err);
+        reject(err);
+        return undefined;
       }
 
       checkIfExists(filename)
-        .then(function() {
-          fs.writeFile(filename, str, function(err) {
+        .then(() => {
+          fs.writeFile(filename, str, err => {
             if (err) {
               reject(err);
             } else {
@@ -81,6 +84,7 @@ module.exports = {
           });
         })
         .catch(reject);
+      return undefined;
     });
   },
 };

@@ -22,7 +22,7 @@ module.exports = function deepCopy(obj) {
   // Handle Array
   if (obj instanceof Array) {
     copy = [];
-    for (let i = 0, len = obj.length; i < len; i++) {
+    for (let i = 0, len = obj.length; i < len; i += 1) {
       copy[i] = deepCopy(obj[i]);
     }
     return copy;
@@ -31,11 +31,9 @@ module.exports = function deepCopy(obj) {
   // Handle Object
   if (obj instanceof Object) {
     copy = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        copy[key] = deepCopy(obj[key]);
-      }
-    }
+    Object.keys(obj).forEach(key => {
+      copy[key] = deepCopy(obj[key]);
+    });
 
     return copy;
   }

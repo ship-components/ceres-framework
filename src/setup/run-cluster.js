@@ -11,8 +11,8 @@ const logStartTime = require('../lib/logStartTime');
 function forkWorker(ceres, env) {
   env = typeof env === 'object' ? env : {};
   const worker = cluster.fork(env);
-  worker.on('error', function(err) {
-    ceres.log._ceres.error(err);
+  worker.on('error', err => {
+    ceres.log.internal.error(err);
   });
 }
 
@@ -21,17 +21,17 @@ function forkWorker(ceres, env) {
  * @param  {Ceres}    ceres
  * @return {Promise}
  */
-module.exports = function(ceres) {
+module.exports = function runCluster(ceres) {
   // processManagement
   return this.connect.call(this, ceres).then(function listen() {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       try {
         if (!ceres.config.instances || ceres.config.instances === 1) {
-          ceres.log._ceres.info('Starting server in single instance mode...');
+          ceres.log.internal.info('Starting server in single instance mode...');
           // If we only have a single instance no need to run the cluster
-          Server.call(ceres, ceres).listen(ceres.config.port, function() {
+          Server.call(ceres, ceres).listen(ceres.config.port, () => {
             logStartTime('Server took %ds to start listening', ceres);
-            ceres.log._ceres.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
+            ceres.log.internal.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
             resolve();
           });
           return;
@@ -39,16 +39,16 @@ module.exports = function(ceres) {
 
         if (cluster.isMaster) {
           // Fork children
-          for (let i = 0; i < ceres.config.instances; i++) {
+          for (let i = 0; i < ceres.config.instances; i += 1) {
             forkWorker(ceres, { CERES_UNIQUE_ID: i });
           }
 
           // Attempt to restart children that crash
-          cluster.on('exit', function(worker, code, signal) {
+          cluster.on('exit', (worker, code, signal) => {
             if (signal) {
-              ceres.log._ceres.info('worker %s was killed by %s', worker.process.pid, signal);
+              ceres.log.internal.info('worker %s was killed by %s', worker.process.pid, signal);
             } else if (code !== 0) {
-              ceres.log._ceres.error(
+              ceres.log.internal.error(
                 'worker %s exited with %s. Starting new worker...',
                 worker.process.pid,
                 code,
@@ -60,9 +60,9 @@ module.exports = function(ceres) {
               try {
                 forkWorker(ceres, { CERES_UNIQUE_ID: worker.process.env.CERES_UNIQUE_ID });
               } catch (err) {
-                ceres.log._ceres.error(err, function(e) {
+                ceres.log.internal.error(err, e => {
                   if (e) {
-                    ceres.log._ceres.error(e);
+                    ceres.log.internal.error(e);
                   }
                   // If we fail to fork, then just exit to prevent infinite loop
                   process.exit(1);
@@ -71,12 +71,12 @@ module.exports = function(ceres) {
             }
           });
 
-          ceres.log._ceres.info('Master spawned %d children', ceres.config.instances);
+          ceres.log.internal.info('Master spawned %d children', ceres.config.instances);
         } else {
           // Setup the server
-          Server.call(ceres, ceres).listen(ceres.config.port, function() {
+          Server.call(ceres, ceres).listen(ceres.config.port, () => {
             logStartTime('Child ready after %ds', ceres);
-            ceres.log._ceres.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
+            ceres.log.internal.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
             resolve();
           });
         }

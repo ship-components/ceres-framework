@@ -16,10 +16,10 @@ function Controller(Ceres, props) {
   Object.assign(this, props);
   this.version = pkg.version;
 
-  this._events = new EventEmitter();
-  this.on = this._events.on;
-  this.removeListener = this._events.removeListener;
-  this.emit = this._events.emit;
+  this.events = new EventEmitter();
+  this.on = this.events.on;
+  this.removeListener = this.events.removeListener;
+  this.emit = this.events.emit;
 
   // Allow some user initialization
   if (typeof this.init === 'function') {
@@ -34,7 +34,7 @@ function Controller(Ceres, props) {
  * @static
  * @return    {Controller}
  */
-Controller.extend = function(props) {
+Controller.extend = function extend(props) {
   return new Controller(this, props);
 };
 
@@ -93,7 +93,7 @@ Controller.prototype = {
     const id = parseInt(req.params.id, 10);
 
     // Ensure we have a valid id and don't accidently return everything
-    if (isNaN(id)) {
+    if (Number.isNaN(id)) {
       this.notFound('Unknown or invalid id');
       return;
     }
@@ -113,12 +113,10 @@ Controller.prototype = {
   postCreate(req) {
     this.model
       .create(req.body)
-      .then(
-        function(result) {
-          this.controller.emit('created', req, req.body, result);
-          return result;
-        }.bind(this)
-      )
+      .then(result => {
+        this.controller.emit('created', req, req.body, result);
+        return result;
+      })
       .then(this.send)
       .catch(this.fail);
   },
@@ -134,24 +132,20 @@ Controller.prototype = {
       // Update single
       this.model
         .update(req.body, req.params.id)
-        .then(
-          function(result) {
-            this.controller.emit('updated', req, req.body, result);
-            return result;
-          }.bind(this)
-        )
+        .then(result => {
+          this.controller.emit('updated', req, req.body, result);
+          return result;
+        })
         .then(this.send)
         .catch(this.fail);
     } else {
       // Update multiple
       this.model
         .updateAll(req.body)
-        .then(
-          function(result) {
-            this.controller.emit('updated', req, req.body, result);
-            return result;
-          }.bind(this)
-        )
+        .then(result => {
+          this.controller.emit('updated', req, req.body, result);
+          return result;
+        })
         .then(this.send)
         .catch(this.fail);
     }
@@ -166,12 +160,10 @@ Controller.prototype = {
   deleteOne(req) {
     this.model
       .del(req.params.id)
-      .then(
-        function(result) {
-          this.controller.emit('deleted', req, req.params.id);
-          return result;
-        }.bind(this)
-      )
+      .then(result => {
+        this.controller.emit('deleted', req, req.params.id);
+        return result;
+      })
       .then(this.noContent)
       .catch(this.fail);
   },

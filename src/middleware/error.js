@@ -46,15 +46,9 @@ const CommonErrors = [
  */
 function findCommonError(err, Ceres) {
   // Attempt to match some common errors so we can apply the right status
-  return CommonErrors.map(function(commonError) {
-    for (const key in commonError) {
-      if (!commonError.hasOwnProperty(key)) {
-        continue;
-      } else if (
-        err[key] &&
-        commonError[key] instanceof RegExp &&
-        commonError[key].test(err[key])
-      ) {
+  return CommonErrors.map(commonError => {
+    return Object.keys(commonError).forEach(key => {
+      if (err[key] && commonError[key] instanceof RegExp && commonError[key].test(err[key])) {
         // Attempt to grab some additional info from the commonError message
         const parts = err[key].match(commonError[key]);
         Ceres.log.silly(
@@ -69,7 +63,8 @@ function findCommonError(err, Ceres) {
             parts[1] && parts[1].trim().length > 0 ? parts[1].trim() : commonError.defaultText,
           status: commonError.status,
         });
-      } else if (
+      }
+      if (
         err[key] &&
         commonError[key] === err[key] &&
         ['level', 'defaultText'].indexOf(key) === -1
@@ -86,15 +81,16 @@ function findCommonError(err, Ceres) {
           status: commonError.status,
         });
       }
-    }
-  }).find(function(error) {
+      return undefined;
+    });
+  }).find(error => {
     return typeof error === 'object';
   });
 }
 
-module.exports = function(Ceres) {
-  return function(err, req, res, next) {
-    // eslint-disable-line no-unused-vars, complexity
+module.exports = function error(Ceres) {
+  // eslint-disable-next-line no-unused-vars, complexity
+  return (err, req, res, next) => {
     // Generate a unique id we can use to track this error
     const errorId = uuidv4();
 
@@ -118,10 +114,10 @@ module.exports = function(Ceres) {
     const commonErrorResponse = findCommonError(err, Ceres);
     if (commonErrorResponse) {
       ['status', 'message']
-        .filter(function(key) {
+        .filter(key => {
           return typeof commonErrorResponse[key] !== 'undefined';
         })
-        .forEach(function(key) {
+        .forEach(key => {
           response[key] = commonErrorResponse[key];
         });
     }
@@ -154,9 +150,9 @@ module.exports = function(Ceres) {
     // Make sure to log it
     if (commonErrorResponse && typeof Ceres.log[commonErrorResponse.level] === 'function') {
       // We set common errors to warnings to make them easier to filter later
-      Ceres.log[commonErrorResponse.level].apply(Ceres.log, metadata);
+      Ceres.log[commonErrorResponse.level](...metadata);
     } else {
-      Ceres.log.error.apply(Ceres.log, metadata);
+      Ceres.log.error(...metadata);
     }
 
     // Headers already sent so we can't end anything else
@@ -199,7 +195,7 @@ module.exports = function(Ceres) {
         Ceres.log.error(e);
         res.send(err.stack).end();
       }
-      return null;
+      return;
     }
     if (acceptsJson) {
       // Json response if the client accepts it

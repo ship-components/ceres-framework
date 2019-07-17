@@ -15,7 +15,7 @@ program
   .version(pkg.version)
   .option('-v, --verbose', 'Display some extra details')
   .usage('[options] <name>')
-  .action(function(name, config) {
+  .action((name, config) => {
     if (typeof name !== 'string') {
       program.outputHelp();
       process.exit(0);
@@ -28,13 +28,13 @@ program
     }
 
     Create.controller(filename, name)
-      .then(function() {
+      .then(() => {
         console.log('');
         console.log('%s successfully created', name);
         console.log('Do not forget to add it to your list of controllers in config/default.js');
         console.log('');
       })
-      .catch(function(err) {
+      .catch(err => {
         console.error(err.stack);
         process.exit(1);
       });

@@ -59,11 +59,9 @@ function Config(cli, options) {
   config.rc = rcPath;
 
   // Resolve all paths
-  for (const folder in config.folders) {
-    if (config.folders.hasOwnProperty(folder)) {
-      config.folders[folder] = path.resolve(config.folders[folder]);
-    }
-  }
+  Object.keys(config.folders).forEach(folder => {
+    config.folders[folder] = path.resolve(config.folders[folder]);
+  });
 
   // Grab webpack config if we have it
   config.webpackConfig = this.getWebpack(envStr);
@@ -105,8 +103,8 @@ Config.prototype.rcConfig = function rcConfig(file) {
  * @param    {Object}    config
  * @return   {String}
  */
-Config.prototype.getEnv = function(cli, config) {
-  return [cli.env, config.env, process.env.NODE_ENV, 'production'].find(function(item) {
+Config.prototype.getEnv = (cli, config) => {
+  return [cli.env, config.env, process.env.NODE_ENV, 'production'].find(item => {
     return typeof item === 'string';
   });
 };
@@ -145,10 +143,10 @@ Config.prototype.requireConfig = function requireConfig(env) {
  * @return   {String}
  */
 Config.prototype.getRCPath = function getRCPath(configs) {
-  const config = configs.find(function(conf) {
+  const config = configs.find(conf => {
     return typeof conf === 'object' && conf.rc;
   });
-  return config ? path.resolve(config.rc) : void 0;
+  return config ? path.resolve(config.rc) : undefined;
 };
 
 /**
@@ -161,20 +159,19 @@ Config.prototype.getWebpack = function getWebpack(env) {
     `${this.configFolder}/webpack.${env}.js`,
     `${this.configFolder}/webpack.default.js`,
     `${this.configFolder}/webpack.config.js`,
-  ].map(function(file) {
+  ].map(file => {
     return path.resolve(file);
   });
 
   let index = files.length;
-  while (--index > -1) {
+  while (index > -1) {
+    index -= 1;
     try {
       fs.accessSync(files[index]);
-    } catch (accessError) {
-      // If we can access it, skip it
-      continue;
-    }
-    // throw new Error('wt')
-    return require(files[index]);
+      return require(files[index]);
+
+      // eslint-disable-next-line no-empty
+    } catch (accessError) {}
   }
   return {};
 };

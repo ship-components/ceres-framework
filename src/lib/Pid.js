@@ -7,8 +7,8 @@ const EventEmitter = require('events');
  * @param  {FileDescriptor} fd
  */
 function writePid(fd, callback) {
-  const buf = new Buffer(`${process.pid}\n`);
-  fs.write(fd, buf, 0, buf.length, null, function(err) {
+  const buf = Buffer.from(`${process.pid}\n`);
+  fs.write(fd, buf, 0, buf.length, null, err => {
     if (err) {
       throw err;
     }
@@ -63,27 +63,25 @@ function Pid(filename, options) {
   this.id = process.pid;
 
   // Emitter
-  this._events = new EventEmitter();
-  this.on = this._events.on.bind(this._events);
-  this.once = this._events.once.bind(this._events);
-  this.off = this._events.removeListener.bind(this._events);
-  this.emit = this._events.emit.bind(this._events);
+  this.events = new EventEmitter();
+  this.on = this.events.on.bind(this.events);
+  this.once = this.events.once.bind(this.events);
+  this.off = this.events.removeListener.bind(this.events);
+  this.emit = this.events.emit.bind(this.events);
 
   // Bindings
   this.create = this.create.bind(this);
   this.remote = this.remove.bind(this);
 
   // Write pid file
-  this.create(
-    function(err) {
-      if (err) {
-        this.emit('error', err);
-      } else if (this.options.removeOnExit) {
-        process.on('exit', this.remove.bind(this));
-      }
-      this.emit('created', this);
-    }.bind(this)
-  );
+  this.create(err => {
+    if (err) {
+      this.emit('error', err);
+    } else if (this.options.removeOnExit) {
+      process.on('exit', this.remove.bind(this));
+    }
+    this.emit('created', this);
+  });
 }
 
 /**
@@ -100,7 +98,6 @@ Pid.prototype.remove = function remove() {
       // Ignore any errors for missing files
       return true;
     }
-    console.error(err);
     return false;
   }
 };
@@ -128,7 +125,7 @@ Pid.prototype.create = function create(callback) {
   }
 
   // Check to see if we can see the process running
-  const existingProcessRunning = !isNaN(pid) && processExists(pid);
+  const existingProcessRunning = !Number.isNaN(pid) && processExists(pid);
 
   if (this.options.overwrite && existingProcessRunning) {
     this.emit('existing', pid, this.id);
@@ -141,7 +138,7 @@ Pid.prototype.create = function create(callback) {
   }
 
   // Open up file descriptor. By default fail if it exists
-  fs.open(this.options.path, this.options.overwrite ? 'w' : 'wx', function(err, fd) {
+  fs.open(this.options.path, this.options.overwrite ? 'w' : 'wx', (err, fd) => {
     if (err) {
       callback(err);
     } else {

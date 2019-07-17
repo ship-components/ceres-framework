@@ -5,7 +5,7 @@
 const Promise = require('bluebird');
 
 module.exports = function setupCache(ceres) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     let cache;
 
     /**

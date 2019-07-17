@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const sharedsession = require('express-socket.io-session');
 
 /**
@@ -9,7 +10,7 @@ const sharedsession = require('express-socket.io-session');
  * @param  {HTTP}    server
  * @return {socket.io}
  */
-module.exports = function(ceres, app, server) {
+module.exports = function sockets(ceres, app, server) {
   const clientSocketEntryPath = path.resolve(ceres.config.folders.sockets, './index.js');
 
   try {
@@ -17,13 +18,14 @@ module.exports = function(ceres, app, server) {
     fs.accessSync(clientSocketEntryPath);
   } catch (err) {
     if (err.code === 'ENOENT') {
-      ceres.log._ceres.silly('Websockets configuration not found at %s', clientSocketEntryPath);
-      return;
+      ceres.log.internal.silly('Websockets configuration not found at %s', clientSocketEntryPath);
+      return {};
     }
     throw err;
   }
 
   // Setup socket.io
+  // eslint-disable-next-line import/no-extraneous-dependencies
   const io = require('socket.io')(server);
 
   // Get socket router
@@ -35,7 +37,7 @@ module.exports = function(ceres, app, server) {
   // Share express sessions
   io.use(sharedsession(app.get('sharedSession')));
 
-  ceres.log._ceres.silly('Websockets configured');
+  ceres.log.internal.silly('Websockets configured');
 
   return io;
 };

@@ -1,6 +1,6 @@
 const setupCache = require('../../src/setup/cache');
 
-describe('cache', function() {
+describe('cache', () => {
   const ceres = {
     logger() {
       return {
@@ -12,7 +12,7 @@ describe('cache', function() {
     },
   };
 
-  it('should return a promise with the cache as the result', function(done) {
+  it('should return a promise with the cache as the result', done => {
     setupCache(ceres).then(function(cache) {
       expect(cache).not.toBeDefined();
       done();

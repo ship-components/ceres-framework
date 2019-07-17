@@ -9,11 +9,11 @@ const sockets = require('./sockets');
 
 const Benchmark = require('../lib/Benchmark');
 
-module.exports = function(ceres) {
+module.exports = function Server(ceres) {
   const benchmarks = {};
   benchmarks.express = new Benchmark();
 
-  ceres.log._ceres.silly('Starting express configuration...');
+  ceres.log.internal.silly('Starting express configuration...');
 
   // Bind the correct context
   if (ceres.config.folders.middleware) {
@@ -21,7 +21,7 @@ module.exports = function(ceres) {
     ceres.config.middleware = directory(ceres.config.folders.middleware, ceres);
     ceres.middleware = ceres.config.middleware;
     benchmarks.middleware.stop();
-    ceres.log._ceres.info(
+    ceres.log.internal.info(
       'Middleware setup complete - %ss',
       (benchmarks.middleware.val() / 1000).toLocaleString(),
       { duration: benchmarks.middleware.val() }
@@ -38,7 +38,7 @@ module.exports = function(ceres) {
     });
 
     benchmarks.queues.stop();
-    ceres.log._ceres.info(
+    ceres.log.internal.info(
       'Queue setup complete - %ss',
       (benchmarks.queues.val() / 1000).toLocaleString(),
       { duration: benchmarks.queues.val() }
@@ -63,7 +63,7 @@ module.exports = function(ceres) {
     // Setup any sockets
     sockets(ceres, app, server);
     benchmarks.sockets.stop();
-    ceres.log._ceres.info(
+    ceres.log.internal.info(
       'Socket setup complete - %ss',
       (benchmarks.sockets.val() / 1000).toLocaleString(),
       { duration: benchmarks.sockets.val() }
@@ -71,7 +71,7 @@ module.exports = function(ceres) {
   }
 
   benchmarks.express.stop();
-  ceres.log._ceres.info(
+  ceres.log.internal.info(
     'Express setup complete - %ss',
     (benchmarks.express.val() / 1000).toLocaleString(),
     { duration: benchmarks.express.val() }

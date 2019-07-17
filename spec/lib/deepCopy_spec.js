@@ -1,11 +1,11 @@
 const deepCopy = require('../../src/lib/deepCopy');
 
-describe('deepCopy', function() {
-  it('should export a function', function() {
+describe('deepCopy', () => {
+  it('should export a function', () => {
     expect(typeof deepCopy).toBe('function');
   });
 
-  it('should return array type if input is an array', function() {
+  it('should return array type if input is an array', () => {
     const obj1 = [
       {
         name: 'test1',
@@ -22,7 +22,7 @@ describe('deepCopy', function() {
     expect(typeof result).toBe(typeof obj1);
   });
 
-  it('should return object type if input is an object', function() {
+  it('should return object type if input is an object', () => {
     const obj1 = {
       name: 'test1',
       test1: false,
@@ -32,7 +32,7 @@ describe('deepCopy', function() {
     expect(typeof result).toBe(typeof obj1);
   });
 
-  it('should return object type if input is a date', function() {
+  it('should return object type if input is a date', () => {
     const obj1 = {
       d: new Date(),
     };
@@ -42,7 +42,7 @@ describe('deepCopy', function() {
     expect(result.d).toEqual(obj1.d);
   });
 
-  it('should deeply copy an object', function() {
+  it('should deeply copy an object', () => {
     const obj = {
       name: 'test',
       test: false,
@@ -65,7 +65,7 @@ describe('deepCopy', function() {
     expect(result.config.deepConfig.ssl).toBe(obj.config.deepConfig.ssl);
   });
 
-  it('should deeply copy an array of objects', function() {
+  it('should deeply copy an array of objects', () => {
     const arr = [
       {
         name: 'test',
@@ -106,7 +106,7 @@ describe('deepCopy', function() {
     expect(result[1].config.deepConfig.ssl).toBe(arr[1].config.deepConfig.ssl);
   });
 
-  it('should copy the object correctly, not mutate', function() {
+  it('should copy the object correctly, not mutate', () => {
     // Mutating a source object should have
     // no effect on the result object
     const a = {

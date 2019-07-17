@@ -7,7 +7,7 @@
  * @flow
  ***************************************************************************** */
 
-module.exports = function() {
+module.exports = () => {
   function AssetFactory(assets) {
     return {
       forPayload() {

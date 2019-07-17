@@ -1,18 +1,18 @@
 const Promise = require('bluebird');
 const ControllerModule = require('../../src/controllers/Controller');
 
-describe('Controller', function() {
+describe('Controller', () => {
   let Controller;
-  it('should export a function', function() {
+  it('should export a function', () => {
     expect(typeof ControllerModule).toBe('function');
   });
 
-  beforeEach(function() {
+  beforeEach(() => {
     const ctx = {};
     Controller = ControllerModule.bind(ctx, ctx);
   });
 
-  it('should extend itself', function() {
+  it('should extend itself', () => {
     const example = 'test';
     const controller = new Controller({
       example,
@@ -20,7 +20,7 @@ describe('Controller', function() {
     expect(controller.example).toBe(example);
   });
 
-  it('should have a static extend helper method', function() {
+  it('should have a static extend helper method', () => {
     const example = 'test';
     const controller = ControllerModule.extend({
       example,
@@ -29,16 +29,16 @@ describe('Controller', function() {
     expect(controller instanceof ControllerModule).toBeTruthy();
   });
 
-  it('should call the init function if found', function() {
+  it('should call the init function if found', () => {
     const spy = jest.fn();
-    new Controller({ // eslint-disable-line
+    Controller({
       init: spy,
     });
     expect(spy).toHaveBeenCalled();
   });
 
-  it('getAll should call this.model.readAll()', function() {
-    const readAll = jest.fn(function() {
+  it('getAll should call this.model.readAll()', () => {
+    const readAll = jest.fn(() => {
       return Promise.resolve();
     });
     const controller = new Controller({
@@ -51,8 +51,8 @@ describe('Controller', function() {
     expect(readAll).toHaveBeenCalled();
   });
 
-  it('getOne should call this.model.read()', function() {
-    const read = jest.fn(function(id) {
+  it('getOne should call this.model.read()', () => {
+    const read = jest.fn(id => {
       return Promise.resolve(id);
     });
     const controller = new Controller({
@@ -70,7 +70,7 @@ describe('Controller', function() {
     expect(read).toHaveBeenCalledWith(1);
   });
 
-  it('getOne should call this.notFound if id is NaN', function() {
+  it('getOne should call this.notFound if id is NaN', () => {
     const controller = new Controller({});
     controller.notFound = jest.fn();
     controller.getOne({
@@ -81,8 +81,8 @@ describe('Controller', function() {
     expect(controller.notFound).toHaveBeenCalled();
   });
 
-  it('postCreate should call this.model.create()', function() {
-    const create = jest.fn(function(body) {
+  it('postCreate should call this.model.create()', () => {
+    const create = jest.fn(body => {
       return Promise.resolve(body);
     });
     const controller = new Controller({
@@ -100,8 +100,8 @@ describe('Controller', function() {
     expect(create).toHaveBeenCalledWith(body);
   });
 
-  it('putUpdate should call this.model.update()', function() {
-    const update = jest.fn(function(body) {
+  it('putUpdate should call this.model.update()', () => {
+    const update = jest.fn(body => {
       return Promise.resolve(body);
     });
     const controller = new Controller({
@@ -123,8 +123,8 @@ describe('Controller', function() {
     expect(update).toHaveBeenCalledWith(body, id);
   });
 
-  it('putUpdate should call this.model.updateAll() when multiple records are passed in', function() {
-    const updateAll = jest.fn(function(body) {
+  it('putUpdate should call this.model.updateAll() when multiple records are passed in', () => {
+    const updateAll = jest.fn(body => {
       return Promise.resolve(body);
     });
     const controller = new Controller({
@@ -144,7 +144,7 @@ describe('Controller', function() {
     expect(updateAll).toHaveBeenCalled();
   });
 
-  it('deleteOne should call this.model.del()', function() {
+  it('deleteOne should call this.model.del()', () => {
     const controller = new Controller({
       model: {
         del() {},
@@ -152,7 +152,7 @@ describe('Controller', function() {
     });
     controller.controller = controller;
 
-    const spy = jest.spyOn(controller.model, 'del').mockImplementation(function(id) {
+    const spy = jest.spyOn(controller.model, 'del').mockImplementation(id => {
       return Promise.resolve(id);
     });
 

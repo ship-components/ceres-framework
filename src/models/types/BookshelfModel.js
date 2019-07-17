@@ -5,8 +5,8 @@
 const _ = require('lodash');
 const moment = require('moment');
 const Promise = require('bluebird');
-const assertNotNull = require('../../lib/assert').assertNotNull;
-const assertDefined = require('../../lib/assert').assertDefined;
+const { assertNotNull } = require('../../lib/assert');
+const { assertDefined } = require('../../lib/assert');
 
 /**
  * Setup
@@ -24,11 +24,13 @@ function BookshelfModel(props) {
 
   // Make raw function from knex available directly on the model
   this.raw = this.database.knex.raw;
-
   // Make bookself methods available directly on our model so we don't have to
   // do `this.model.model[fn]` to access them.
+  // eslint-disable-next-line no-restricted-syntax
   for (const fnName in this.model) {
+    // eslint-disable-next-line no-prototype-builtins
     if (!this.model.hasOwnProperty(fnName)) {
+      // eslint-disable-next-line no-continue
       continue;
     } else if (typeof this.model[fnName] === 'function' && typeof this[fnName] !== 'undefined') {
       // Ensure we don't override anything
@@ -48,17 +50,15 @@ function BookshelfModel(props) {
  */
 BookshelfModel.prototype.create = function create(body) {
   assertNotNull(this.model);
+  // eslint-disable-next-line new-cap
   return new this.model(body)
     .save(null, {
-      // eslint-disable-line new-cap
       method: 'insert',
     })
-    .then(
-      function(model) {
-        // Look up any relations
-        return this.read(model.id);
-      }.bind(this)
-    );
+    .then(model => {
+      // Look up any relations
+      return this.read(model.id);
+    });
 };
 
 /**
@@ -74,13 +74,13 @@ BookshelfModel.prototype.read = function read(id) {
     return this.model.where('id', 'IN', id).fetchAll(this.fetch);
   }
   if (_.isObject(id)) {
+    // eslint-disable-next-line new-cap
     return new this.model({
-      // eslint-disable-line new-cap
       id: id.id,
     }).fetch(this.fetch);
   }
+  // eslint-disable-next-line new-cap
   return new this.model({
-    // eslint-disable-line new-cap
     id,
   }).fetch(this.fetch);
 };
@@ -102,7 +102,8 @@ BookshelfModel.prototype.readAll = function readAll() {
  */
 BookshelfModel.prototype.find = function find(query) {
   assertNotNull(this.model);
-  return new this.model(query).fetch(this.fetch); // eslint-disable-line new-cap
+  // eslint-disable-next-line new-cap
+  return new this.model(query).fetch(this.fetch);
 };
 
 /**
@@ -113,7 +114,7 @@ BookshelfModel.prototype.find = function find(query) {
  */
 BookshelfModel.prototype.update = function update(body, id) {
   if (typeof id === 'undefined' && typeof body.id !== 'undefined') {
-    id = body.id;
+    ({ id } = body);
   }
   assertNotNull(this.model);
   assertDefined(id, 'id');
@@ -125,20 +126,18 @@ BookshelfModel.prototype.update = function update(body, id) {
   delete body.created_at; // You can only create it once
   delete body.updated_at; // Handled by DB
 
+  // eslint-disable-next-line new-cap
   return new this.model({
-    // eslint-disable-line new-cap
     id,
   })
     .save(body, {
       patch: true,
       method: 'update',
     })
-    .then(
-      function() {
-        // Get relations
-        return this.read(id);
-      }.bind(this)
-    );
+    .then(() => {
+      // Get relations
+      return this.read(id);
+    });
 };
 
 /**
@@ -151,11 +150,9 @@ BookshelfModel.prototype.updateAll = function updateAll(body) {
     body = [body];
   }
   return Promise.all(
-    body.map(
-      function(doc) {
-        return this.update(doc, doc.id);
-      }.bind(this)
-    )
+    body.map(doc => {
+      return this.update(doc, doc.id);
+    })
   );
 };
 
@@ -168,8 +165,8 @@ BookshelfModel.prototype.updateAll = function updateAll(body) {
 BookshelfModel.prototype.del = function del(id) {
   assertNotNull(this.model);
   assertDefined(id, 'id');
+  // eslint-disable-next-line new-cap
   return new this.model({
-    // eslint-disable-line new-cap
     id,
   }).destroy();
 };
@@ -200,10 +197,10 @@ module.exports.convertTimestampsToUnix = function convertTimestampsToUnix(fields
    *
    * @param     {Array}    attrs
    */
-  return function(attrs) {
+  return attrs => {
     return _.reduce(
       attrs,
-      function(memo, val, key) {
+      (memo, val, key) => {
         if (options.camelCase) {
           key = _.camelCase(key);
         }
@@ -233,10 +230,10 @@ module.exports.convertDatesToISO8601 = function convertDatesToISO8601(fields, op
    *
    * @param     {Array}    attrs
    */
-  return function(attrs) {
+  return attrs => {
     return _.reduce(
       attrs,
-      function(memo, val, key) {
+      (memo, val, key) => {
         if (options.camelCase) {
           key = _.camelCase(key);
         }

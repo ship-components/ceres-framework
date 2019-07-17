@@ -2,21 +2,21 @@ const express = require('express');
 const setupRoutes = require('../../src/setup/routes');
 const TestController = require('../helpers/TestController');
 
-describe('routes', function() {
+describe('routes', () => {
   let ceres;
   let ran = false;
 
-  beforeEach(function() {
+  beforeEach(() => {
     ran = false;
     // Setup mock router
-    TestController.router = function() {
+    TestController.router = () => {
       ran = true;
       return new express.Router();
     };
 
     ceres = {
       log: {
-        _ceres: {
+        internal: {
           silly() {},
           error: console.error,
         },
@@ -30,7 +30,7 @@ describe('routes', function() {
     };
   });
 
-  it('should call the router function on controller', function() {
+  it('should call the router function on controller', () => {
     ceres.config.controllers = {
       './spec/helpers/TestController': '/',
     };

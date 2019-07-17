@@ -1,20 +1,22 @@
 const Promise = require('bluebird');
 
-module.exports = function(config) {
-  return new Promise(function(resolve, reject) {
+module.exports = config => {
+  return new Promise((resolve, reject) => {
     try {
+      // eslint-disable-next-line import/no-extraneous-dependencies
       const r = require('rethinkdb');
-      const version = require('rethinkdb/package.json').version;
+      // eslint-disable-next-line import/no-extraneous-dependencies
+      const { version } = require('rethinkdb/package.json');
 
       r.connect(config.db)
-        .then(function(connection) {
+        .then(connection => {
           resolve({
             r,
             version,
             connection,
           });
         })
-        .catch(function(err) {
+        .catch(err => {
           reject(err);
         });
     } catch (err) {

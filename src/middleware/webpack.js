@@ -1,8 +1,10 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 const webpackDevMiddleware = require('webpack-dev-middleware');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const webpack = require('webpack');
 
-module.exports = function(ceres) {
-  const config = ceres.config.webpackConfig;
+module.exports = ceres => {
+  const { webpackConfig: config } = ceres.config;
   config.output.path = '/';
   const compiler = webpack(config);
   return webpackDevMiddleware(compiler, {

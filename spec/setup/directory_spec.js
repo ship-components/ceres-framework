@@ -4,15 +4,15 @@ const setupDirectory = require('../../src/setup/directory');
 const helpersDirectory = './spec/helpers/';
 const jsTest = /\.jsx?$/i;
 
-describe('routes', function() {
+describe('routes', () => {
   let jsFiles = [];
-  beforeEach(function() {
+  beforeEach(() => {
     jsFiles = fs.readdirSync(helpersDirectory).filter(function(file) {
       return jsTest.test(file);
     });
   });
 
-  it('should load any .js files in a directory and return an object of results', function() {
+  it('should load any .js files in a directory and return an object of results', () => {
     const result = setupDirectory(helpersDirectory);
     expect(typeof result).toBe('object');
 
@@ -23,7 +23,7 @@ describe('routes', function() {
     });
   });
 
-  it('should run any .js files in a directory and call any functions', function() {
+  it('should run any .js files in a directory and call any functions', () => {
     const result = setupDirectory(helpersDirectory, {
       config: {
         test: true,

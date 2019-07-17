@@ -52,7 +52,7 @@ Object.assign(RethinkdbModel.prototype, {
   readAll() {
     return this.table()
       .run(this.connection)
-      .then(function(cursor) {
+      .then(cursor => {
         return cursor.toArray();
       });
   },
@@ -67,7 +67,7 @@ Object.assign(RethinkdbModel.prototype, {
     return this.table()
       .filter(query)
       .run(this.connection)
-      .then(function(cursor) {
+      .then(cursor => {
         return cursor.toArray();
       });
   },

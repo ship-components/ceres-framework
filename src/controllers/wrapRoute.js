@@ -14,7 +14,7 @@ const Responses = require('./Responses');
  * @return    {Express.route}
  */
 module.exports = function wrapRoute(handler, ctx, ceres) {
-  return function(req, res, next) {
+  return function requestHandler(req, res, next) {
     /**
      * Create this context
      *
@@ -75,12 +75,12 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
 
     // Start a promise chain so we can catch any errors
     return Promise.bind(context)
-      .then(function() {
+      .then(() => {
         // Attempt to resolve the result of the handler. This can be a promise.
         // Bluebird will handle both promies and direct values
         return Promise.resolve(handler.call(context, req, res, next, ceres));
       })
-      .then(function(body) {
+      .then(body => {
         if (body === null || typeof body === 'undefined') {
           // If the body is empty then we can skip sending the response
           return null;

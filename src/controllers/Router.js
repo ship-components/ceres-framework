@@ -24,6 +24,7 @@ function getFunctionName(val) {
   if (typeof val === 'function') {
     return val.constructor.name;
   }
+  return undefined;
 }
 
 /**
@@ -40,6 +41,7 @@ function getHandler(controller, lastArg) {
     // By default look for a method with the fnName on `this`
     return controller[lastArg];
   }
+  return undefined;
 }
 
 /**
@@ -137,11 +139,7 @@ function controllerRoutes(controller, ceres) {
   const routes = [];
 
   // Loop through all of them
-  for (const route in controller.routes) {
-    if (!controller.routes.hasOwnProperty(route)) {
-      continue;
-    }
-
+  Object.keys(controller.routes).forEach(route => {
     // Parse
     const parts = parseRouteString(route);
 
@@ -149,13 +147,13 @@ function controllerRoutes(controller, ceres) {
      * HTTP method
      * @type {String}
      */
-    const method = parts.method;
+    const { method } = parts;
 
     /**
      * The sub path or tail end of a path
      * @type {String}
      */
-    const path = parts.path;
+    const { path } = parts;
 
     /**
      * The complete path from the root url
@@ -192,7 +190,7 @@ function controllerRoutes(controller, ceres) {
     const args = getMiddleware(controller, ceres, route);
 
     // Ensure middleware functons are valid
-    args.forEach(function(arg) {
+    args.forEach(arg => {
       if (typeof arg !== 'function') {
         throw new Error('middleware is not a function');
       }
@@ -226,14 +224,14 @@ function controllerRoutes(controller, ceres) {
     });
 
     // Log
-    ceres.log._ceres.silly(
+    ceres.log.internal.silly(
       '%s - Setting up %s %s - %s',
       controller.name,
       method.toUpperCase(),
       fullPath,
       fnName
     );
-  }
+  });
 
   return routes;
 }
@@ -248,7 +246,7 @@ module.exports = function controllerRouter(ceres) {
     mergeParams: true,
   });
   const routes = controllerRoutes(this, ceres);
-  routes.forEach(function(route) {
+  routes.forEach(route => {
     router[route.method](...route.args);
   });
   return router;

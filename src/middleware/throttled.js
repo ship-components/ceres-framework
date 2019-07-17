@@ -31,20 +31,16 @@ const defaults = {
  * @param     {Object...}
  * @return    {Object}
  */
-function assign() {
+function assign(...args) {
   const result = {};
-  const args = Array.prototype.slice.call(arguments);
-  for (let i = 0; i < args.length; i++) {
+  for (let i = 0; i < args.length; i += 1) {
     let obj = args[i];
-    if (typeof obj !== 'object') {
-      continue;
-    }
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+    if (typeof obj === 'object') {
+      Object.keys(obj).forEach(key => {
         result[key] = obj[key];
-      }
+      });
     }
-    obj = void 0;
+    obj = undefined;
   }
   return result;
 }
@@ -56,11 +52,11 @@ function assign() {
  * @return    {Express.middleware}
  * @example   router.get('/route', throttle(), function(req, res){});
  */
-module.exports = function(options) {
+module.exports = options => {
   // Apply defaults
   options = assign(defaults, options);
 
-  const logger = options.logger;
+  const { logger } = options;
 
   /**
    * Redis Client
@@ -88,7 +84,7 @@ module.exports = function(options) {
    * @param     {Express.res}      res
    * @param     {Function}         next
    */
-  return function(req, res, next) {
+  return (req, res, next) => {
     // Get IP from proxy
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
@@ -114,9 +110,9 @@ module.exports = function(options) {
          */
         count: [
           'req',
-          function(done, results) {
+          (done, results) => {
             const count = (results.req ? parseInt(results.req.count, 10) : 0) + 1;
-            client.hset([key, 'count', count], function(err) {
+            client.hset([key, 'count', count], err => {
               if (err) {
                 done(err);
               } else {
@@ -133,14 +129,14 @@ module.exports = function(options) {
          */
         throttled: [
           'count',
-          function(done, results) {
+          (done, results) => {
             const throttled = results.count > options.limit;
 
             if (results.req && (results.req.throttled === 'true') === throttled) {
               done(null, throttled);
               return;
             }
-            client.hset([key, 'throttled', throttled], function(err) {
+            client.hset([key, 'throttled', throttled], err => {
               if (err) {
                 done(err);
               } else {
@@ -158,7 +154,7 @@ module.exports = function(options) {
         expire: [
           'req',
           'throttled',
-          function(done, results) {
+          (done, results) => {
             if (!results.req) {
               client.expire(key, options.period, done);
             }
@@ -178,10 +174,10 @@ module.exports = function(options) {
         expiresAt: [
           'req',
           'throttled',
-          function(done, results) {
+          (done, results) => {
             if (results.throttled && results.req && !results.req.expiresAt) {
               const expiresAt = Date.now() + options.ban * 1000;
-              client.hset(key, 'expiresAt', expiresAt, function(err) {
+              client.hset(key, 'expiresAt', expiresAt, err => {
                 if (err) {
                   done(err);
                 } else {
@@ -202,7 +198,7 @@ module.exports = function(options) {
        * @param     {Error}    err
        * @param     {Object}    results
        */
-      function(err, results) {
+      (err, results) => {
         if (options.headers) {
           // Set some headers so we can track what's going on
           const headers = {

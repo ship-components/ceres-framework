@@ -1,12 +1,12 @@
 const controllerRouter = require('../../src/controllers/Router');
 
-describe('controllerRouter', function() {
+describe('controllerRouter', () => {
   let controller;
   let ceres;
   const getAll = function getAll() {};
   const putOne = function putOne() {};
 
-  beforeEach(function() {
+  beforeEach(() => {
     controller = {
       endpoint: '/',
       name: 'TestController',
@@ -14,7 +14,7 @@ describe('controllerRouter', function() {
     };
     ceres = {
       log: {
-        _ceres: {
+        internal: {
           silly() {},
           warn: console.error,
           error: console.error,
@@ -23,23 +23,23 @@ describe('controllerRouter', function() {
     };
   });
 
-  it('should export a function', function() {
+  it('should export a function', () => {
     expect(typeof controllerRouter).toBe('function');
   });
 
-  it('should return a function', function() {
+  it('should return a function', () => {
     const result = controllerRouter.call(controller, ceres);
     expect(typeof result).toBe('function');
   });
 
-  it('should throw an error if routes are missing', function() {
-    expect(function() {
+  it('should throw an error if routes are missing', () => {
+    expect(() => {
       controllerRouter.call({}, ceres);
     }).toThrow();
   });
 
-  describe('controllerRouter', function() {
-    it('should return an array of objects based on routes', function() {
+  describe('controllerRouter', () => {
+    it('should return an array of objects based on routes', () => {
       const expected = [
         {
           method: 'get',
@@ -66,7 +66,7 @@ describe('controllerRouter', function() {
       });
     });
 
-    it('should accept middleware on a per route basis', function() {
+    it('should accept middleware on a per route basis', () => {
       controller.routes = {
         'get /': [function middleware() {}, getAll],
       };
@@ -78,7 +78,7 @@ describe('controllerRouter', function() {
       });
     });
 
-    it('should accept middleware on a per controller basis', function() {
+    it('should accept middleware on a per controller basis', () => {
       controller.routes = {
         'get /': getAll,
         'put /': putOne,
@@ -92,7 +92,7 @@ describe('controllerRouter', function() {
       });
     });
 
-    it('should accept string names of the default methods', function() {
+    it('should accept string names of the default methods', () => {
       controller.routes = {
         'get /': 'getAll',
       };
@@ -105,21 +105,21 @@ describe('controllerRouter', function() {
       });
     });
 
-    it('should throw an error if it is not a valid httpd method', function() {
+    it('should throw an error if it is not a valid httpd method', () => {
       controller.routes = {
         'wtf /': 'getAll',
       };
       controller.getAll = getAll;
-      expect(function() {
+      expect(() => {
         controllerRouter.routes(controller, ceres);
       }).toThrow();
     });
 
-    it('should throw an error if it can not find a function', function() {
+    it('should throw an error if it can not find a function', () => {
       controller.routes = {
         'wtf /': 'doesNotExist',
       };
-      expect(function() {
+      expect(() => {
         controllerRouter.routes(controller, ceres);
       }).toThrow();
     });

@@ -1,38 +1,38 @@
 const Promise = require('bluebird');
 const wrapRoute = require('../../src/controllers/wrapRoute');
 
-describe('wrapRoute', function() {
+describe('wrapRoute', () => {
   let ceres;
 
-  beforeEach(function() {
+  beforeEach(() => {
     ceres = {
       log: {
-        _ceres: {
+        internal: {
           debug() {},
         },
       },
     };
   });
 
-  it('should return a function', function() {
-    const handler = function() {};
+  it('should return a function', () => {
+    function handler() {}
     const ctx = {};
     let result;
-    expect(function() {
+    expect(() => {
       result = wrapRoute(handler, ctx, ceres);
     }).not.toThrow();
     expect(typeof result).toBe('function');
   });
 
-  it('should extend "this" with any custom properties', function() {
+  it('should extend "this" with any custom properties', () => {
     let result;
-    const handler = function() {
+    function handler() {
       result = this;
-    };
+    }
     const ctx = {
       extend: true,
     };
-    expect(function() {
+    expect(() => {
       const wrappedFunction = wrapRoute(handler, ctx, ceres);
       wrappedFunction().finally(() => {
         expect(result.extend).toBe(ctx.extend);
@@ -40,17 +40,17 @@ describe('wrapRoute', function() {
     }).not.toThrow();
   });
 
-  it('should assign "req", "res", "next" to "this" of the handler', function() {
+  it('should assign "req", "res", "next" to "this" of the handler', () => {
     let result;
-    const handler = function() {
+    function handler() {
       result = this;
-    };
+    }
     const ctx = {};
 
     const req = {};
     const res = {};
-    const next = function() {};
-    expect(function() {
+    const next = () => {};
+    expect(() => {
       const wrappedFunction = wrapRoute(handler, ctx, ceres);
       wrappedFunction(req, res, next).finally(() => {
         expect(result.req).toBe(req);
@@ -60,9 +60,9 @@ describe('wrapRoute', function() {
     }).not.toThrow();
   });
 
-  it('should call the "next" handler if theres an error', function() {
+  it('should call the "next" handler if theres an error', () => {
     const err = new Error('ERROR');
-    const handler = function() {
+    const handler = () => {
       throw err;
     };
     const ctx = {};
@@ -73,12 +73,12 @@ describe('wrapRoute', function() {
     });
   });
 
-  it('should automatically "send" the result of a promise', function(done) {
+  it('should automatically "send" the result of a promise', done => {
     const expected = {
       results: [],
     };
-    const handler = function() {
-      return new Promise(function(resolve) {
+    const handler = () => {
+      return new Promise(resolve => {
         resolve(expected);
       });
     };
@@ -89,8 +89,8 @@ describe('wrapRoute', function() {
       writable: true,
     };
     const fn = wrapRoute(handler, ctx, ceres);
-    fn({}, res, function() {})
-      .then(function() {
+    fn({}, res, () => {})
+      .then(() => {
         expect(ctx.send).toHaveBeenCalledWith(expected);
       })
       .finally(() => {
@@ -98,15 +98,15 @@ describe('wrapRoute', function() {
       });
   });
 
-  it('should not write the response if is not writable', function(done) {
+  it('should not write the response if is not writable', () => {
     const expected = {
       results: [],
     };
-    const handler = function() {
-      return new Promise(function(resolve) {
+    function handler() {
+      return new Promise(resolve => {
         resolve(expected);
       });
-    };
+    }
     const ctx = {
       send: jest.fn(),
     };
@@ -114,9 +114,8 @@ describe('wrapRoute', function() {
       writable: false,
     };
     const fn = wrapRoute(handler, ctx, ceres);
-    fn({}, res, function() {}).then(function() {
+    return fn({}, res, () => {}).then(() => {
       expect(ctx.send).not.toHaveBeenCalled();
-      done();
     });
   });
 });

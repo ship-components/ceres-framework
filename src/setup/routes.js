@@ -16,8 +16,11 @@ module.exports = function routes(ceres, prop) {
   const routers = ceres.config[prop];
 
   const router = new express.Router();
+  // eslint-disable-next-line no-restricted-syntax
   for (const name in routers) {
+    // eslint-disable-next-line no-prototype-builtins
     if (!routers.hasOwnProperty(name)) {
+      // eslint-disable-next-line no-continue
       continue;
     }
 
@@ -31,7 +34,7 @@ module.exports = function routes(ceres, prop) {
       benchmark.stop();
       const SLOW_SETUP_CUTOFF_MS = 200;
       if (benchmark.val() > SLOW_SETUP_CUTOFF_MS) {
-        ceres.log._ceres.debug(
+        ceres.log.internal.debug(
           '[%s] %s -> %s took longer than %dms to initialize - %ss',
           prop,
           endpoint,
@@ -41,7 +44,7 @@ module.exports = function routes(ceres, prop) {
           { name, duration: benchmark.val() }
         );
       } else {
-        ceres.log._ceres.silly(
+        ceres.log.internal.silly(
           '[%s] %s -> %s initialized - %ss',
           prop,
           endpoint,
@@ -51,10 +54,10 @@ module.exports = function routes(ceres, prop) {
         );
       }
     } catch (err) {
-      ceres.log._ceres.error('Unable to setup', name);
+      ceres.log.internal.error('Unable to setup', name);
       throw err;
     }
   }
-  ceres.log._ceres.silly('Setup router for %s', prop);
+  ceres.log.internal.silly('Setup router for %s', prop);
   return router;
 };

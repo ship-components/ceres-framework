@@ -7,10 +7,8 @@
  */
 module.exports = function bindEach(src, ctx) {
   const obj = {};
-  for (const key in src) {
-    if (src.hasOwnProperty(key)) {
-      obj[key] = src[key].bind(ctx);
-    }
-  }
+  Object.keys(src).forEach(key => {
+    obj[key] = src[key].bind(ctx);
+  });
   return obj;
 };

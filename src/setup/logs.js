@@ -142,7 +142,7 @@ module.exports.logger = function logger(config, name) {
  * @param    {Ceres}    ceres
  * @return   {Undefined}
  */
-module.exports.init = function(ceres) {
+module.exports.init = function init(ceres) {
   // Make sure the folder exists
   mkdirp.sync(ceres.config.folders.logs);
   // Apply

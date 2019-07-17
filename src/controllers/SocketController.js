@@ -26,25 +26,19 @@ function SocketController(options) {
 /**
  * Find all of the actions we can run and bind the right context
  */
-SocketController.prototype.bindActions = function() {
-  for (const key in this.actions) {
-    if (!this.actions.hasOwnProperty(key)) {
-      continue;
-    }
+SocketController.prototype.bindActions = function bindActions() {
+  Object.keys(this.actions).forEach(key => {
     this.actions[key] = this.actions[key].bind(this);
-  }
+  });
 };
 
 /**
  * Start listening to each of the available actions.
  */
-SocketController.prototype.listen = function() {
-  for (const key in this.actions) {
-    if (!this.actions.hasOwnProperty(key)) {
-      continue;
-    }
+SocketController.prototype.listen = function listen() {
+  Object.keys(this.actions).forEach(key => {
     this.on(key, this.actions[key]);
-  }
+  });
 };
 
 module.exports = SocketController;

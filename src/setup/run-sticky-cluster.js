@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 const sticky = require('sticky-session');
 const Promise = require('bluebird');
 
@@ -9,21 +10,21 @@ const logStartTime = require('../lib/logStartTime');
  * @param  {Ceres}    ceres
  * @return {Promise}
  */
-module.exports = function(ceres) {
+module.exports = function runStickyCluster(ceres) {
   // processManagement
   return this.connect.call(this, ceres).then(function listen() {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       try {
         // Setup express server
         const server = Server.call(ceres, ceres);
 
         if (!ceres.config.instances || ceres.config.instances === 1) {
-          ceres.log._ceres.info('Starting server in single instance mode...');
+          ceres.log.internal.info('Starting server in single instance mode...');
           // Skip sticky session setup if we only have a single instance. Allows
           // for debugging
-          server.listen(ceres.config.port, function() {
+          server.listen(ceres.config.port, () => {
             logStartTime('Server took %ds to start listening', ceres);
-            ceres.log._ceres.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
+            ceres.log.internal.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
             resolve();
           });
           return;
@@ -35,9 +36,9 @@ module.exports = function(ceres) {
         });
 
         if (!isChild) {
-          server.once('listening', function() {
+          server.once('listening', () => {
             logStartTime('Master took %ds to start listening', ceres);
-            ceres.log._ceres.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
+            ceres.log.internal.info('Listening on %d (%s)', ceres.config.port, ceres.config.env);
             resolve();
           });
         } else {

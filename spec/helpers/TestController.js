@@ -6,4 +6,4 @@ module.exports = function(config) {
   return config;
 };
 
-module.exports.router = function() {};
+module.exports.router = () => {};

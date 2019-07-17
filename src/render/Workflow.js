@@ -1,11 +1,13 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 const ReactDOMServer = require('react-dom/server');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const React = require('react');
 const fs = require('fs');
 const ejs = require('ejs');
 
 const deepCopy = require('../lib/deepCopy');
 
-module.exports.setup = function(config, props) {
+module.exports.setup = (config, props) => {
   /**
    * Configure Asset Factor
    *
@@ -28,7 +30,7 @@ module.exports.setup = function(config, props) {
      * @return    {Async.auto}
      */
     react(options) {
-      return function(done, results) {
+      return (done, results) => {
         require('../index').log.silly('Rendering react component');
         let html = '';
         // Skip if we have no component
@@ -55,10 +57,10 @@ module.exports.setup = function(config, props) {
      * @return    {Async.auto}
      */
     template(options) {
-      return function(done) {
+      return done => {
         require('../index').log.silly('Reading template');
 
-        let template = config.render.template;
+        let { template } = config.render;
         if (options && typeof options.templatePath === 'string') {
           template = options.templatePath;
         }
@@ -68,7 +70,7 @@ module.exports.setup = function(config, props) {
           {
             encoding: 'utf8',
           },
-          function(err, src) {
+          (err, src) => {
             if (err) {
               done(err);
               return;
@@ -95,7 +97,7 @@ module.exports.setup = function(config, props) {
      * @return    {Async.auto}
      */
     payload(options) {
-      return function(done, results) {
+      return (done, results) => {
         require('../index').log.silly('Parsing props');
 
         // Load asset information

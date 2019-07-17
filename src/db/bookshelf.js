@@ -6,8 +6,8 @@ const Promise = require('bluebird');
  */
 let db = null;
 
-module.exports = function(config, Ceres) {
-  return new Promise(function(resolve) {
+module.exports = function bookshelf(config, ceres) {
+  return new Promise(resolve => {
     if (db !== null) {
       resolve(db);
       return;
@@ -21,6 +21,7 @@ module.exports = function(config, Ceres) {
      *
      * @type    {Knex}
      */
+    // eslint-disable-next-line import/no-extraneous-dependencies
     db.knex = require('knex')({
       client: 'pg',
       connection: config.db,
@@ -31,23 +32,26 @@ module.exports = function(config, Ceres) {
      * Setup Bookself ORM
      * @type    {Bookself}
      */
+    // eslint-disable-next-line import/no-extraneous-dependencies
     db.bookshelf = require('bookshelf')(db.knex);
 
+    // eslint-disable-next-line import/no-extraneous-dependencies
     const pg = require('pg');
 
     // convert bigint to number since we typically don't deal in actual bigints
-    pg.types.setTypeParser(20, function(value) {
+    pg.types.setTypeParser(20, value => {
       return parseInt(value, 10);
     });
 
     // convert numeric to string since we don't need ultra percision
-    pg.types.setTypeParser(1700, function(value) {
+    pg.types.setTypeParser(1700, value => {
       return parseFloat(value);
     });
 
     // Check to see if we want to enable live queries
     if (config.db.liveDb) {
       // Only require this if we need it
+      // eslint-disable-next-line import/no-extraneous-dependencies
       const LivePG = require('pg-live-select');
 
       /**
@@ -56,16 +60,16 @@ module.exports = function(config, Ceres) {
        */
       const connection = `postgres://${config.db.user}:${config.db.password}@${config.db.host}/${config.db.database}`;
 
-      Ceres.log._ceres.silly('Setting up livePG connection');
+      ceres.log.internal.silly('Setting up livePG connection');
 
       // Setup live db connection using a unique channel for each instance
       db.liveDb = new LivePG(connection, `${config.db.database}_${process.env.CERES_UNIQUE_ID}`);
 
       // Clean up on exit
-      process.on('exit', function() {
+      process.on('exit', () => {
         if (db !== null && db.liveDb) {
-          db.liveDb.cleanup(function() {
-            Ceres.log._ceres.silly('liveDb cleaned up after exit');
+          db.liveDb.cleanup(() => {
+            ceres.log.internal.silly('liveDb cleaned up after exit');
           });
         }
       });
