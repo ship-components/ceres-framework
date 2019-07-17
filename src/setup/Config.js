@@ -1,37 +1,41 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Config
  *
  * @author       Isaac Suttell <isaac.suttell@sony.com>
  * @file         Load application settings
- ******************************************************************************/
+ ***************************************************************************** */
 
 // Modules
-var fs = require('fs');
-var path = require('path');
-var merge = require('../lib/merge');
+const fs = require('fs');
+const path = require('path');
+const merge = require('../lib/merge');
 
 function Config(cli, options) {
   if (typeof cli !== 'object') {
     cli = {};
   }
 
-  Object.assign(this, {
-    configFolder: process.cwd() + '/config'
-  }, cli);
+  Object.assign(
+    this,
+    {
+      configFolder: `${process.cwd()}/config`,
+    },
+    cli
+  );
 
   this.configFolder = path.resolve(this.configFolder);
 
   // Framework defaults
-  var defaultConfig = require(path.resolve(__dirname, '../../config/default'));
+  const defaultConfig = require(path.resolve(__dirname, '../../config/default'));
 
   // Get global config
-  var appDefaultConfig = this.requireConfig('default');
+  const appDefaultConfig = this.requireConfig('default');
 
   // Get the environment
-  var envStr = this.getEnv(cli, appDefaultConfig);
+  const envStr = this.getEnv(cli, appDefaultConfig);
 
   // Get env specific config
-  var envConfig = this.requireConfig(envStr);
+  const envConfig = this.requireConfig(envStr);
 
   // listen for the port as an environmental variable. If we see it, use it.
   // Used when in forking mode
@@ -40,9 +44,9 @@ function Config(cli, options) {
   }
 
   // Get the location of the machine config file
-  var rcPath = this.getRCPath([cli, options, envConfig, appDefaultConfig, defaultConfig]);
+  const rcPath = this.getRCPath([cli, options, envConfig, appDefaultConfig, defaultConfig]);
 
-  var rc = {};
+  let rc = {};
 
   if (typeof rcPath === 'string') {
     // Get machine specific settings if we found a rc path
@@ -55,7 +59,7 @@ function Config(cli, options) {
   config.rc = rcPath;
 
   // Resolve all paths
-  for (var folder in config.folders) {
+  for (const folder in config.folders) {
     if (config.folders.hasOwnProperty(folder)) {
       config.folders[folder] = path.resolve(config.folders[folder]);
     }
@@ -81,19 +85,18 @@ Config.prototype.rcConfig = function rcConfig(file) {
     file = path.resolve(file);
 
     // Read
-    var rc = fs.readFileSync(file, {
-      encoding: 'utf8'
+    let rc = fs.readFileSync(file, {
+      encoding: 'utf8',
     });
 
     // Convert to JS
     rc = JSON.parse(rc);
 
     return rc;
-  } catch(accessError) {
+  } catch (accessError) {
     console.error(accessError.toString());
     return {};
   }
-
 };
 
 /**
@@ -103,7 +106,7 @@ Config.prototype.rcConfig = function rcConfig(file) {
  * @return   {String}
  */
 Config.prototype.getEnv = function(cli, config) {
-  return [cli.env, config.env, process.env.NODE_ENV, 'production'].find(function(item){
+  return [cli.env, config.env, process.env.NODE_ENV, 'production'].find(function(item) {
     return typeof item === 'string';
   });
 };
@@ -115,15 +118,15 @@ Config.prototype.getEnv = function(cli, config) {
  * @return {Object}
  */
 Config.prototype.requireConfig = function requireConfig(env) {
-  var fileName = this.configFolder + '/' + env + '.js';
+  const fileName = `${this.configFolder}/${env}.js`;
   try {
     fs.accessSync(fileName);
-  } catch(accessError) {
+  } catch (accessError) {
     // Can't find the file
     return {};
   }
   // Import
-  var conf = require(fileName);
+  let conf = require(fileName);
 
   // If its a function call it. We can use it to isolate scope if we want
   if (typeof conf === 'function') {
@@ -132,9 +135,8 @@ Config.prototype.requireConfig = function requireConfig(env) {
 
   if (typeof conf === 'object') {
     return conf;
-  } else {
-    throw new TypeError(fileName + ' does not export an object or function that returns an object');
   }
+  throw new TypeError(`${fileName} does not export an object or function that returns an object`);
 };
 
 /**
@@ -143,7 +145,7 @@ Config.prototype.requireConfig = function requireConfig(env) {
  * @return   {String}
  */
 Config.prototype.getRCPath = function getRCPath(configs) {
-  var config = configs.find(function(conf){
+  const config = configs.find(function(conf) {
     return typeof conf === 'object' && conf.rc;
   });
   return config ? path.resolve(config.rc) : void 0;
@@ -155,19 +157,19 @@ Config.prototype.getRCPath = function getRCPath(configs) {
  * @return   {Object}
  */
 Config.prototype.getWebpack = function getWebpack(env) {
-  var files = [
-    this.configFolder + '/webpack.' + env + '.js',
-    this.configFolder + '/webpack.default.js',
-    this.configFolder + '/webpack.config.js'
-  ].map(function(file){
+  const files = [
+    `${this.configFolder}/webpack.${env}.js`,
+    `${this.configFolder}/webpack.default.js`,
+    `${this.configFolder}/webpack.config.js`,
+  ].map(function(file) {
     return path.resolve(file);
   });
 
-  var index = files.length;
+  let index = files.length;
   while (--index > -1) {
     try {
       fs.accessSync(files[index]);
-    } catch(accessError) {
+    } catch (accessError) {
       // If we can access it, skip it
       continue;
     }

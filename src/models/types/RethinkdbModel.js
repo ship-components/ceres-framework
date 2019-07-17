@@ -1,8 +1,8 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Base Model
- ******************************************************************************/
+ ***************************************************************************** */
 
-var _ = require('lodash');
+const _ = require('lodash');
 
 /**
  * Init
@@ -25,7 +25,7 @@ Object.assign(RethinkdbModel.prototype, {
    * @param     {Object}    body
    * @return    {promise}
    */
-  create: function(body) {
+  create(body) {
     return this.table()
       .insert(body)
       .run(this.connection);
@@ -37,7 +37,7 @@ Object.assign(RethinkdbModel.prototype, {
    * @param     {Mixed}    id
    * @return    {promise}
    */
-  read: function(id) {
+  read(id) {
     return this.table()
       .get(id)
       .run(this.connection);
@@ -49,10 +49,10 @@ Object.assign(RethinkdbModel.prototype, {
    * @param     {Mixed}    id
    * @return    {promise}
    */
-  readAll: function() {
+  readAll() {
     return this.table()
       .run(this.connection)
-      .then(function(cursor){
+      .then(function(cursor) {
         return cursor.toArray();
       });
   },
@@ -63,11 +63,11 @@ Object.assign(RethinkdbModel.prototype, {
    * @param     {Object}    query
    * @return    {Promise}
    */
-  filter: function(query) {
+  filter(query) {
     return this.table()
       .filter(query)
       .run(this.connection)
-      .then(function(cursor){
+      .then(function(cursor) {
         return cursor.toArray();
       });
   },
@@ -78,7 +78,7 @@ Object.assign(RethinkdbModel.prototype, {
    * @param     {Object}    body
    * @return    {promise}
    */
-  update: function(body, id) {
+  update(body, id) {
     delete body.id; // Can't update the ID
     delete body.created_at; // You can only create it once
     delete body.updated_at; // Handled by DB
@@ -95,12 +95,12 @@ Object.assign(RethinkdbModel.prototype, {
    * @param     {Number}    id
    * @return    {promise}
    */
-  del: function(id) {
+  del(id) {
     return this.table()
       .get(id)
       .delete()
       .run(this.connection);
-  }
+  },
 });
 
 /**

@@ -1,51 +1,49 @@
-'use strict';
+const deepCopy = require('../../src/lib/deepCopy');
 
-var deepCopy = require('../../src/lib/deepCopy');
-
-describe('deepCopy', function(){
+describe('deepCopy', function() {
   it('should export a function', function() {
     expect(typeof deepCopy).toBe('function');
   });
 
   it('should return array type if input is an array', function() {
-    var obj1 = [
+    const obj1 = [
       {
         name: 'test1',
-        test1: false
+        test1: false,
       },
       {
         name: 'test2',
-        test2: true
-      }
-  ];
+        test2: true,
+      },
+    ];
 
-    var result = deepCopy(obj1);
+    const result = deepCopy(obj1);
 
     expect(typeof result).toBe(typeof obj1);
   });
 
   it('should return object type if input is an object', function() {
-    var obj1 = {
-        name: 'test1',
-        test1: false
-      };
-    var result = deepCopy(obj1);
+    const obj1 = {
+      name: 'test1',
+      test1: false,
+    };
+    const result = deepCopy(obj1);
 
     expect(typeof result).toBe(typeof obj1);
   });
 
   it('should return object type if input is a date', function() {
-    var obj1 = {
-      d: new Date()
+    const obj1 = {
+      d: new Date(),
     };
-    var result = deepCopy(obj1);
+    const result = deepCopy(obj1);
 
     expect(typeof result).toBe(typeof obj1);
     expect(result.d).toEqual(obj1.d);
   });
 
   it('should deeply copy an object', function() {
-    var obj = {
+    const obj = {
       name: 'test',
       test: false,
       config: {
@@ -53,22 +51,22 @@ describe('deepCopy', function(){
         port: 3000,
         deepConfig: {
           db: 0,
-          ssl: false
+          ssl: false,
         },
         cache: {
-          type: 'test'
-        }
-      }
+          type: 'test',
+        },
+      },
     };
 
-    var result = deepCopy(obj);
+    const result = deepCopy(obj);
 
     expect(result.config.port).toBe(obj.config.port);
     expect(result.config.deepConfig.ssl).toBe(obj.config.deepConfig.ssl);
   });
 
   it('should deeply copy an array of objects', function() {
-    var arr = [
+    const arr = [
       {
         name: 'test',
         test: false,
@@ -77,12 +75,12 @@ describe('deepCopy', function(){
           port: 3000,
           deepConfig: {
             db: 0,
-            ssl: false
+            ssl: false,
           },
           cache: {
-            type: 'test'
-          }
-        }
+            type: 'test',
+          },
+        },
       },
       {
         name: 'test2',
@@ -92,16 +90,16 @@ describe('deepCopy', function(){
           port: 4000,
           deepConfig: {
             db: 1,
-            ssl: true
+            ssl: true,
           },
           cache: {
-            type: 'test2'
-          }
-        }
-      }
+            type: 'test2',
+          },
+        },
+      },
     ];
 
-    var result = deepCopy(arr);
+    const result = deepCopy(arr);
 
     expect(result.length).toEqual(arr.length);
     expect(result[0].config.port).toBe(arr[0].config.port);
@@ -111,11 +109,11 @@ describe('deepCopy', function(){
   it('should copy the object correctly, not mutate', function() {
     // Mutating a source object should have
     // no effect on the result object
-    var a = {
-      test: true
+    const a = {
+      test: true,
     };
 
-    var result = deepCopy(a);
+    const result = deepCopy(a);
     result.changed = true;
 
     expect(result.changed).not.toBe(a.changed);

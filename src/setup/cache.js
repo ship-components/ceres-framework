@@ -2,11 +2,11 @@
  * Setup Caching
  */
 
-var Promise = require('bluebird');
+const Promise = require('bluebird');
 
 module.exports = function setupCache(ceres) {
-  return new Promise(function(resolve, reject){
-    var cache;
+  return new Promise(function(resolve, reject) {
+    let cache;
 
     /**
      * Redis
@@ -14,11 +14,11 @@ module.exports = function setupCache(ceres) {
     if (typeof ceres.config.cache === 'object' && ceres.config.cache.type === 'redis') {
       ceres.logger('cache').info('Starting redis cache...');
       // Import
-      var RedisCache = require('../cache/RedisCache');
+      const RedisCache = require('../cache/RedisCache');
       try {
         // Setup/Connect
         cache = new RedisCache(ceres.config.cache, ceres.logger('cache'));
-      } catch(err) {
+      } catch (err) {
         // Catch any startup errors
         reject(err);
       }

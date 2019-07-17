@@ -1,15 +1,15 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Pipeline
  *
  * @author       Isaac Suttell <isaac_suttell@playstation.sony.com>
  * @file         Render Workflow to help ensure we consistently produce the
  *               same results across each page and prints
- ******************************************************************************/
+ ***************************************************************************** */
 
-var _ = require('lodash');
-var async = require('async');
-var Promise = require('bluebird');
-var Workflow = require('./Workflow');
+const _ = require('lodash');
+const async = require('async');
+const Promise = require('bluebird');
+const Workflow = require('./Workflow');
 
 /**
  * Create a standard pipeline
@@ -23,10 +23,10 @@ module.exports.create = function(options) {
    *
    * @type {Object}
    */
-  var workflow = Workflow.setup(this.config, options);
+  const workflow = Workflow.setup(this.config, options);
 
   // Start with empty pipline
-  var lines = {};
+  let lines = {};
 
   // Grab the user supplied props
   lines.props = workflow.props;
@@ -55,7 +55,7 @@ module.exports.create = function(options) {
      *
      * @type    {Object}
      */
-    lines: lines,
+    lines,
 
     /**
      * Alias for async auto. Either takes a callback or returns a promise
@@ -63,25 +63,22 @@ module.exports.create = function(options) {
      * @param     {Function}    callback
      * @returns   {Promise}
      */
-    run: function(callback) {
+    run(callback) {
       if (_.isFunction(callback)) {
         // Callback
         async.auto(lines, callback);
-        return;
       } else {
         // Or Promise
         return new Promise(function(resolve, reject) {
-          async.auto(lines, function(err, results){
+          async.auto(lines, function(err, results) {
             if (err) {
               reject(err);
-              return;
             } else {
               resolve(results.html);
-              return;
             }
           });
         });
       }
-    }
+    },
   };
 };

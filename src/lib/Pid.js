@@ -1,14 +1,14 @@
-var fs = require('fs');
-var path = require('path');
-var EventEmitter = require('events');
+const fs = require('fs');
+const path = require('path');
+const EventEmitter = require('events');
 
 /**
  * Write pid to file description
  * @param  {FileDescriptor} fd
  */
 function writePid(fd, callback) {
-  var buf = new Buffer(process.pid + '\n');
-  fs.write(fd, buf, 0, buf.length, null, function(err){
+  const buf = new Buffer(`${process.pid}\n`);
+  fs.write(fd, buf, 0, buf.length, null, function(err) {
     if (err) {
       throw err;
     }
@@ -56,7 +56,7 @@ function Pid(filename, options) {
      * Overwrite an existing pid?
      * @type {Boolean}
      */
-    overwrite: true
+    overwrite: true,
   };
   Object.assign(this.options, options);
 
@@ -74,14 +74,16 @@ function Pid(filename, options) {
   this.remote = this.remove.bind(this);
 
   // Write pid file
-  this.create(function(err){
-    if (err) {
-      this.emit('error', err);
-    } else if (this.options.removeOnExit) {
-      process.on('exit', this.remove.bind(this));
-    }
-    this.emit('created', this);
-  }.bind(this));
+  this.create(
+    function(err) {
+      if (err) {
+        this.emit('error', err);
+      } else if (this.options.removeOnExit) {
+        process.on('exit', this.remove.bind(this));
+      }
+      this.emit('created', this);
+    }.bind(this)
+  );
 }
 
 /**
@@ -93,7 +95,7 @@ Pid.prototype.remove = function remove() {
     fs.unlinkSync(this.options.path);
     this.emit('removed', this);
     return true;
-  } catch(err) {
+  } catch (err) {
     if (err.code === 'ENOENT') {
       // Ignore any errors for missing files
       return true;
@@ -111,7 +113,7 @@ Pid.prototype.create = function create(callback) {
   try {
     // Attempt to read the pid. Must be sync otherwise the rest of the app starts too quick
     pid = parseInt(fs.readFileSync(this.options.path, 'utf8'), 10);
-  } catch(e) {
+  } catch (e) {
     // If it doesn't exist that's cool. We'll make it later.
     if (e.code !== 'ENOENT') {
       callback(e);
@@ -134,7 +136,7 @@ Pid.prototype.create = function create(callback) {
     process.kill(pid, 'SIGTERM');
   } else if (!this.options.overwrite && existingProcessRunning) {
     // If we're not in overwrite mode and we see an existing PID throw
-    callback(new Error('application already running - ' + pid.toString()));
+    callback(new Error(`application already running - ${pid.toString()}`));
     return;
   }
 

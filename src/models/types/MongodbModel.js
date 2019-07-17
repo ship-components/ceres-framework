@@ -1,9 +1,9 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Base Model
- ******************************************************************************/
+ ***************************************************************************** */
 
-var _ = require('lodash');
-var Promise = require('bluebird');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
 /**
  * Initial model
@@ -27,16 +27,18 @@ MongodbModel.prototype = Object.assign(MongodbModel.prototype, {
    * @param     {Object}    body
    * @return    {promise}
    */
-  create: function(body) {
-    return new Promise(function(resolve, reject){
-      this.collection.insert(body, function(err, result){
-        if(err) {
-          reject(err);
-        } else {
-          resolve(result.ops[0]);
-        }
-      });
-    }.bind(this));
+  create(body) {
+    return new Promise(
+      function(resolve, reject) {
+        this.collection.insert(body, function(err, result) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result.ops[0]);
+          }
+        });
+      }.bind(this)
+    );
   },
 
   /**
@@ -45,37 +47,44 @@ MongodbModel.prototype = Object.assign(MongodbModel.prototype, {
    * @param     {Mixed}    id
    * @return    {promise}
    */
-  read: function(id) {
+  read(id) {
     if (typeof id !== 'string') {
       return Promise.reject(new Error('id is not a string'));
     }
-    return new Promise(function(resolve, reject){
-      this.collection.findOne({
-        _id: id
-      }, function(err, result){
-        if(err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    }.bind(this));
+    return new Promise(
+      function(resolve, reject) {
+        this.collection.findOne(
+          {
+            _id: id,
+          },
+          function(err, result) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+      }.bind(this)
+    );
   },
 
   /**
    * Return all records in collection
    * @return {Promise}
    */
-  readAll: function() {
-    return new Promise(function(resolve, reject){
-      this.collection.find({}, function(err, result){
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result.toArray());
-        }
-      });
-    }.bind(this));
+  readAll() {
+    return new Promise(
+      function(resolve, reject) {
+        this.collection.find({}, function(err, result) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result.toArray());
+          }
+        });
+      }.bind(this)
+    );
   },
 
   /**
@@ -84,19 +93,21 @@ MongodbModel.prototype = Object.assign(MongodbModel.prototype, {
    * @param     {Mixed}    id
    * @return    {promise}
    */
-  find: function(query) {
+  find(query) {
     if (typeof query !== 'object') {
       return Promise.reject(new Error('query is not an object'));
     }
-    return new Promise(function(resolve, reject){
-      this.collection.find(query, function(err, result){
-        if(err) {
-          reject(err);
-        } else {
-          resolve(result.toArray());
-        }
-      });
-    }.bind(this));
+    return new Promise(
+      function(resolve, reject) {
+        this.collection.find(query, function(err, result) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result.toArray());
+          }
+        });
+      }.bind(this)
+    );
   },
 
   /**
@@ -105,22 +116,28 @@ MongodbModel.prototype = Object.assign(MongodbModel.prototype, {
    * @param     {Object}    body
    * @return    {promise}
    */
-  update: function(body, id) {
+  update(body, id) {
     if (!id) {
       id = body._id;
     }
     delete body._id; // Can't update the ID
-    return new Promise(function(resolve, reject){
-      this.collection.updateOne({
-        _id: id
-      }, body, function(err, result){
-        if(err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    }.bind(this));
+    return new Promise(
+      function(resolve, reject) {
+        this.collection.updateOne(
+          {
+            _id: id,
+          },
+          body,
+          function(err, result) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+      }.bind(this)
+    );
   },
 
   /**
@@ -129,19 +146,24 @@ MongodbModel.prototype = Object.assign(MongodbModel.prototype, {
    * @param     {Number}    id
    * @return    {promise}
    */
-  del: function(id) {
-    return new Promise(function(resolve, reject){
-      this.collection.remove({
-        _id: id
-      }, function(err, result){
-        if(err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    }.bind(this));
-  }
+  del(id) {
+    return new Promise(
+      function(resolve, reject) {
+        this.collection.remove(
+          {
+            _id: id,
+          },
+          function(err, result) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+      }.bind(this)
+    );
+  },
 });
 
 /**

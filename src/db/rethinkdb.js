@@ -1,20 +1,20 @@
-var Promise = require('bluebird');
+const Promise = require('bluebird');
 
 module.exports = function(config) {
-  return new Promise(function(resolve, reject){
+  return new Promise(function(resolve, reject) {
     try {
-      var r = require('rethinkdb');
-      var version = require('rethinkdb/package.json').version;
+      const r = require('rethinkdb');
+      const version = require('rethinkdb/package.json').version;
 
       r.connect(config.db)
-        .then(function(connection){
+        .then(function(connection) {
           resolve({
-            r: r,
-            version: version,
-            connection: connection
+            r,
+            version,
+            connection,
           });
         })
-        .catch(function(err){
+        .catch(function(err) {
           reject(err);
         });
     } catch (err) {

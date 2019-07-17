@@ -1,12 +1,12 @@
-var path = require('path');
-var _ = require('lodash');
+const path = require('path');
+const _ = require('lodash');
 
 /**
  * Setup the Regex to filter out *.js files
  *
  * @type    {RegExp}
  */
-var jsFile = /.+\.jsx?$/i;
+const jsFile = /.+\.jsx?$/i;
 
 /**
  * Require all JS files in a folder
@@ -27,7 +27,7 @@ function loadModulesFromPath(dir) {
    *
    * @type    {Object}
    */
-  var modules = {};
+  const modules = {};
 
   /**
    * Get a list of items in a directory. This is synchronous since we're
@@ -35,15 +35,15 @@ function loadModulesFromPath(dir) {
    *
    * @type    {Array}
    */
-  var list = require('fs').readdirSync(dir);
+  const list = require('fs').readdirSync(dir);
 
   // Cycle through each item in the directory
   list.forEach(function(module) {
-    //Check to see if with have a match and if we split it apartment
+    // Check to see if with have a match and if we split it apartment
     module = module.match(jsFile);
     if (module) {
       // If we find a match try to load and save it. Otherwise log an error
-      modules[module[0].replace('.js', '')] = require(dir + '/' + module[0]);
+      modules[module[0].replace('.js', '')] = require(`${dir}/${module[0]}`);
     }
   });
 
@@ -61,19 +61,19 @@ function loadModulesFromPath(dir) {
 module.exports = function directory(dir, options) {
   options = options || {};
 
-  var modules = loadModulesFromPath(dir);
+  const modules = loadModulesFromPath(dir);
 
-  if(!_.isObject(options.config)) {
+  if (!_.isObject(options.config)) {
     return modules;
   }
 
-  var initialized = {};
+  const initialized = {};
 
-  for(var name in modules) {
-    if(!modules.hasOwnProperty(name)) {
+  for (const name in modules) {
+    if (!modules.hasOwnProperty(name)) {
       continue;
     }
-    if(_.isFunction(modules[name])) {
+    if (_.isFunction(modules[name])) {
       initialized[name] = modules[name].call(this, options.config);
     } else {
       initialized[name] = modules[name];

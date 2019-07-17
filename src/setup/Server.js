@@ -1,13 +1,13 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Worker Instance
- ******************************************************************************/
-var http = require('http');
+ ***************************************************************************** */
+const http = require('http');
 
-var Application = require('./express');
-var directory = require('./directory');
-var sockets = require('./sockets');
+const Application = require('./express');
+const directory = require('./directory');
+const sockets = require('./sockets');
 
-var Benchmark = require('../lib/Benchmark');
+const Benchmark = require('../lib/Benchmark');
 
 module.exports = function(ceres) {
   const benchmarks = {};
@@ -21,7 +21,11 @@ module.exports = function(ceres) {
     ceres.config.middleware = directory(ceres.config.folders.middleware, ceres);
     ceres.middleware = ceres.config.middleware;
     benchmarks.middleware.stop();
-    ceres.log._ceres.info('Middleware setup complete - %ss', (benchmarks.middleware.val() / 1000).toLocaleString(), { duration: benchmarks.middleware.val() });
+    ceres.log._ceres.info(
+      'Middleware setup complete - %ss',
+      (benchmarks.middleware.val() / 1000).toLocaleString(),
+      { duration: benchmarks.middleware.val() }
+    );
   }
 
   // The master doesn't do very much besides load the workers so we also use it
@@ -30,24 +34,28 @@ module.exports = function(ceres) {
     benchmarks.queues = new Benchmark();
     // Load any files in this folder and apply this config
     directory(ceres.config.folders.queues, {
-      config: ceres.config
+      config: ceres.config,
     });
 
     benchmarks.queues.stop();
-    ceres.log._ceres.info('Queue setup complete - %ss', (benchmarks.queues.val() / 1000).toLocaleString(), { duration: benchmarks.queues.val() });
+    ceres.log._ceres.info(
+      'Queue setup complete - %ss',
+      (benchmarks.queues.val() / 1000).toLocaleString(),
+      { duration: benchmarks.queues.val() }
+    );
   }
 
   // Setup Express
-  var app = Application.call(ceres, ceres);
+  const app = Application.call(ceres, ceres);
 
   if (ceres.config.db.type !== 'none') {
     // Setup DB
-    var db = require('../db')(ceres.config);
+    const db = require('../db')(ceres.config);
     app.set('db', db);
   }
 
   // Setup server
-  var server = http.Server(app); // eslint-disable-line new-cap
+  const server = http.Server(app); // eslint-disable-line new-cap
 
   // Should we load sockets
   if (ceres.config.sockets && ceres.config.folders.sockets) {
@@ -55,11 +63,19 @@ module.exports = function(ceres) {
     // Setup any sockets
     sockets(ceres, app, server);
     benchmarks.sockets.stop();
-    ceres.log._ceres.info('Socket setup complete - %ss', (benchmarks.sockets.val() / 1000).toLocaleString(), { duration: benchmarks.sockets.val() });
+    ceres.log._ceres.info(
+      'Socket setup complete - %ss',
+      (benchmarks.sockets.val() / 1000).toLocaleString(),
+      { duration: benchmarks.sockets.val() }
+    );
   }
 
   benchmarks.express.stop();
-  ceres.log._ceres.info('Express setup complete - %ss', (benchmarks.express.val() / 1000).toLocaleString(), { duration: benchmarks.express.val() });
+  ceres.log._ceres.info(
+    'Express setup complete - %ss',
+    (benchmarks.express.val() / 1000).toLocaleString(),
+    { duration: benchmarks.express.val() }
+  );
 
   return server;
 };

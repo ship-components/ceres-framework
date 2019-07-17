@@ -27,7 +27,7 @@ function SocketController(options) {
  * Find all of the actions we can run and bind the right context
  */
 SocketController.prototype.bindActions = function() {
-  for (var key in this.actions) {
+  for (const key in this.actions) {
     if (!this.actions.hasOwnProperty(key)) {
       continue;
     }
@@ -39,7 +39,7 @@ SocketController.prototype.bindActions = function() {
  * Start listening to each of the available actions.
  */
 SocketController.prototype.listen = function() {
-  for (var key in this.actions) {
+  for (const key in this.actions) {
     if (!this.actions.hasOwnProperty(key)) {
       continue;
     }

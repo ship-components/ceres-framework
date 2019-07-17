@@ -1,9 +1,7 @@
-'use strict';
+const Ceres = require('../src/Ceres');
+const instance = require('../src/index');
 
-var Ceres = require('../src/Ceres');
-var instance = require('../src/index');
-
-describe('Ceres', function(){
+describe('Ceres', function() {
   it('should export a singlton instance', function() {
     expect(instance instanceof Ceres).toBeTruthy();
   });

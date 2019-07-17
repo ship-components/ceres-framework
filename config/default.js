@@ -1,9 +1,10 @@
 /** ****************************************************************************
  * Default App Configuration
- ******************************************************************************/
+ ***************************************************************************** */
 
-var path = require('path');
-var pkg = require(process.cwd() + '/package.json');
+const path = require('path');
+
+const pkg = require(`${process.cwd()}/package.json`);
 
 /**
  * Application settings. rc file overrides this file and should be used to store
@@ -11,7 +12,7 @@ var pkg = require(process.cwd() + '/package.json');
  *
  * @type    {Object}
  */
-var config = {
+const config = {
   /**
    * Name of app
    *
@@ -39,7 +40,7 @@ var config = {
    *
    * @type    {String}
    */
-  rc: '.' + pkg.name + 'rc',
+  rc: `.${pkg.name}rc`,
 
   /**
    * Path to pid location
@@ -48,11 +49,11 @@ var config = {
   pid: 'ceres.pid',
 
   /**
-	 * Either cluster or fork. Determines how multiple instances of the app
-	 * are run to take advantage of multiple cores. fork is recommended when
-	 * being a reverse proxy
-	 * @type    {String}
-	 */
+   * Either cluster or fork. Determines how multiple instances of the app
+   * are run to take advantage of multiple cores. fork is recommended when
+   * being a reverse proxy
+   * @type    {String}
+   */
   processManagement: 'cluster',
 
   /**
@@ -98,7 +99,6 @@ var config = {
    * @type    {Object}
    */
   logging: {
-
     /**
      * What log format to use for access logs. Typically dev or combined
      * @type    {String}
@@ -115,7 +115,7 @@ var config = {
      * Include human readable logs
      * @type    {Boolean}
      */
-    human: true
+    human: true,
   },
 
   /**
@@ -129,7 +129,7 @@ var config = {
     uploads: './storage/uploads',
     controllers: './server/controllers',
     views: './server/views',
-    middleware: './server/middleware'
+    middleware: './server/middleware',
   },
 
   /**
@@ -138,12 +138,12 @@ var config = {
    * @type    {Object}
    */
   db: {
-    type     : 'none',
-    host     : '127.0.0.1',
-    user     : '',
-    password : '',
-    database : '',
-    charset  : 'utf8'
+    type: 'none',
+    host: '127.0.0.1',
+    user: '',
+    password: '',
+    database: '',
+    charset: 'utf8',
   },
 
   /**
@@ -198,8 +198,8 @@ var config = {
       ttl: 3600,
       pass: '',
       db: 0,
-      prefix: 'os'
-    }
+      prefix: 'os',
+    },
   },
 
   /**
@@ -214,7 +214,7 @@ var config = {
     ttl: 3600,
     pass: '',
     db: 0,
-    prefix: 'os'
+    prefix: 'os',
   },
 
   /**
@@ -228,21 +228,21 @@ var config = {
      *
      * @type    {String}
      */
-    template: path.resolve(process.cwd() + '/server/views/index.ejs'),
+    template: path.resolve(`${process.cwd()}/server/views/index.ejs`),
 
     /**
      * Where the checksums are cached
      *
      * @type    {String}
      */
-    checksumrc: path.resolve(process.cwd() + '/.checksumrc'),
+    checksumrc: path.resolve(`${process.cwd()}/.checksumrc`),
 
     /**
      * Minify the HTML?
      *
      * @type    {Boolean}
      */
-    minifyHtml: true
+    minifyHtml: true,
   },
 
   /**
@@ -261,7 +261,7 @@ var config = {
      * Min lengh of hashes. They may be longer.
      * @type    {Number}
      */
-    minLength: 5
+    minLength: 5,
   },
 
   /**
@@ -270,7 +270,7 @@ var config = {
    *
    * @type    {Object}
    */
-  controllers: {}
+  controllers: {},
 };
 
 module.exports = config;

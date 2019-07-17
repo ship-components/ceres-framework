@@ -1,10 +1,10 @@
-var Promise = require('bluebird');
+const Promise = require('bluebird');
 
 /**
  * @file Automatically parse the routes option on a Controller.
  */
-var bindEach = require('../lib/bindAll');
-var Responses = require('./Responses');
+const bindEach = require('../lib/bindAll');
+const Responses = require('./Responses');
 
 /**
  * Wrap the logic and provide a new this context
@@ -20,24 +20,24 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
      *
      * @type    {Object}
      */
-    var context = {
+    const context = {
       /**
        * Make req available on this
        * @type {Express.Request}
        */
-      req: req,
+      req,
 
       /**
        * Make res available on this
        * @type {Express.Responses}
        */
-      res: res,
+      res,
 
       /**
-			 * Make the next callback available so we can pass the errors along
-			 * @type    {Function}
-			 */
-      next: next,
+       * Make the next callback available so we can pass the errors along
+       * @type    {Function}
+       */
+      next,
 
       /**
        * Ceres config
@@ -56,14 +56,14 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
        * @deprecated
        * @type {Object}
        */
-      controller: ctx
+      controller: ctx,
     };
 
     /**
      * User overridden responses
      * @type    {Object}
      */
-    var responses = Object.assign({}, Responses, (ctx || {}).responses);
+    let responses = Object.assign({}, Responses, (ctx || {}).responses);
 
     /**
      * Bind req and res to each response
@@ -84,15 +84,17 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
         if (body === null || typeof body === 'undefined') {
           // If the body is empty then we can skip sending the response
           return null;
-        } else if (res.writable && !res.headersSent) {
+        }
+        if (res.writable && !res.headersSent) {
           // Make sure the request is writable before we try to send it
           context.send(body);
           return null;
-        } else {
-          const err = new Error('Unable to write response. Please return null if you are handling the response elsewhere.');
-          err.body = body;
-          throw err;
         }
+        const err = new Error(
+          'Unable to write response. Please return null if you are handling the response elsewhere.'
+        );
+        err.body = body;
+        throw err;
       })
       .catch(next);
   };

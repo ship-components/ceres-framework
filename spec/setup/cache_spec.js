@@ -1,21 +1,21 @@
-var setupCache = require('../../src/setup/cache');
+const setupCache = require('../../src/setup/cache');
 
-describe('cache', function(){
-	var ceres = {
-		logger: function(){
-			return {
-				debug: function(){}
-			};
-		},
-		config: {
-			cache: false
-		}
-	};
+describe('cache', function() {
+  const ceres = {
+    logger() {
+      return {
+        debug() {},
+      };
+    },
+    config: {
+      cache: false,
+    },
+  };
 
-	it('should return a promise with the cache as the result', function(done){
-		setupCache(ceres).then(function(cache){
-			expect(cache).not.toBeDefined();
-			done();
-		});
-	});
+  it('should return a promise with the cache as the result', function(done) {
+    setupCache(ceres).then(function(cache) {
+      expect(cache).not.toBeDefined();
+      done();
+    });
+  });
 });

@@ -1,10 +1,9 @@
+const ReactDOMServer = require('react-dom/server');
+const React = require('react');
+const fs = require('fs');
+const ejs = require('ejs');
 
-var ReactDOMServer = require('react-dom/server');
-var React = require('react');
-var fs = require('fs');
-var ejs = require('ejs');
-
-var deepCopy = require('../lib/deepCopy');
+const deepCopy = require('../lib/deepCopy');
 
 module.exports.setup = function(config, props) {
   /**
@@ -12,7 +11,7 @@ module.exports.setup = function(config, props) {
    *
    * @type    {Object}
    */
-  var assetFactory = require('./AssetFactory.js')(config);
+  const assetFactory = require('./AssetFactory.js')(config);
 
   /**
    * This object contains methods that return Async.auto objects. Each item has a
@@ -21,18 +20,17 @@ module.exports.setup = function(config, props) {
    *
    * @type    {Object}
    */
-  var Workflow = {
-
+  const Workflow = {
     /**
      * Renders a react component.
      *
      * @param     {React}    comp
      * @return    {Async.auto}
      */
-    react: function(options) {
+    react(options) {
       return function(done, results) {
         require('../index').log.silly('Rendering react component');
-        var html = '';
+        let html = '';
         // Skip if we have no component
         if (typeof options.component !== 'function') {
           require('../index').log.silly('No react component found, skipping...');
@@ -40,8 +38,11 @@ module.exports.setup = function(config, props) {
           return;
         }
         try {
-          html = ReactDOMServer.renderToString(React.createElement(options.component, deepCopy(results.props)));
-        } catch (err) { // Catch any errors in the front end so they dont' crash the backend
+          html = ReactDOMServer.renderToString(
+            React.createElement(options.component, deepCopy(results.props))
+          );
+        } catch (err) {
+          // Catch any errors in the front end so they dont' crash the backend
           require('../index').log.error('ReactRenderError', err);
         } finally {
           done(null, html);
@@ -53,33 +54,37 @@ module.exports.setup = function(config, props) {
      * Gets the template
      * @return    {Async.auto}
      */
-    template: function(options) {
+    template(options) {
       return function(done) {
         require('../index').log.silly('Reading template');
 
-        var template = config.render.template;
+        let template = config.render.template;
         if (options && typeof options.templatePath === 'string') {
           template = options.templatePath;
         }
 
-        fs.readFile(template, {
-          encoding: 'utf8'
-        }, function(err, src) {
-          if(err) {
-            done(err);
-            return;
+        fs.readFile(
+          template,
+          {
+            encoding: 'utf8',
+          },
+          function(err, src) {
+            if (err) {
+              done(err);
+              return;
+            }
+
+            if (options.minifyHtml || config.render.minifyHtml) {
+              // Strip line breaks
+              src = src.replace(/[\n\r]+/g, ' ');
+
+              // Strip extra spaces
+              src = src.replace(/\s\s+/g, ' ');
+            }
+
+            done(null, src);
           }
-
-          if (options.minifyHtml || config.render.minifyHtml) {
-            // Strip line breaks
-            src = src.replace( /[\n\r]+/g, ' ');
-
-            // Strip extra spaces
-            src = src.replace( /\s\s+/g, ' ');
-          }
-
-          done(null, src);
-        });
+        );
       };
     },
 
@@ -89,19 +94,19 @@ module.exports.setup = function(config, props) {
      * @param     {String}    entry    Which js to load
      * @return    {Async.auto}
      */
-    payload: function(options) {
+    payload(options) {
       return function(done, results) {
         require('../index').log.silly('Parsing props');
 
         // Load asset information
-        var payload = {
+        const payload = {
           component: results.react,
           props: JSON.stringify(results.props),
           version: config.version,
           title: options.title,
           env: config.env,
           index: options.index,
-          assets: assetFactory(options.assets, results.checksums).forPayload()
+          assets: assetFactory(options.assets, results.checksums).forPayload(),
         };
         done(null, payload);
       };
@@ -110,18 +115,18 @@ module.exports.setup = function(config, props) {
     /**
      * Renders the final html and optimizes it
      * @return    {Async.auto}
-   */
-    html: function() {
+     */
+    html() {
       return function render(done, results) {
         require('../index').log.silly('Rendering html');
 
         // Render
-        var html = ejs.render(results.template, results.payload);
+        const html = ejs.render(results.template, results.payload);
 
         // Return
         done(null, html);
       };
-    }
+    },
   };
 
   return Object.assign(Workflow, props);
