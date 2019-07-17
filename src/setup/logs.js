@@ -1,27 +1,27 @@
-var winston = require('winston');
-var mkdirp = require('mkdirp');
+const winston = require('winston');
+const mkdirp = require('mkdirp');
 
 /**
  * Default settings for diffent transports
  * @type    {Object}
  */
-var DefaultSettings = {
+const DefaultSettings = {
   production: {
     timestamp: true,
-    tailable: true
+    tailable: true,
   },
   error: {
     level: 'error',
     timestamp: true,
-    tailable: true
+    tailable: true,
   },
   console: {
     level: 'silly',
     colorize: true,
     prettyPrint: true,
     timestamp: true,
-    depth: 5
-  }
+    depth: 5,
+  },
 };
 
 /**
@@ -30,7 +30,8 @@ var DefaultSettings = {
  * @param    {String}    name
  * @return   {Array<Object>}
  */
-function setupTransports(config, name, options) { // eslint-disable-line complexity
+function setupTransports(config, name, options) {
+  // eslint-disable-line complexity
   // Ensure we're an object
   options = options || {};
 
@@ -38,67 +39,79 @@ function setupTransports(config, name, options) { // eslint-disable-line complex
    * Winston specific transports
    * @type    {Array}
    */
-  var transports = [];
+  const transports = [];
 
   /**
    * Level to log. Defaults to info. Can be overriden by the cli
    * @type    {String}
    */
-  var productionLogLevel = config.logLevel || 'info';
+  const productionLogLevel = config.logLevel || 'info';
 
   // Setup json logs for machines to ingest
   if (config.logging.json) {
     transports.push(
-      new winston.transports.File(Object.assign({}, DefaultSettings.production, options, {
-        name: 'production-json',
-        filename: config.folders.logs + '/production.json',
-        level: productionLogLevel,
-        label: name,
-        json: true,
-        logstash: true
-      }))
+      new winston.transports.File(
+        Object.assign({}, DefaultSettings.production, options, {
+          name: 'production-json',
+          filename: `${config.folders.logs}/production.json`,
+          level: productionLogLevel,
+          label: name,
+          json: true,
+          logstash: true,
+        })
+      )
     );
 
     // Log errors to a separate file
     transports.push(
-      new winston.transports.File(Object.assign({}, DefaultSettings.errors, options, {
-        name: 'errors-json',
-        filename: config.folders.logs + '/errors.json',
-        label: name,
-        json: true,
-        logstash: true
-      }))
+      new winston.transports.File(
+        Object.assign({}, DefaultSettings.errors, options, {
+          name: 'errors-json',
+          filename: `${config.folders.logs}/errors.json`,
+          label: name,
+          json: true,
+          logstash: true,
+        })
+      )
     );
   }
 
   // Setup human readable logs
   if (config.logging.human) {
     transports.push(
-      new winston.transports.File(Object.assign({}, DefaultSettings.production, options, {
-        name: 'production',
-        filename: config.folders.logs + '/production.log',
-        level: productionLogLevel,
-        label: name,
-        json: false
-      }))
+      new winston.transports.File(
+        Object.assign({}, DefaultSettings.production, options, {
+          name: 'production',
+          filename: `${config.folders.logs}/production.log`,
+          level: productionLogLevel,
+          label: name,
+          json: false,
+        })
+      )
     );
     // Log errors to a separate file
     transports.push(
-      new winston.transports.File(Object.assign({}, DefaultSettings.errors, options, {
-        name: 'errors',
-        filename: config.folders.logs + '/errors.log',
-        label: name,
-        json: false
-      }))
+      new winston.transports.File(
+        Object.assign({}, DefaultSettings.errors, options, {
+          name: 'errors',
+          filename: `${config.folders.logs}/errors.log`,
+          label: name,
+          json: false,
+        })
+      )
     );
   }
 
   // Output to console on dev
   if (config.env !== 'production' || config.verbose) {
-    transports.push(new winston.transports.Console(Object.assign({}, DefaultSettings.console, options, {
-      level: config.logLevel || 'silly',
-      label: name
-    })));
+    transports.push(
+      new winston.transports.Console(
+        Object.assign({}, DefaultSettings.console, options, {
+          level: config.logLevel || 'silly',
+          label: name,
+        })
+      )
+    );
   }
 
   return transports;
@@ -119,10 +132,9 @@ module.exports.logger = function logger(config, name) {
   winston.silly('Configuring logger %s...', name);
 
   return winston.loggers.add(name, {
-    transports: setupTransports(config, name)
+    transports: setupTransports(config, name),
   });
 };
-
 
 /**
  * Setup winston. Called once on startup and setups up internal logger for the
@@ -130,7 +142,7 @@ module.exports.logger = function logger(config, name) {
  * @param    {Ceres}    ceres
  * @return   {Undefined}
  */
-module.exports.init = function(ceres) {
+module.exports.init = function init(ceres) {
   // Make sure the folder exists
   mkdirp.sync(ceres.config.folders.logs);
   // Apply
@@ -138,8 +150,8 @@ module.exports.init = function(ceres) {
     transports: setupTransports(ceres.config, ceres.config.name || 'ceres', {
       // Let the top level container handle exceptions
       handleExceptions: true,
-      humanReadableUnhandledException: true
-    })
+      humanReadableUnhandledException: true,
+    }),
   });
 
   return winston;

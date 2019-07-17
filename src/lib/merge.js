@@ -3,19 +3,18 @@
  * @param    {[Object]}  Any number of arguments
  * @return   {Object}
  */
-module.exports = function merge() {
-  var args = Array.prototype.slice.call(arguments);
-  var result = args.shift();
+module.exports = function merge(...args) {
+  let result = args.shift();
   if (typeof result !== 'object') {
     // Ensure result is an object we can assign to
     result = {};
   }
-  args.forEach(function(src){
+  args.forEach(src => {
     // Ignore if not an object
     if (typeof src !== 'object') {
       return;
     }
-    Object.keys(src).forEach(function(key){
+    Object.keys(src).forEach(key => {
       if (typeof src[key] === 'object' && src[key] instanceof Array !== true) {
         // Recursion
         result[key] = merge({}, result[key], src[key]);

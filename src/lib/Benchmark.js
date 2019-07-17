@@ -1,16 +1,19 @@
 module.exports = function Benchmark(options) {
-  options = Object.assign({
-    verbose: false
-  }, options);
+  options = Object.assign(
+    {
+      verbose: false,
+    },
+    options
+  );
 
-  var times = {
+  const times = {
     start: Date.now(),
     end: null,
-    difference: null
+    difference: null,
   };
 
   return {
-    stop: function() {
+    stop() {
       times.end = Date.now();
       times.difference = times.end - times.start;
       if (options.verbose && options.log && options.name) {
@@ -18,8 +21,8 @@ module.exports = function Benchmark(options) {
       }
       return times.difference;
     },
-    val: function() {
+    val() {
       return times.difference;
-    }
+    },
   };
 };

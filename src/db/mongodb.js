@@ -1,14 +1,15 @@
-var Promise = require('bluebird');
+const Promise = require('bluebird');
 
-module.exports = function(config) {
-  return new Promise(function(resolve, reject){
+module.exports = config => {
+  return new Promise((resolve, reject) => {
     try {
-      var MongoClient = require('mongodb').MongoClient;
+      // eslint-disable-next-line import/no-extraneous-dependencies
+      const { MongoClient } = require('mongodb');
 
-      var url = 'mongodb://localhost:27017/' + config.db.database;
+      const url = `mongodb://localhost:27017/${config.db.database}`;
 
-      MongoClient.connect(url, function(err, db){
-        if(err) {
+      MongoClient.connect(url, (err, db) => {
+        if (err) {
           reject(err);
           return;
         }

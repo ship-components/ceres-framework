@@ -3,8 +3,7 @@
  */
 
 module.exports = function(config) {
-	return config;
-}
+  return config;
+};
 
-module.exports.router = function(){
-}
+module.exports.router = () => {};

@@ -1,14 +1,14 @@
-var fs = require('fs');
-var path = require('path');
-var EventEmitter = require('events');
+const fs = require('fs');
+const path = require('path');
+const EventEmitter = require('events');
 
 /**
  * Write pid to file description
  * @param  {FileDescriptor} fd
  */
 function writePid(fd, callback) {
-  var buf = new Buffer(process.pid + '\n');
-  fs.write(fd, buf, 0, buf.length, null, function(err){
+  const buf = Buffer.from(`${process.pid}\n`);
+  fs.write(fd, buf, 0, buf.length, null, err => {
     if (err) {
       throw err;
     }
@@ -56,32 +56,32 @@ function Pid(filename, options) {
      * Overwrite an existing pid?
      * @type {Boolean}
      */
-    overwrite: true
+    overwrite: true,
   };
   Object.assign(this.options, options);
 
   this.id = process.pid;
 
   // Emitter
-  this._events = new EventEmitter();
-  this.on = this._events.on.bind(this._events);
-  this.once = this._events.once.bind(this._events);
-  this.off = this._events.removeListener.bind(this._events);
-  this.emit = this._events.emit.bind(this._events);
+  this.events = new EventEmitter();
+  this.on = this.events.on.bind(this.events);
+  this.once = this.events.once.bind(this.events);
+  this.off = this.events.removeListener.bind(this.events);
+  this.emit = this.events.emit.bind(this.events);
 
   // Bindings
   this.create = this.create.bind(this);
   this.remote = this.remove.bind(this);
 
   // Write pid file
-  this.create(function(err){
+  this.create(err => {
     if (err) {
       this.emit('error', err);
     } else if (this.options.removeOnExit) {
       process.on('exit', this.remove.bind(this));
     }
     this.emit('created', this);
-  }.bind(this));
+  });
 }
 
 /**
@@ -93,12 +93,11 @@ Pid.prototype.remove = function remove() {
     fs.unlinkSync(this.options.path);
     this.emit('removed', this);
     return true;
-  } catch(err) {
+  } catch (err) {
     if (err.code === 'ENOENT') {
       // Ignore any errors for missing files
       return true;
     }
-    console.error(err);
     return false;
   }
 };
@@ -111,7 +110,7 @@ Pid.prototype.create = function create(callback) {
   try {
     // Attempt to read the pid. Must be sync otherwise the rest of the app starts too quick
     pid = parseInt(fs.readFileSync(this.options.path, 'utf8'), 10);
-  } catch(e) {
+  } catch (e) {
     // If it doesn't exist that's cool. We'll make it later.
     if (e.code !== 'ENOENT') {
       callback(e);
@@ -126,7 +125,7 @@ Pid.prototype.create = function create(callback) {
   }
 
   // Check to see if we can see the process running
-  const existingProcessRunning = !isNaN(pid) && processExists(pid);
+  const existingProcessRunning = !Number.isNaN(pid) && processExists(pid);
 
   if (this.options.overwrite && existingProcessRunning) {
     this.emit('existing', pid, this.id);
@@ -134,12 +133,12 @@ Pid.prototype.create = function create(callback) {
     process.kill(pid, 'SIGTERM');
   } else if (!this.options.overwrite && existingProcessRunning) {
     // If we're not in overwrite mode and we see an existing PID throw
-    callback(new Error('application already running - ' + pid.toString()));
+    callback(new Error(`application already running - ${pid.toString()}`));
     return;
   }
 
   // Open up file descriptor. By default fail if it exists
-  fs.open(this.options.path, this.options.overwrite ? 'w' : 'wx', function(err, fd) {
+  fs.open(this.options.path, this.options.overwrite ? 'w' : 'wx', (err, fd) => {
     if (err) {
       callback(err);
     } else {
