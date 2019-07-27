@@ -1,3 +1,6 @@
+/**
+ * @param {{verbose: boolean, name: string, log: (name: string, diff: number) => void}} [options]
+ */
 module.exports = function Benchmark(options) {
   options = Object.assign(
     {
@@ -6,6 +9,10 @@ module.exports = function Benchmark(options) {
     options
   );
 
+  /**
+   * Benchmarch Result
+   * @type {{start: number, end: number | null, difference: number | null }}
+   */
   const times = {
     start: Date.now(),
     end: null,
@@ -13,6 +20,10 @@ module.exports = function Benchmark(options) {
   };
 
   return {
+    /**
+     * Stop and return duration
+     * @returns {number}
+     */
     stop() {
       times.end = Date.now();
       times.difference = times.end - times.start;
@@ -21,6 +32,11 @@ module.exports = function Benchmark(options) {
       }
       return times.difference;
     },
+
+    /**
+     * Return the current duration
+     * @returns {number}
+     */
     val() {
       return times.difference;
     },

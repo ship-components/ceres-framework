@@ -1,8 +1,8 @@
 /**
  * Clone and Bind context to each object value
  *
- * @param     {Object}    obj
- * @param     {Mixed}    ctx
+ * @param     {Object}  src
+ * @param     {any}    ctx
  * @return    {Object}
  */
 module.exports = function bindEach(src, ctx) {

@@ -7,12 +7,12 @@ const logStartTime = require('../lib/logStartTime');
 
 /**
  * Make sure everything is setup the way we need to be before we start Listening
- * @param  {Ceres}    ceres
+ * @param  {import('../Ceres')} ceres
  * @return {Promise}
  */
 module.exports = function runStickyCluster(ceres) {
   // processManagement
-  return this.connect.call(this, ceres).then(function listen() {
+  return ceres.connect().then(function listen() {
     return new Promise((resolve, reject) => {
       try {
         // Setup express server

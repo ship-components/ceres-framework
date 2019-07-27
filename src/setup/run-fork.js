@@ -29,7 +29,7 @@ const childSettings = {
  * intsance if it crashes
  * @param    {Object}    ceres    [description]
  * @param    {Number}    port     [description]
- * @return   {Undefined}
+ * @return   {void}
  */
 function spawn(ceres, port, workerIndex) {
   /**
@@ -43,10 +43,10 @@ function spawn(ceres, port, workerIndex) {
   const worker = fork(process.argv[1], process.argv, {
     env: {
       // Each process gets a unique port
-      PORT: port,
+      PORT: port.toString(),
 
       // And a unique ID. Only children get this
-      CERES_UNIQUE_ID: id,
+      CERES_UNIQUE_ID: id.toString(),
 
       // Let the children know their index
       WORKER_INDEX: workerIndex,
@@ -96,7 +96,7 @@ function spawn(ceres, port, workerIndex) {
 
 /**
  * Setup and start listening
- * @param  {Ceres} ceres
+ * @param  {import('../Ceres')} ceres
  * @return {Promise}
  */
 function listen(ceres) {
@@ -120,7 +120,7 @@ function listen(ceres) {
 
 /**
  * Make sure everything is setup the way we need to be before we start Listening
- * @param  {Ceres}    ceres
+ * @param  {import('../Ceres')} ceres
  * @return {Promise}
  */
 module.exports = ceres => {

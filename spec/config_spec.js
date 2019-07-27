@@ -23,7 +23,7 @@ describe('config', () => {
   });
 
   it('should return an object', () => {
-    const result = new Config(testConfig());
+    const result = new Config(testConfig()).toObject();
     expect(typeof result).toBe('object');
   });
 
@@ -32,7 +32,7 @@ describe('config', () => {
       testConfig({
         test: true,
       })
-    );
+    ).toObject();
     expect(result.test).toBe(true);
   });
 
@@ -40,17 +40,17 @@ describe('config', () => {
     expect(() => {
       new Config({
         rc: 'does-not-exist.json',
-      });
+      }).toObject();
     }).not.toThrow();
   });
 
   it('should read from the default config', () => {
-    const result = new Config(testConfig());
+    const result = new Config(testConfig()).toObject();
     expect(result.port).toBe(Original.config.port);
   });
 
   it('should read from the a custom rc file', () => {
-    const result = new Config(testConfig());
+    const result = new Config(testConfig()).toObject();
     expect(result.env).toBe(Original.rc.env);
   });
 
@@ -58,7 +58,7 @@ describe('config', () => {
     expect(() => {
       const result = new Config({
         rc: './spec/helpers/missing.json',
-      });
+      }).toObject();
       expect(typeof result).toBe('object');
     }).not.toThrow();
   });
@@ -69,7 +69,7 @@ describe('config', () => {
         testConfig({
           env: 'does-not-exist',
         })
-      );
+      ).toObject();
       expect(typeof result).toBe('object');
     }).not.toThrow();
   });
@@ -81,7 +81,7 @@ describe('config', () => {
           configFolder: './spec/helpers/errors',
           env: 'TestErrorConfig',
         })
-      );
+      ).toObject();
       expect(typeof result).toBe('object');
     }).toThrow();
   });
@@ -93,7 +93,7 @@ describe('config', () => {
           configFolder: './spec/helpers/errors',
           env: 'TestErrorReturnUndefined',
         })
-      );
+      ).toObject();
       expect(typeof result).toBe('object');
     }).toThrow();
   });
@@ -103,7 +103,7 @@ describe('config', () => {
       testConfig({
         env: 'client',
       })
-    );
+    ).toObject();
     const mockWebpackConfig = require('./helpers/webpack.client');
     expect(typeof result.webpackConfig).toBe('object');
     expect(result.webpackConfig.entry).toBe(mockWebpackConfig.entry);
@@ -115,8 +115,8 @@ describe('config', () => {
       const result = new Config(undefined, {
         port: expectedPort,
       });
-      expect(new Config().port).not.toBe(expectedPort);
-      expect(result.port).toBe(expectedPort);
+      expect(new Config().toObject().port).not.toBe(expectedPort);
+      expect(result.toObject().port).toBe(expectedPort);
     }).not.toThrow();
   });
 
@@ -143,7 +143,7 @@ describe('config', () => {
 
       const result = new Config({
         env: 'test',
-      });
+      }).toObject();
 
       expect(spy).toHaveBeenCalled();
       expect(result.nested.value).toBe(expectedValue);

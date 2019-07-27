@@ -1,6 +1,6 @@
 /**
  * Deeply merge objects together
- * @param    {[Object]}  Any number of arguments
+ * @param    {Object[]} args  Any number of arguments
  * @return   {Object}
  */
 module.exports = function merge(...args) {

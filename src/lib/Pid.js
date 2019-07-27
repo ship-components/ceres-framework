@@ -5,7 +5,7 @@ const EventEmitter = require('events');
 /**
  * @callback ErrorCallback
  * @param {Error} [error]
- * @returns {undefined}
+ * @returns {void}
  */
 
 /**
@@ -76,10 +76,6 @@ function Pid(filename, options) {
   this.once = this.events.once.bind(this.events);
   this.off = this.events.removeListener.bind(this.events);
   this.emit = this.events.emit.bind(this.events);
-
-  // Bindings
-  this.create = this.create.bind(this);
-  this.remote = this.remove.bind(this);
 
   // Write pid file
   this.create(err => {

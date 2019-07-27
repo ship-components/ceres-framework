@@ -8,7 +8,9 @@ describe('Controller', () => {
   });
 
   beforeEach(() => {
-    const ctx = {};
+    const ctx = {
+      logger: jest.fn(),
+    };
     Controller = ControllerModule.bind(ctx, ctx);
   });
 
@@ -22,9 +24,14 @@ describe('Controller', () => {
 
   it('should have a static extend helper method', () => {
     const example = 'test';
-    const controller = ControllerModule.extend({
-      example,
-    });
+    const controller = ControllerModule.extend.call(
+      {
+        logger: jest.fn(),
+      },
+      {
+        example,
+      }
+    );
     expect(controller.example).toBe(example);
     expect(controller instanceof ControllerModule).toBeTruthy();
   });

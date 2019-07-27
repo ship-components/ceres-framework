@@ -1,12 +1,11 @@
 /**
  * Connect to database connection
- * @param  {import('../../config/default')} config
- * @param  {import('../Ceres')} Ceres
+ * @param  {import('../Ceres')} ceres
  * @return {import('bluebird')}
  */
-module.exports = (config, Ceres) => {
-  if (['bookshelf'].indexOf(config.db.type) > -1) {
-    return require(`./${config.db.type}`)(config, Ceres);
+module.exports = ceres => {
+  if (['bookshelf'].indexOf(ceres.config.db.type) > -1) {
+    return require(`./${ceres.config.db.type}`)(ceres);
   }
   return undefined;
 };

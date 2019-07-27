@@ -3,14 +3,11 @@
   "version": "2.0.0",
   "description": "Node.js Framework for React Applications",
   "main": "src/index.js",
-  "bin": {
-    "ceres": "./cli/index.js"
-  },
   "scripts": {
     "pretest": "npm run lint",
     "test": "jest",
     "coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "lint": "eslint cli/ src/ config/",
+    "lint": "eslint src/ config/",
     "lint:fix": "npm run lint -- --fix",
     "watch:test": "npm test -- --watch --coverage=false"
   },

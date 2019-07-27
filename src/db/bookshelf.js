@@ -13,7 +13,7 @@ const { Promise } = require('bluebird');
  */
 let db = null;
 
-module.exports = function bookshelf(config, ceres) {
+module.exports = function bookshelf(ceres) {
   return new Promise(resolve => {
     if (db !== null) {
       resolve(db);
@@ -30,7 +30,7 @@ module.exports = function bookshelf(config, ceres) {
     // eslint-disable-next-line import/no-extraneous-dependencies
     db.knex = require('knex')({
       client: 'pg',
-      connection: config.db,
+      connection: ceres.config.db,
       migrations: {
         tableName: 'migrations',
       },
@@ -57,7 +57,7 @@ module.exports = function bookshelf(config, ceres) {
     });
 
     // Check to see if we want to enable live queries
-    if (config.db.liveDb) {
+    if (ceres.config.db.liveDb) {
       // Only require this if we need it
       // eslint-disable-next-line import/no-extraneous-dependencies
       const LivePG = require('pg-live-select');
@@ -66,12 +66,15 @@ module.exports = function bookshelf(config, ceres) {
        * Connection string
        * @type {String}
        */
-      const connection = `postgres://${config.db.user}:${config.db.password}@${config.db.host}/${config.db.database}`;
+      const connection = `postgres://${ceres.config.db.user}:${ceres.config.db.password}@${ceres.config.db.host}/${ceres.config.db.database}`;
 
       ceres.log.internal.silly('Setting up livePG connection');
 
       // Setup live db connection using a unique channel for each instance
-      db.liveDb = new LivePG(connection, `${config.db.database}_${process.env.CERES_UNIQUE_ID}`);
+      db.liveDb = new LivePG(
+        connection,
+        `${ceres.config.db.database}_${process.env.CERES_UNIQUE_ID}`
+      );
 
       // Clean up on exit
       process.on('exit', () => {

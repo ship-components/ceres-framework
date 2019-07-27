@@ -19,7 +19,7 @@ const { BaseModel } = require('./BaseModel');
 class BookshelfModel extends BaseModel {
   /**
    * Convert string dates to timestamps
-   * @param {string[]} fields The column names to convert
+   * @param {string[]} [fields] The column names to convert
    * @param {{ camelCase?: boolean }} [options] Additional options
    */
   static convertTimestampsToUnix(fields, options) {
@@ -52,7 +52,7 @@ class BookshelfModel extends BaseModel {
 
   /**
    * Convert date columns to ISO8601
-   * @param {string[]} fields The column names to convert
+   * @param {string[]} [fields] The column names to convert
    * @param {{ camelCase?: boolean }} [options] Additional options
    */
   static convertDatesToISO8601(fields, options) {

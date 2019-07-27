@@ -172,7 +172,7 @@ module.exports = function Server(ceres) {
     if (!ceres.config.folders[prop] || !ceres.config[prop]) {
       return;
     }
-    benchmarks[prop] = new Benchmark();
+    benchmarks[prop] = Benchmark();
     const router = routes(ceres, prop);
     app.use(router);
     benchmarks[prop].stop();
@@ -193,7 +193,7 @@ module.exports = function Server(ceres) {
     app.use(ceres.config.middleware.notFound);
     ceres.log.internal.silly('User supplied 404 middleware configured');
   } else {
-    const notFound = require('../middleware/notFound')(ceres);
+    const notFound = require('../middleware/notFound')();
     app.use(notFound);
     ceres.log.internal.silly('Using default not found handler');
   }

@@ -3,7 +3,7 @@ const wrapRoute = require('./wrapRoute');
 
 /**
  * Get the full path of a controller endpoint
- * @param  {Object} controlle
+ * @param  {Object} controller
  * @param  {String} path
  * @return {String}
  */
@@ -13,7 +13,7 @@ function getFullPath(controller, path) {
 
 /**
  * Takes a string or a function
- * @param    {Mixed}    val    [description]
+ * @param    {any}    val    [description]
  * @return   {String}
  */
 function getFunctionName(val) {
@@ -29,8 +29,8 @@ function getFunctionName(val) {
 
 /**
  * Attempt to get the function either from the last arg or the controller
- * @param    {Controller}    	controller
- * @param    {Mixed}    			lastArg
+ * @param    {import('./Controller')} controller
+ * @param    {any} lastArg
  * @return   {Function}
  */
 function getHandler(controller, lastArg) {
@@ -46,9 +46,9 @@ function getHandler(controller, lastArg) {
 
 /**
  * Setup middlware
- * @param    {Controller}    controller
- * @param    {Ceres}         ceres
- * @param    {String}        route
+ * @param    {import('./Controller')} controller
+ * @param    {import('../Ceres')} ceres
+ * @param    {String} route
  * @return   {Array<Function>}
  */
 function getMiddleware(controller, ceres, route) {
@@ -79,9 +79,9 @@ function getMiddleware(controller, ceres, route) {
 
 /**
  * Pop the last arg off the route which is the main route
- * @param    {Contrlller}    controller
- * @param    {String}        route
- * @return   {Mixed}
+ * @param    {import('./Controller')} controller
+ * @param    {string} route
+ * @return   {any}
  */
 function getLastArg(controller, route) {
   if (controller.routes[route] instanceof Array) {
@@ -93,8 +93,8 @@ function getLastArg(controller, route) {
 
 /**
  * Parse route string from routes
- * @param    {String}    route
- * @return   {Object}
+ * @param    {string}    route
+ * @return   {{method: string, path: string}}
  */
 function parseRouteString(route) {
   // Parse
@@ -124,8 +124,8 @@ function parseRouteString(route) {
 
 /**
  * Configure a router based on an object
- * @param    {Controller}    controller
- * @param    {Ceres}         ceres
+ * @param    {import('./Controller')} controller
+ * @param    {import('../Ceres')} ceres
  */
 function controllerRoutes(controller, ceres) {
   if (typeof controller.routes !== 'object') {
@@ -141,19 +141,7 @@ function controllerRoutes(controller, ceres) {
   // Loop through all of them
   Object.keys(controller.routes).forEach(route => {
     // Parse
-    const parts = parseRouteString(route);
-
-    /**
-     * HTTP method
-     * @type {String}
-     */
-    const { method } = parts;
-
-    /**
-     * The sub path or tail end of a path
-     * @type {String}
-     */
-    const { path } = parts;
+    const { method, path } = parseRouteString(route);
 
     /**
      * The complete path from the root url

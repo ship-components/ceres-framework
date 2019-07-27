@@ -50,12 +50,12 @@ module.exports = function Server(ceres) {
 
   if (ceres.config.db.type !== 'none') {
     // Setup DB
-    const db = require('../db/index')(ceres.config);
+    const db = require('../db/index')(ceres);
     app.set('db', db);
   }
 
   // Setup server
-  const server = http.Server(app); // eslint-disable-line new-cap
+  const server = new http.Server(app); // eslint-disable-line new-cap
 
   // Should we load sockets
   if (ceres.config.sockets && ceres.config.folders.sockets) {

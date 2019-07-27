@@ -10,16 +10,23 @@ const Router = require('./Router');
 
 /**
  * Base instance of a controller to be extended
+ * @param {import('../Ceres')} ceres
  * @param {Object} props
  */
-function Controller(Ceres, props) {
+function Controller(ceres, props) {
   Object.assign(this, props);
   this.version = pkg.version;
 
+  /**
+   * Ceres Config
+   * @type { import("../../config/default") }
+   */
+  this.config = ceres.config;
   this.events = new EventEmitter();
   this.on = this.events.on;
   this.removeListener = this.events.removeListener;
   this.emit = this.events.emit;
+  this.logger = ceres.logger(this.constructor.name);
 
   // Allow some user initialization
   if (typeof this.init === 'function') {
@@ -51,15 +58,26 @@ module.exports = Controller;
  */
 Controller.prototype = {
   /**
+   * Controller name
+   * @type {string}
+   */
+  name: '',
+
+  /**
    * Shortcut to model for CRUD controllers
-   * @type {[type]}
+   * @type {import('../models/BookshelfModel') | null}
    */
   model: null,
 
   /**
+   * @type {Function[] | Function}
+   */
+  middleware: null,
+
+  /**
    * Responses
    *
-   * @type    {Object}
+   * @type    {typeof Responses}
    */
   responses: Object.assign({}, Responses),
 
@@ -73,8 +91,8 @@ Controller.prototype = {
   /**
    * GET all
    *
-   * @param    {Express.req}    req
-   * @param    {Express.res}    res
+   * @param    {import('express').Request}    req
+   * @param    {import('express').Response}    res
    */
   getAll() {
     this.model
@@ -86,8 +104,8 @@ Controller.prototype = {
   /**
    * GET One
    *
-   * @param    {Express.req}    req
-   * @param    {Express.res}    res
+   * @param    {import('express').Request}     req
+   * @param    {import('express').Response}    res
    */
   getOne(req) {
     const id = parseInt(req.params.id, 10);
@@ -107,8 +125,8 @@ Controller.prototype = {
   /**
    * POST - Create a record
    *
-   * @param    {Express.req}    req
-   * @param    {Express.res}    res
+   * @param    {import('express').Request}    req
+   * @param    {import('express').Response}    res
    */
   postCreate(req) {
     this.model
@@ -124,8 +142,8 @@ Controller.prototype = {
   /**
    * PUT - Update a record
    *
-   * @param    {Express.req}    req
-   * @param    {Express.res}    res
+   * @param    {import('express').Request}    req
+   * @param    {import('express').Response}    res
    */
   putUpdate(req) {
     if (req.params.id) {
@@ -154,8 +172,8 @@ Controller.prototype = {
   /**
    * DELETE - Delete a record
    *
-   * @param    {Express.req}    req
-   * @param    {Express.res}    res
+   * @param    {import('express').Request}    req
+   * @param    {import('express').Response}    res
    */
   deleteOne(req) {
     this.model

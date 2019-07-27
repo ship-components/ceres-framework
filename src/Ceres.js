@@ -30,7 +30,16 @@ const CeresEvents = {
  * @namespace Ceres
  */
 function Ceres() {
+  /**
+   * @type {[number, number]}
+   */
   this.startTime = process.hrtime();
+
+  /**
+   * The time it took to load ceres
+   * @type {[number, number] | null}
+   */
+  this.loadTime = null;
 
   this.Model = ModelManager;
 
@@ -79,6 +88,7 @@ Ceres.prototype.config = {};
  * }}
  * @memberof Ceres
  */
+// @ts-ignore
 Ceres.prototype.database = {};
 
 /**
@@ -112,12 +122,12 @@ Ceres.prototype.run = function run() {
   }
   this.log.internal.silly('Running application in %s mode', this.config.processManagement);
   if (this.config.processManagement === 'fork') {
-    return runFork.call(this, this);
+    return runFork(this);
   }
   if (this.config.processManagement === 'sticky-cluster') {
-    return runStickyCluster.call(this, this);
+    return runStickyCluster(this);
   }
-  return runCluster.call(this, this);
+  return runCluster(this);
 };
 
 /**
@@ -143,7 +153,7 @@ Ceres.prototype.connect = function connect() {
 
   const databaseStartTime = Date.now();
 
-  const connection = require(`${__dirname}/db`)(this.config, this);
+  const connection = require(`${__dirname}/db/index`)(this);
 
   return connection
     .then(db => {
@@ -161,8 +171,8 @@ Ceres.prototype.connect = function connect() {
     })
     .then(cache => {
       this.Cache = cache;
-      if (this.databaseCallback) {
-        this.databaseCallback(this);
+      if (this.onConnectCallback) {
+        this.onConnectCallback(this);
       }
       this.emit(CeresEvents.Connected);
       return this;
@@ -291,16 +301,19 @@ function handleError(err) {
 }
 
 /**
- * Store the database factory for later
+ * Called when we connect
+ * @param {Function} callback
+ * @return {Ceres}
  */
-Ceres.prototype.database = function database(factory) {
-  this.databaseCallback = factory;
+Ceres.prototype.onConnected = function onConnected(callback) {
+  this.onConnectCallback = callback;
   return this;
 };
 
 /**
  * @type {boolean} Check to see if Ceres has loaded its configure and optionally connected to the database
  */
+
 Ceres.prototype.initialized = false;
 
 /**

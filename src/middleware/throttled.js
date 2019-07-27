@@ -20,7 +20,7 @@ const defaults = {
 /**
  * Merge multiple obects together
  *
- * @param     {Object...}
+ * @param     {Object[]} args
  * @return    {Object}
  */
 function assign(...args) {
@@ -41,7 +41,7 @@ function assign(...args) {
  * Throttle middleware to prevent abuse
  *
  * @param     {Object}    options
- * @return    {Express.middleware}
+ * @return    {import('express').Handler}
  * @example   router.get('/route', throttle(), function(req, res){});
  */
 module.exports = options => {
@@ -53,7 +53,7 @@ module.exports = options => {
   /**
    * Redis Client
    *
-   * @type    {Redis}
+   * @type    {import('redis').RedisClient}
    */
   const client = redis.createClient(
     Object.assign(
@@ -89,7 +89,7 @@ module.exports = options => {
         /**
          * See if a micro session exists
          *
-         * @param     {Function}    done
+         * @param {import('redis').Callback<object>} done
          */
         req(done) {
           client.hgetall(key, done);
@@ -97,8 +97,6 @@ module.exports = options => {
 
         /**
          * Get the count of request for this period
-         *
-         * @type    {Array}
          */
         count: [
           'req',

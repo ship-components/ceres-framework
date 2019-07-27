@@ -4,7 +4,7 @@ const base32 = require('base32');
 /**
  * Creates a random string
  *
- * @param     {Object}    options
+ * @param     {{symbols?: boolean, length: number}}    options
  * @return    {String}
  */
 function randomString(options) {
@@ -25,8 +25,8 @@ function randomString(options) {
 /**
  * Generates a random base32 secret key and optionally a qrcode
  *
- * @param     {Object}    options
- * @return    {Object}
+ * @param     {{ length: number, name?: string, symbols?: boolean, google?: boolean, qrCode?: boolean, type?: string}} options
+ * @return    {string}
  */
 function generateKey(options) {
   // Options
@@ -63,8 +63,8 @@ function generateKey(options) {
 
 /**
  * Generates a random key andsaves to disk. Used to store secrets
- *
- * @param     {String}    filename
+ * @param     {object}    pkg
+ * @param     {object}    [overrides]
  */
 module.exports = function GenerateSecretKey(pkg, overrides) {
   overrides = overrides || {};
@@ -95,7 +95,7 @@ module.exports = function GenerateSecretKey(pkg, overrides) {
 
         // If the file already exists read it so we don't lose anything
         if (fs.existsSync(options.rc)) {
-          rc = JSON.parse(fs.readFileSync(options.rc));
+          rc = JSON.parse(fs.readFileSync(options.rc, 'utf-8'));
         }
 
         rc.secret = key;

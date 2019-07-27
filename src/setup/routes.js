@@ -25,7 +25,7 @@ module.exports = function routes(ceres, prop) {
     }
 
     try {
-      const benchmark = new Benchmark();
+      const benchmark = Benchmark();
       const controller = require(path.resolve(`${folder}/${name}`));
       const endpoint = routers[name];
       controller.name = name;

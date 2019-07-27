@@ -1,8 +1,8 @@
 /**
  * Recursive object copy
  *
- * @param     {Mixed}    obj
- * @return    {Mixed}
+ * @param     {any}    obj
+ * @return    {any}
  */
 module.exports = function deepCopy(obj) {
   // eslint-disable-line complexity

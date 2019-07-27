@@ -15,7 +15,7 @@ const STATUS = {
 const Responses = {
   /**
    * OK Response
-   * @param     {Mixed}    data
+   * @param     {object}    data
    */
   send(data) {
     if (this.res.headersSent || this.res.finished) {
@@ -82,7 +82,7 @@ const Responses = {
 
   /**
    * There was an error!!!
-   * @param     {Mixed}    err
+   * @param     {Error}    err
    */
   fail(err) {
     // Throw and exit the call stack or promise chain

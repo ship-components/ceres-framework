@@ -13,106 +13,96 @@ describe('BookshelfModel', () => {
       fetchAllCalled: 0,
       saveCalled: 0,
       destroyCalled: 0,
-      database: {
-        knex: {
-          raw() {
-            return Promise.resolve();
-          },
+      logger: jest.fn(),
+      config: {
+        db: {
+          type: 'bookshelf',
         },
-        Model: {
-          extend() {
-            // Mock Bookshelf ORM
-            function Mock(attributes) {
-              if (attributes && attributes.id) {
-                this.id = attributes.id;
-              } else {
+      },
+      Model: { add: jest.fn() },
+      database: {
+        bookshelf: {
+          Model: {
+            extend() {
+              // Mock Bookshelf ORM
+              function Mock(attributes) {
+                if (attributes && attributes.id) {
+                  this.id = attributes.id;
+                } else {
+                  this.id = 1;
+                }
+
+                // Mock DATA
+                this.attributes = attributes || {};
+              }
+
+              // Mock FETCH
+              Mock.prototype.fetch = function fetch() {
+                if (typeof this.id === 'undefined') {
+                  throw new Error('missing id');
+                }
+                mockModelSettings.fetchCalled += 1;
+                return Promise.resolve(
+                  Object.assign(
+                    {
+                      id: this.id,
+                    },
+                    this.attributes
+                  )
+                );
+              };
+
+              // Mock FETCH
+              Mock.prototype.destroy = function destroy() {
+                if (typeof this.id === 'undefined') {
+                  throw new Error('missing id');
+                }
+                mockModelSettings.destroyCalled += 1;
+                return Promise.resolve();
+              };
+
+              // Mock FETCH_ALL
+              Mock.fetchAll = function fetchAll() {
+                mockModelSettings.fetchAllCalled += 1;
+                return Promise.resolve([
+                  Object.assign(
+                    {
+                      id: 1,
+                    },
+                    this.attributes
+                  ),
+                ]);
+              };
+
+              Mock.where = function where() {
+                return Mock;
+              };
+
+              Mock.query = function query() {
+                return Mock;
+              };
+
+              // Mock SAVE
+              Mock.prototype.save = function save(body) {
                 this.id = 1;
-              }
+                this.attributes = body;
+                mockModelSettings.saveCalled += 1;
+                return Promise.resolve(this);
+              };
 
-              // Mock DATA
-              this.attributes = attributes || {};
-            }
-
-            // Mock FETCH
-            Mock.prototype.fetch = function fetch() {
-              if (typeof this.id === 'undefined') {
-                throw new Error('missing id');
-              }
-              mockModelSettings.fetchCalled += 1;
-              return Promise.resolve(
-                Object.assign(
-                  {
-                    id: this.id,
-                  },
-                  this.attributes
-                )
-              );
-            };
-
-            // Mock FETCH
-            Mock.prototype.destroy = function destroy() {
-              if (typeof this.id === 'undefined') {
-                throw new Error('missing id');
-              }
-              mockModelSettings.destroyCalled += 1;
-              return Promise.resolve();
-            };
-
-            // Mock FETCH_ALL
-            Mock.fetchAll = function fetchAll() {
-              mockModelSettings.fetchAllCalled += 1;
-              return Promise.resolve([
-                Object.assign(
-                  {
-                    id: 1,
-                  },
-                  this.attributes
-                ),
-              ]);
-            };
-
-            Mock.where = function where() {
               return Mock;
-            };
-
-            // Mock SAVE
-            Mock.prototype.save = function save(body) {
-              this.id = 1;
-              this.attributes = body;
-              mockModelSettings.saveCalled += 1;
-              return Promise.resolve(this);
-            };
-
-            return Mock;
+            },
+          },
+          knex: {
+            raw() {
+              return Promise.resolve();
+            },
           },
         },
       },
     };
 
     mockModel = new BookshelfModel(mockModelSettings);
-  });
-
-  it('should be extend itself from the base model', () => {
-    const where = () => {};
-    mockModelSettings.database.Model.extend = () => {
-      return {
-        where,
-      };
-    };
-    const model = new BookshelfModel(mockModelSettings);
-    expect(typeof model.where).toBe('function');
-  });
-
-  it('should throw an error if you try to override a method on the base orm', () => {
-    mockModelSettings.read = () => {};
-    mockModelSettings.database.Model.extend = () => {
-      return {
-        read() {},
-      };
-    };
-    expect(() => {
-      new BookshelfModel(mockModelSettings); // eslint-disable-line
-    }).toThrow();
   });
 
   it('should have a create method the calls this.model.save()', done => {

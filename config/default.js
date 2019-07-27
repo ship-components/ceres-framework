@@ -37,7 +37,7 @@ const config = {
   /**
    * Default port
    * @memberof Config.Config
-   * @type {number}
+   * @type {number | number[]}
    */
   port: 3000,
 

@@ -11,7 +11,7 @@ const Responses = require('./Responses');
  *
  * @param     {Function}    handler
  * @param     {Object}      ctx         `this` from created Controller
- * @return    {Express.route}
+ * @return    {import('express').Handler}
  */
 module.exports = function wrapRoute(handler, ctx, ceres) {
   return function requestHandler(req, res, next) {
@@ -29,7 +29,7 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
 
       /**
        * Make res available on this
-       * @type {Express.Responses}
+       * @type {Express.Response}
        */
       res,
 
@@ -47,7 +47,7 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
 
       /**
        * Make the loggere availabe to each request
-       * @type {Winston}
+       * @type {import('../setup/logs').WinstonLogger}
        */
       log: ceres.log,
 

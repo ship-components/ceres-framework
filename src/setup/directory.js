@@ -13,7 +13,7 @@ const jsFile = /.+\.jsx?$/i;
  * Require all JS files in a folder
  *
  * @param     {String}    dir
- * @return    {Object<mixed>}
+ * @return    {object}
  */
 function loadModulesFromPath(dir) {
   /**
@@ -56,7 +56,7 @@ function loadModulesFromPath(dir) {
  * with the the application config. Returns a object of modules
  *
  * @param     {String}    dir
- * @param     {Object}    config
+ * @param     {Object}    options
  * @return    {Object}
  */
 module.exports = function directory(dir, options) {

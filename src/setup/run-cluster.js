@@ -6,7 +6,7 @@ const logStartTime = require('../lib/logStartTime');
 
 /**
  * Fork a new worker and listen for log any errors
- * @param    {Ceres}    ceres
+ * @param    {import('../Ceres')}    ceres
  */
 function forkWorker(ceres, env) {
   env = typeof env === 'object' ? env : {};
@@ -18,12 +18,12 @@ function forkWorker(ceres, env) {
 
 /**
  * Make sure everything is setup the way we need to be before we start Listening
- * @param  {Ceres}    ceres
+ * @param  {import('../Ceres')}    ceres
  * @return {Promise}
  */
 module.exports = function runCluster(ceres) {
   // processManagement
-  return this.connect.call(this, ceres).then(function listen() {
+  return ceres.connect().then(function listen() {
     return new Promise((resolve, reject) => {
       try {
         if (!ceres.config.instances || ceres.config.instances === 1) {
