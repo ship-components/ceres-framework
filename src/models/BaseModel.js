@@ -26,7 +26,7 @@ class BaseModel {
     this.config = ceres.config;
 
     if (ceres.config.db.type === 'bookshelf') {
-      this.database = ceres.Database.bookshelf;
+      this.database = ceres.database.bookshelf;
     } else {
       throw new Error(`Unknown database type ${ceres.config.db.type}`);
     }

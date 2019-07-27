@@ -79,7 +79,7 @@ Ceres.prototype.config = {};
  * }}
  * @memberof Ceres
  */
-Ceres.prototype.Database = {};
+Ceres.prototype.database = {};
 
 /**
  * Controller Factory
@@ -156,13 +156,13 @@ Ceres.prototype.connect = function connect() {
           duration: databaseStartupTime,
         }
       );
-      this.Database = db;
+      this.database = db;
       return setupCache(this);
     })
     .then(cache => {
       this.Cache = cache;
-      if (this.databasel) {
-        this.databasel(this);
+      if (this.databaseCallback) {
+        this.databaseCallback(this);
       }
       this.emit(CeresEvents.Connected);
       return this;
@@ -294,7 +294,7 @@ function handleError(err) {
  * Store the database factory for later
  */
 Ceres.prototype.database = function database(factory) {
-  this.databasel = factory;
+  this.databaseCallback = factory;
   return this;
 };
 
