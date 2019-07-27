@@ -34,7 +34,7 @@ module.exports = function routes(ceres, prop) {
       benchmark.stop();
       const SLOW_SETUP_CUTOFF_MS = 200;
       if (benchmark.val() > SLOW_SETUP_CUTOFF_MS) {
-        ceres.log.internal.debug(
+        ceres.log.internal.silly(
           '[%s] %s -> %s took longer than %dms to initialize - %ss',
           prop,
           endpoint,

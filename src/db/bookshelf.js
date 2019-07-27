@@ -1,8 +1,15 @@
-const Promise = require('bluebird');
+const { Promise } = require('bluebird');
+
+/**
+ * @typedef BookshelfDatabase
+ * @property {import('knex')}  knex
+ * @property {import('bookshelf')}  bookshelf
+ * @property {import('pg-live-select')} [liveDb]
+ */
 
 /**
  * Single reference
- * @type {[type]}
+ * @type {BookshelfDatabase | null}
  */
 let db = null;
 
@@ -14,23 +21,24 @@ module.exports = function bookshelf(config, ceres) {
     }
 
     // Initialize as object
+    // @ts-ignore
     db = {};
 
     /**
      * Setup Knex (DB Connection)
-     *
-     * @type    {Knex}
      */
     // eslint-disable-next-line import/no-extraneous-dependencies
     db.knex = require('knex')({
       client: 'pg',
       connection: config.db,
-      migrations: 'migrations',
+      migrations: {
+        tableName: 'migrations',
+      },
     });
 
     /**
      * Setup Bookself ORM
-     * @type    {Bookself}
+     * @type {import('bookshelf')}
      */
     // eslint-disable-next-line import/no-extraneous-dependencies
     db.bookshelf = require('bookshelf')(db.knex);

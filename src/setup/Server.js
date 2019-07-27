@@ -11,13 +11,13 @@ const Benchmark = require('../lib/Benchmark');
 
 module.exports = function Server(ceres) {
   const benchmarks = {};
-  benchmarks.express = new Benchmark();
+  benchmarks.express = Benchmark();
 
   ceres.log.internal.silly('Starting express configuration...');
 
   // Bind the correct context
   if (ceres.config.folders.middleware) {
-    benchmarks.middleware = new Benchmark();
+    benchmarks.middleware = Benchmark();
     ceres.config.middleware = directory(ceres.config.folders.middleware, ceres);
     ceres.middleware = ceres.config.middleware;
     benchmarks.middleware.stop();
@@ -31,7 +31,7 @@ module.exports = function Server(ceres) {
   // The master doesn't do very much besides load the workers so we also use it
   // handle the queues. If a queue crashes then the master will crash as well...
   if (ceres.config.folders.queues) {
-    benchmarks.queues = new Benchmark();
+    benchmarks.queues = Benchmark();
     // Load any files in this folder and apply this config
     directory(ceres.config.folders.queues, {
       config: ceres.config,
@@ -50,7 +50,7 @@ module.exports = function Server(ceres) {
 
   if (ceres.config.db.type !== 'none') {
     // Setup DB
-    const db = require('../db')(ceres.config);
+    const db = require('../db/index')(ceres.config);
     app.set('db', db);
   }
 
@@ -59,7 +59,7 @@ module.exports = function Server(ceres) {
 
   // Should we load sockets
   if (ceres.config.sockets && ceres.config.folders.sockets) {
-    benchmarks.sockets = new Benchmark();
+    benchmarks.sockets = Benchmark();
     // Setup any sockets
     sockets(ceres, app, server);
     benchmarks.sockets.stop();

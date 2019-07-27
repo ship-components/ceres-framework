@@ -1,11 +1,3 @@
-/** *****************************************************************************
- * Pipeline
- *
- * @author       Isaac Suttell <isaac_suttell@playstation.sony.com>
- * @file         Render Workflow to help ensure we consistently produce the
- *               same results across each page and prints
- ***************************************************************************** */
-
 const _ = require('lodash');
 const async = require('async');
 const Promise = require('bluebird');

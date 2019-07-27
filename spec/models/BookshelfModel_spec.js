@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
 const moment = require('moment');
-const BookshelfModel = require('../../../src/models/types/BookshelfModel');
+const { BookshelfModel } = require('../../src/models/BookshelfModel');
 
 describe('BookshelfModel', () => {
   let mockModelSettings;
@@ -8,6 +8,7 @@ describe('BookshelfModel', () => {
 
   beforeEach(() => {
     mockModelSettings = {
+      initialized: true,
       fetchCalled: 0,
       fetchAllCalled: 0,
       saveCalled: 0,
@@ -89,12 +90,6 @@ describe('BookshelfModel', () => {
     };
 
     mockModel = new BookshelfModel(mockModelSettings);
-  });
-
-  it('should be extendable', () => {
-    mockModelSettings.customMethod = () => {};
-    const model = new BookshelfModel(mockModelSettings);
-    expect(model.customMethod).toBe(mockModelSettings.customMethod);
   });
 
   it('should be extend itself from the base model', () => {

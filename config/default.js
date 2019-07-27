@@ -9,42 +9,50 @@ const pkg = require(`${process.cwd()}/package.json`);
 /**
  * Application settings. rc file overrides this file and should be used to store
  * sensitive information such as secrets and passwords
- *
- * @type    {Object}
+ * @namespace {object} Config.Config
+ * @memberof Ceres
  */
 const config = {
   /**
    * Name of app
-   *
-   * @type    {String}
+   * @memberof Config.Config
+   * @type {string}
    */
   name: pkg.name,
 
   /**
+   * Application secret used to encrypt sessions
+   * @memberof Config.Config
+   * @type {string}
+   */
+  secret: undefined,
+
+  /**
    * Version
-   *
-   * @type    {String}
+   * @memberof Config.Config
+   * @type {string}
    */
   version: pkg.version,
 
   /**
    * Default port
-   *
-   * @type    {Number}
+   * @memberof Config.Config
+   * @type {number}
    */
   port: 3000,
 
   /**
    * Machine specific configuration. The app secret is store in this file.
    * This is typically created with the init command
-   *
-   * @type    {String}
+   * @memberof Config.Config
+   * @type {string}
    */
   rc: `.${pkg.name}rc`,
 
   /**
    * Path to pid location
-   * @type {String}
+   * @memberof Config.Config
+   * @type {string}
    */
   pid: 'ceres.pid',
 
@@ -52,75 +60,85 @@ const config = {
    * Either cluster or fork. Determines how multiple instances of the app
    * are run to take advantage of multiple cores. fork is recommended when
    * being a reverse proxy
-   * @type    {String}
+   * @memberof Config.Config
+   * @type {string}
    */
   processManagement: 'cluster',
 
   /**
    * What mode to run in
-   *
-   * @type    {String}
+   * @memberof Config.Config
+   * @type {string}
    */
   env: 'production',
 
   /**
    * Turn on debugging
-   * @type    {Boolean}
+   * @memberof Config.Config
+   * @type  {boolean}
    */
   debug: false,
 
   /**
    * Cache html
-   * @type    {Boolean}
+   * @memberof Config.Config
+   * @type  {boolean}
    */
   viewCache: true,
 
   /**
    * View engine to use for express
-   * @type    {String}
+   * @memberof Config.Config
+   * @type {string}
    */
   viewEngine: 'ejs',
 
   /**
    * How many worker instances to run at one time
-   *
-   * @type    {Number}
+   * @memberof Config.Config
+   * @type {number}
    */
   instances: require('os').cpus().length,
 
   /**
    * Turn on request compression
-   * @type    {Boolean}
+   * @memberof Config.Config
+   * @type  {boolean}
    */
   compression: true,
 
   /**
    * Logging options
+   * @memberof Config.Config
    * @type    {Object}
+   * @namespace Config.Config.Logging
    */
   logging: {
     /**
      * What log format to use for access logs. Typically dev or combined
-     * @type    {String}
+     * @memberof Ceres.Config.Logging
+     * @type {string}
      */
     accessLogFormat: 'combined',
 
     /**
      * Include json logs
-     * @type    {Boolean}
+     * @memberof Ceres.Config.Logging
+     * @type  {boolean}
      */
     json: true,
 
     /**
      * Include human readable logs
-     * @type    {Boolean}
+     * @memberof Ceres.Config.Logging
+     * @type  {boolean}
      */
     human: true,
   },
 
   /**
    * Where is the stuff?
-   *
+   * @memberof Config.Config
    * @type    {Object}
    */
   folders: {
@@ -133,49 +151,83 @@ const config = {
   },
 
   /**
-   * Override in rc for production
-   *
-   * @type    {Object}
+   * Databse Configuration
+   * @memberof Ceres.Config
+   * @namespace Ceres.Config.db
    */
   db: {
+    /**
+     * Database Type
+     * @type {string}
+     * @memberof Ceres.Config.db
+     */
     type: 'none',
+    /**
+     * Database Host
+     * @type {string}
+     * @memberof Ceres.Config.db
+     */
     host: '127.0.0.1',
+    /**
+     * Database Username
+     * @type {string}
+     * @memberof Ceres.Config.db
+     */
     user: '',
+    /**
+     * Database Password
+     * @type {string}
+     * @memberof Ceres.Config.db
+     */
     password: '',
+    /**
+     * Database Name
+     * @type {string}
+     * @memberof Ceres.Config.db
+     */
     database: '',
+    /**
+     * Database Charset
+     * @type {string}
+     * @memberof Ceres.Config.db
+     */
     charset: 'utf8',
   },
 
   /**
    * Throttle requests
-   *
-   * @type    {Object}
+   * @memberof Config.Config
+   * @type    {object | boolean}
    */
   throttle: false,
 
   /**
    * Session configuration
+   * @memberof Config.Config
    * @see https://github.com/expressjs/session
-   * @type    {Object}
+   * @namespace {object} Ceres.Config.Session
    */
   session: {
     /**
      * Session length
-     * @type {Number}
+     * @memberof Ceres.Config.Session
+     * @type {number}
      */
     ttl: 3600,
 
     /**
      * Forces the session to be saved back to the session store, even if the
      * session was never modified during the request.
-     * @type    {Boolean}
+     * @memberof Ceres.Config.Session
+     * @type  {boolean}
      */
     resave: false,
 
     /**
      * Forces a session that is "uninitialized" to be saved to the store. A
      * session is uninitialized when it is new but not modified.
-     * @type    {Boolean}
+     * @memberof Ceres.Config.Session
+     * @type  {boolean}
      */
     saveUninitialized: false,
 
@@ -183,14 +235,15 @@ const config = {
      * Force a session identifier cookie to be set on every response. The
      * expiration is reset to the original maxAge, resetting the expiration
      * countdown.
-     * @type    {Boolean}
+     * @memberof Ceres.Config.Session
+     * @type {boolean}
      */
     rolling: true,
 
     /**
      * Settings for Redis Session Store
-     *
-     * @type    {Object}
+     * @memberof Ceres.Config.Session
+     * @type {Object}
      */
     redis: {
       host: '127.0.0.1',
@@ -204,7 +257,7 @@ const config = {
 
   /**
    * Settings for Redis Session Store
-   *
+   * @memberof Config.Config
    * @type    {Object}
    */
   cache: {
@@ -219,47 +272,50 @@ const config = {
 
   /**
    * Render settings
-   *
+   * @memberof Config.Config
    * @type    {Object}
    */
   render: {
     /**
      * HTML Template
      *
-     * @type    {String}
+     * @type {string}
      */
     template: path.resolve(`${process.cwd()}/server/views/index.ejs`),
 
     /**
      * Where the checksums are cached
      *
-     * @type    {String}
+     * @type {string}
      */
     checksumrc: path.resolve(`${process.cwd()}/.checksumrc`),
 
     /**
      * Minify the HTML?
      *
-     * @type    {Boolean}
+     * @type  {boolean}
      */
     minifyHtml: true,
   },
 
   /**
    * Configure Hash Ids
+   * @memberof Config.Config
    * @type    {Object}
    */
   hashIds: {
     /**
      * Change the secret and hence generated keys, probably will be the same
      * from preprod to production to make it easie to copy data
-     * @type    {String}
+     * @memberof Config.Config
+     * @type {string}
      */
     secret: 'ceres',
 
     /**
      * Min lengh of hashes. They may be longer.
-     * @type    {Number}
+     * @memberof Config.Config
+     * @type {number}
      */
     minLength: 5,
   },
@@ -267,7 +323,7 @@ const config = {
   /**
    * A list of controllers and where to connect their routers. This is a high
    * overview of routing
-   *
+   * @memberof Config.Config
    * @type    {Object}
    */
   controllers: {},

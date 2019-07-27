@@ -3,8 +3,15 @@ const path = require('path');
 const EventEmitter = require('events');
 
 /**
+ * @callback ErrorCallback
+ * @param {Error} [error]
+ * @returns {undefined}
+ */
+
+/**
  * Write pid to file description
- * @param  {FileDescriptor} fd
+ * @param  {object} fd
+ * @param {ErrorCallback} callback
  */
 function writePid(fd, callback) {
   const buf = Buffer.from(`${process.pid}\n`);
@@ -18,12 +25,12 @@ function writePid(fd, callback) {
 
 /**
  * Check to see if a specific process id is actually running
- * @param    {Number}    pid
- * @return   {Boolean}
+ * @param    {number}    pid
+ * @return   {boolean}
  */
 function processExists(pid) {
   try {
-    return process.kill(pid, 0);
+    return Boolean(process.kill(pid, 0));
   } catch (err) {
     return err.code === 'EPERM';
   }
@@ -31,8 +38,9 @@ function processExists(pid) {
 
 /**
  * Create Pid
- * @param  {String} path Path to save
- * @param  {Object} options (optional) Settings
+ * @class
+ * @param  {string} filename Path to save
+ * @param  {object} [options] Settings
  * @example
  * 	var Pid = require('./Pid');
  * 	var pid = new Pid('/var/log/app.pid');
@@ -104,6 +112,7 @@ Pid.prototype.remove = function remove() {
 
 /**
  * Create pid file
+ * @param {ErrorCallback} callback
  */
 Pid.prototype.create = function create(callback) {
   let pid = NaN;

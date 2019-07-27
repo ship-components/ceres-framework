@@ -5,10 +5,10 @@ const sharedsession = require('express-socket.io-session');
 
 /**
  * Checks to see if sockets are configured and then sets up socket.io
- * @param  {Ceres}   ceres
- * @param  {Express} app
- * @param  {HTTP}    server
- * @return {socket.io}
+ * @param  {import('../Ceres')}        ceres
+ * @param  {import('express').Express} app
+ * @param  {import('http').Server}     server
+ * @return {import('socket.io').Server}
  */
 module.exports = function sockets(ceres, app, server) {
   const clientSocketEntryPath = path.resolve(ceres.config.folders.sockets, './index.js');
@@ -19,7 +19,7 @@ module.exports = function sockets(ceres, app, server) {
   } catch (err) {
     if (err.code === 'ENOENT') {
       ceres.log.internal.silly('Websockets configuration not found at %s', clientSocketEntryPath);
-      return {};
+      return undefined;
     }
     throw err;
   }

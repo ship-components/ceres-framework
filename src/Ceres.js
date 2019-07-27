@@ -1,11 +1,3 @@
-/** *****************************************************************************
- * Ceres
- *
- * @author       Isaac Suttell <isaac_suttell@playstation.sony.com>
- * @file         Framework constructor
- ***************************************************************************** */
-
-const path = require('path');
 const Promise = require('bluebird');
 const EventEmitter = require('events');
 const cluster = require('cluster');
@@ -17,13 +9,33 @@ const runStickyCluster = require('./setup/run-sticky-cluster');
 const runCluster = require('./setup/run-cluster');
 const runFork = require('./setup/run-fork');
 const Pid = require('./lib/Pid');
+const Controller = require('./controllers/Controller');
+const hashIds = require('./lib/hashIds');
+const Pipeline = require('./render/Pipeline');
+const ModelManager = require('./models/ModelManager');
 
+/**
+ * Ceres Event Names
+ * @enum {string}
+ */
+const CeresEvents = {
+  Configured: 'configured',
+  Connected: 'connected',
+  AfterSetup: 'after-setup',
+};
+
+/**
+ * Ceres Framework wrapper for Express.js
+ * @class
+ * @namespace Ceres
+ */
 function Ceres() {
   this.startTime = process.hrtime();
 
+  this.Model = ModelManager;
+
   // Bind and pass in this as an arg
   this.Controller = this.Controller.bind(this, this);
-  this.Model = this.Model.bind(this, this);
   // Ensure create has the right context
   this.Pipeline.create = this.Pipeline.create.bind(this);
 
@@ -35,13 +47,18 @@ function Ceres() {
     }
   }
 
+  /**
+   * @type {typeof CeresEvents}
+   */
+  this.CeresEvents = CeresEvents;
+
   // Setup event emitter
   this.events = new EventEmitter();
   this.on = this.events.on.bind(this.events);
   this.removeListener = this.events.removeListener.bind(this.events);
   this.emit = this.events.emit.bind(this.events);
 
-  this.on('configured', () => {
+  this.on(CeresEvents.Configured, () => {
     if (typeof this.config.hashids === 'object' && this.config.HashIds !== null) {
       this.HashIds = this.HashIds.call(this, this);
     }
@@ -49,34 +66,44 @@ function Ceres() {
 }
 
 /**
- * Placeholder for Database object
- * @type    {Object}
+ * Ceres Configuration Options
+ * @type { typeof import("../config/default") }
+ * @memberof Ceres
+ */
+Ceres.prototype.config = {};
+
+/**
+ * Initialized Ceres Database
+ * @type {{
+ *   bookshelf: import('bookshelf')
+ * }}
+ * @memberof Ceres
  */
 Ceres.prototype.Database = {};
 
 /**
- * Make contoller available at base level
+ * Controller Factory
+ * @memberof Ceres
  */
-Ceres.prototype.Controller = require(path.resolve(`${__dirname}/controllers/Controller`));
-
-/**
- * Make the model available at the base level
- */
-Ceres.prototype.Model = require(path.resolve(`${__dirname}/models/Model`));
+Ceres.prototype.Controller = Controller;
 
 /**
  * Link to hashIds
  * @type    {Object}
+ * @memberof Ceres
  */
-Ceres.prototype.HashIds = require(path.resolve(`${__dirname}/lib/hashIds`));
+Ceres.prototype.HashIds = hashIds;
 
 /**
- * Alias cut to Pipeline
+ * Alias to Pipeline
+ * @memberof Ceres
  */
-Ceres.prototype.Pipeline = require(path.resolve(`${__dirname}/render/Pipeline`));
+Ceres.prototype.Pipeline = Pipeline;
 
 /**
- * Alias to run
+ * Run Ceres
+ * @memberof Ceres
+ * @returns {Promise}
  */
 Ceres.prototype.run = function run() {
   // Ensure secret is present
@@ -99,22 +126,15 @@ Ceres.prototype.run = function run() {
  */
 Ceres.prototype.connect = function connect() {
   if (typeof this.config !== 'object') {
-    Promise.reject(new Error('Ceres has not been configured yet'));
-    return {};
-  }
-  if (this.DatabaseFactory) {
-    this.log.internal.info('Using external database factory');
-    return new this.DatabaseFactory(this.config).then(results => {
-      Object.assign(this, results);
-      return this;
-    });
+    return Promise.reject(new Error('Ceres has not been configured yet'));
   }
 
   const { type } = this.config.db;
-  if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type) === -1) {
+  if (['bookshelf'].indexOf(type) === -1) {
     this.log.internal.debug('Skipping database setup');
     return setupCache(this).then(cache => {
       this.Cache = cache;
+      this.emit(CeresEvents.Connected);
       return this;
     });
   }
@@ -122,15 +142,6 @@ Ceres.prototype.connect = function connect() {
   this.log.internal.silly('Connecting to %s...', type);
 
   const databaseStartTime = Date.now();
-
-  // Expose these for any help function
-  if (type === 'bookshelf') {
-    this.Model.Bookshelf = require('./models/types/BookshelfModel');
-  } else if (type === 'rethinkdb') {
-    this.Model.Rethinkdb = require('./models/types/RethinkdbModel');
-  } else if (type === 'mongodb') {
-    this.Model.Mongodb = require('./models/types/MongodbModel');
-  }
 
   const connection = require(`${__dirname}/db`)(this.config, this);
 
@@ -150,13 +161,17 @@ Ceres.prototype.connect = function connect() {
     })
     .then(cache => {
       this.Cache = cache;
+      if (this.databasel) {
+        this.databasel(this);
+      }
+      this.emit(CeresEvents.Connected);
       return this;
     });
 };
 
 /**
- * Configure application
- * @param  {Object} options External options
+ * Configure Ceres
+ * @param  { import("../config/default")} options External options
  * @return {Promise}
  */
 Ceres.prototype.configure = function configure(options) {
@@ -167,20 +182,28 @@ Ceres.prototype.configure = function configure(options) {
     } else {
       try {
         // Bootstrap config
-        this.config = new Config(options);
+        this.config = new Config(options).toObject();
       } catch (err) {
         reject(err);
         return;
       }
     }
 
-    // Bind config and allow custom loggers
+    /**
+     * @type { import("./setup/logs").WinstonLoggerFactory }
+     */
     this.logger = setupLogs.logger.bind(this, this.config);
 
-    // Setup default app logger
+    /**
+     * @type { import("./setup/logs").InternalLogger }
+     */
+    // @ts-ignore
     this.log = this.logger();
 
-    // Setup internal logger
+    /**
+     * Internal Logger
+     * @type { import("./setup/logs").WinstonLogger }
+     */
     this.log.internal = setupLogs.init(this);
 
     // Check to see if this process is a child. Children do not need pid files as the parent handles that
@@ -198,7 +221,7 @@ Ceres.prototype.configure = function configure(options) {
     // Fork mode handles this separatly
     if (this.config.processManagement !== 'fork') {
       // Log SIGTERM exit events
-      process.on('SIGTERM', code => {
+      process.on('SIGTERM', () => {
         this.log.internal.info(
           '%s process %s received SIGTERM; exiting...',
           this.isMaster ? 'Master' : 'Child',
@@ -208,11 +231,11 @@ Ceres.prototype.configure = function configure(options) {
             pid: process.pid,
           }
         );
-        process.exit(code);
+        process.exit();
       });
     }
 
-    this.emit('configured');
+    this.emit(CeresEvents.Configured);
     const duration = Date.now() - startTime;
     this.log.internal.info(
       '"%s" configuration loaded - %ss',
@@ -271,9 +294,14 @@ function handleError(err) {
  * Store the database factory for later
  */
 Ceres.prototype.database = function database(factory) {
-  this.DatabaseFactory = factory;
+  this.databasel = factory;
   return this;
 };
+
+/**
+ * @type {boolean} Check to see if Ceres has loaded its configure and optionally connected to the database
+ */
+Ceres.prototype.initialized = false;
 
 /**
  * Load the app
@@ -291,7 +319,8 @@ Ceres.prototype.load = function load(options) {
     .configure(options)
     .then(instance.connect)
     .then(ceres => {
-      this.emit('before:run');
+      this.initialized = true;
+      this.emit(CeresEvents.AfterSetup);
       return ceres;
     })
     .catch(handleError.bind(this));
@@ -306,7 +335,8 @@ Ceres.prototype.exec = function exec(command, options) {
   return instance
     .configure(options)
     .then(ceres => {
-      this.emit('before:run');
+      this.initialized = true;
+      this.emit(CeresEvents.AfterSetup);
       return ceres;
     })
     .then(command.bind(this, this))

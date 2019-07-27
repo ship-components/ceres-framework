@@ -1,12 +1,18 @@
-/** *****************************************************************************
- * Ceres
- *
- * @author       Isaac Suttell <isaac_suttell@playstation.sony.com>
- * @file         By default export a singleton
- ***************************************************************************** */
-
 const Ceres = require('./Ceres');
+const { BookshelfModel } = require('./models/BookshelfModel');
 
-const instance = new Ceres();
+// Ensure there is only once instance of Ceres at any time
+if (global.Ceres) {
+  module.exports = global.Ceres;
+} else {
+  const instance = new Ceres();
 
-module.exports = instance;
+  /**
+   * Ceres Bookshelf Model
+   */
+  instance.BookshelfModel = BookshelfModel;
+
+  global.Ceres = instance;
+
+  module.exports = instance;
+}

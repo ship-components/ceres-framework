@@ -1,14 +1,6 @@
-/** *****************************************************************************
- * Responses
- *
- * @author       Isaac Suttell <isaac_suttell@playstation.sony.com>
- * @file         Default rest responses
- ***************************************************************************** */
-
 /**
  * HTTP Status Codes
- *
- * @type    {Object}
+ * @enum {number}
  */
 const STATUS = {
   OK: 200,

@@ -1,11 +1,3 @@
-/** *****************************************************************************
- * throttle
- *
- * @author       Isaac Suttell <isaac_suttell@playstation.sony.com>
- * @file         Throttle middleware to prevent brute force attacks
- * @flow
- ***************************************************************************** */
-
 // Modules
 const redis = require('redis');
 const async = require('async');

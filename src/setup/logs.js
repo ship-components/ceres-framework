@@ -26,8 +26,9 @@ const DefaultSettings = {
 
 /**
  * Setup transports for a logger
- * @param    {Object}    config
- * @param    {String}    name
+ * @param    { import("../../config/default") } config
+ * @param    {string} name User friendly logger name
+ * @param    {object} [options] Transport options
  * @return   {Array<Object>}
  */
 function setupTransports(config, name, options) {
@@ -118,8 +119,28 @@ function setupTransports(config, name, options) {
 }
 
 /**
+ * @typedef {(name?: string) => WinstonLogger} WinstonLoggerFactory
+ */
+
+/**
+ * @typedef WinstonLogger
+ * @property {(...args) => void} silly
+ * @property {(...args) => void} debug
+ * @property {(...args) => void} info
+ * @property {(...args) => void} warn
+ * @property {(...args) => void} error
+ */
+
+/**
+ * Winston logger with an other logger attached for internal usage
+ * @typedef {WinstonLogger & {internal: WinstonLogger }} InternalLogger
+ */
+
+/**
  * Setup a new category
- * @type    {[type]}
+ * @param { import("../../config/default") } config Ceres configuration options
+ * @param {string} [name] The name of the logger
+ * @returns {WinstonLogger}
  */
 module.exports.logger = function logger(config, name) {
   name = name || config.name;
@@ -139,8 +160,8 @@ module.exports.logger = function logger(config, name) {
 /**
  * Setup winston. Called once on startup and setups up internal logger for the
  * framework. User loggers are handled by the logger function
- * @param    {Ceres}    ceres
- * @return   {Undefined}
+ * @param    { import ("../Ceres")}    ceres
+ * @return   {WinstonLogger}
  */
 module.exports.init = function init(ceres) {
   // Make sure the folder exists

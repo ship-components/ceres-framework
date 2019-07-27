@@ -1,15 +1,14 @@
-/** *****************************************************************************
- * Config
- *
- * @author       Isaac Suttell <isaac.suttell@sony.com>
- * @file         Load application settings
- ***************************************************************************** */
-
 // Modules
 const fs = require('fs');
 const path = require('path');
 const merge = require('../lib/merge');
 
+/**
+ * Merges configuration options
+ * @class
+ * @param {*} [cli]
+ * @param {*} [options]
+ */
 function Config(cli, options) {
   if (typeof cli !== 'object') {
     cli = {};
@@ -66,17 +65,17 @@ function Config(cli, options) {
   // Grab webpack config if we have it
   config.webpackConfig = this.getWebpack(envStr);
 
-  // Assign to this
-  Object.assign(this, config);
-
-  return this;
+  /**
+   * @type {import("../../config/default")}
+   */
+  this.config = Object.assign({}, this.config, config);
 }
 
 /**
  * Read the config RC File
  *
- * @param     {Object}    options
- * @return    {Object}
+ * @param {string} file
+ * @return {object}
  */
 Config.prototype.rcConfig = function rcConfig(file) {
   try {
@@ -174,6 +173,13 @@ Config.prototype.getWebpack = function getWebpack(env) {
     } catch (accessError) {}
   }
   return {};
+};
+
+/**
+ * @returns { import("../../config/default") }
+ */
+Config.prototype.toObject = function toObject() {
+  return this.config;
 };
 
 module.exports = Config;
