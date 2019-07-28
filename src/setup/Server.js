@@ -55,7 +55,7 @@ module.exports = function Server(ceres) {
   }
 
   // Setup server
-  const server = new http.Server(app); // eslint-disable-line new-cap
+  const server = new http.Server(app);
 
   // Should we load sockets
   if (ceres.config.sockets && ceres.config.folders.sockets) {
