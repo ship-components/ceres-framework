@@ -128,7 +128,7 @@ class BookshelfModel extends BaseModel {
     this.Model = this.database.Model.extend(this.table);
 
     if (this.options && this.options.softDeletes === true) {
-      this.Model = applySoftDeletes(this.Model);
+      this.Model = applySoftDeletes.call(this.table, this.Model);
     }
 
     /**
