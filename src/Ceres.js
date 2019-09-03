@@ -162,9 +162,9 @@ Ceres.prototype.connect = function connect() {
       this.emit('connected');
     })
     .then(() => {
-      if (this._databaseFactory) {
+      if (this.DatabaseFactory) {
         this.log.internal.info('Using external database factory');
-        return Promise.resolve(this._databaseFactory(this.config));
+        return Promise.resolve(this.DatabaseFactory(this.config));
       }
       return this;
     });
