@@ -97,7 +97,7 @@ Ceres.prototype.run = function run() {
  * Connect to database and cache
  * @return {Promise}
  */
-Ceres.prototype.connect = function() {
+Ceres.prototype.connect = function connect() {
   if (this.connected === true) {
     return Promise.resolve(this);
   }
@@ -136,7 +136,7 @@ Ceres.prototype.connect = function() {
     this.Model.Mongodb = require('./models/types/MongodbModel');
   }
 
-  const connection = require(__dirname + '/db');
+  const connection = require(`${__dirname}/db`);
 
   return Promise.bind(this)
     .then(() => connection(this.config, this))
