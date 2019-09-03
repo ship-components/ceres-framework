@@ -97,26 +97,30 @@ Ceres.prototype.run = function run() {
  * Connect to database and cache
  * @return {Promise}
  */
-Ceres.prototype.connect = function connect() {
-  if (typeof this.config !== 'object') {
-    Promise.reject(new Error('Ceres has not been configured yet'));
-    return {};
+Ceres.prototype.connect = function() {
+  if (this.connected === true) {
+    return Promise.resolve(this);
   }
-  if (this.DatabaseFactory) {
-    this.log.internal.info('Using external database factory');
-    return new this.DatabaseFactory(this.config).then(results => {
-      Object.assign(this, results);
-      return this;
-    });
+
+  if (typeof this.config !== 'object') {
+    return Promise.reject(new Error('Ceres has not been configured yet'));
   }
 
   const { type } = this.config.db;
   if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type) === -1) {
     this.log.internal.debug('Skipping database setup');
-    return setupCache(this).then(cache => {
-      this.Cache = cache;
-      return this;
-    });
+    return Promise.bind(this)
+      .then(() => {
+        return setupCache(this);
+      })
+      .then(cache => {
+        this.Cache = cache;
+        return this;
+      })
+      .then(() => {
+        this.connected = true;
+        this.emit('connected');
+      });
   }
 
   this.log.internal.silly('Connecting to %s...', type);
@@ -132,9 +136,10 @@ Ceres.prototype.connect = function connect() {
     this.Model.Mongodb = require('./models/types/MongodbModel');
   }
 
-  const connection = require(`${__dirname}/db`)(this.config, this);
+  const connection = require(__dirname + '/db');
 
-  return connection
+  return Promise.bind(this)
+    .then(() => connection(this.config, this))
     .then(db => {
       const databaseStartupTime = Date.now() - databaseStartTime;
       this.log.internal.info(
@@ -150,6 +155,17 @@ Ceres.prototype.connect = function connect() {
     })
     .then(cache => {
       this.Cache = cache;
+      return this;
+    })
+    .then(() => {
+      this.connected = true;
+      this.emit('connected');
+    })
+    .then(() => {
+      if (this._databaseFactory) {
+        this.log.internal.info('Using external database factory');
+        return Promise.resolve(this._databaseFactory(this.config));
+      }
       return this;
     });
 };
