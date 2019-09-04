@@ -97,26 +97,25 @@ Ceres.prototype.run = function run() {
  * @return {Promise}
  */
 Ceres.prototype.connect = function() {
-  if (typeof this.config !== 'object') {
-    Promise.reject(new Error('Ceres has not been configured yet'));
-    return;
-  } else if (this._databaseFactory) {
-    this.log._ceres.info('Using external database factory');
-    return new this._databaseFactory(this.config)
-      .then((results) => {
-        Object.assign(this, results);
-        return this;
-      });
+  if (this.connected === true) {
+    return Promise.resolve(this);
+  } else if (typeof this.config !== 'object') {
+    return Promise.reject(new Error('Ceres has not been configured yet'));
   }
 
   var type = this.config.db.type;
   if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type) === -1) {
     this.log._ceres.debug('Skipping database setup');
-    return setupCache(this)
-      .then(function(cache){
+    return Promise.bind(this)
+      .then(() => setupCache(this))
+      .then((cache) =>{
         this.Cache = cache;
         return this;
-      }.bind(this));
+      })
+      .then(() => {
+        this.connected = true;
+        this.emit('connected');
+      });
   }
 
   this.log._ceres.silly('Connecting to %s...', type);
@@ -132,20 +131,33 @@ Ceres.prototype.connect = function() {
     this.Model.Mongodb = require('./models/types/MongodbModel');
   }
 
-  var connect = require(__dirname + '/db')(this.config, this);
+  var connection = require(__dirname + '/db');
 
-  return connect.then(function(db){
-    var databaseStartupTime = Date.now() - databaseStartTime;
-    this.log._ceres.info('Connected to %s - %ss', type, (databaseStartupTime / 1000).toLocaleString(), {
-      duration: databaseStartupTime
-    });
-    this.Database = db;
-    return setupCache(this);
-  }.bind(this))
-    .then(function(cache){
+  return Promise.bind(this)
+    .then(() => connection(this.config, this))
+    .then(db => {
+      var databaseStartupTime = Date.now() - databaseStartTime;
+      this.log._ceres.info('Connected to %s - %ss', type, (databaseStartupTime / 1000).toLocaleString(), {
+        duration: databaseStartupTime
+      });
+      this.Database = db;
+      return setupCache(this);
+    })
+    .then(cache => {
       this.Cache = cache;
       return this;
-    }.bind(this));
+    })
+    .then(() => {
+      this.connected = true;
+      this.emit('connected');
+    })
+    .then(() => {
+      if (this._databaseFactory) {
+        this.log._ceres.info('Using external database factory');
+        return Promise.resolve(this._databaseFactory(this.config));
+      }
+      return this;
+    });
 };
 
 /**
