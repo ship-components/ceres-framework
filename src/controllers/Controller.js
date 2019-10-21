@@ -4,7 +4,6 @@
 
 const EventEmitter = require('events');
 
-const pkg = require('../../package.json');
 const Responses = require('./Responses');
 const Router = require('./Router');
 
@@ -14,7 +13,6 @@ const Router = require('./Router');
  */
 function Controller(Ceres, props) {
   Object.assign(this, props);
-  this.version = pkg.version;
 
   this.events = new EventEmitter();
   this.on = this.events.on;

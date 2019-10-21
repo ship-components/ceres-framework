@@ -3,15 +3,12 @@
  ***************************************************************************** */
 
 const path = require('path');
-const pkg = require('../../package.json');
 
 /**
  * Setup a consistent model system that interacts with an database
  * @param {Object} props
  */
 function Model(Ceres, props) {
-  this.version = pkg.version;
-
   // Import ORM
   let model;
 
@@ -26,7 +23,8 @@ function Model(Ceres, props) {
   }
 
   // Pull everything off and into this instance
-  for (var key in model) { // eslint-disable-line
+  // eslint-disable-next-line
+  for (let key in model) {
     this[key] = model[key];
   }
 
