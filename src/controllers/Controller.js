@@ -1,12 +1,11 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Controller - Base Controller
- ******************************************************************************/
+ ***************************************************************************** */
 
-var EventEmitter = require('events');
+const EventEmitter = require('events');
 
-var pkg = require('../../package.json');
-var Responses = require('./Responses');
-var Router = require('./Router');
+const Responses = require('./Responses');
+const Router = require('./Router');
 
 /**
  * Base instance of a controller to be extended
@@ -14,12 +13,11 @@ var Router = require('./Router');
  */
 function Controller(Ceres, props) {
   Object.assign(this, props);
-  this.version = pkg.version;
 
-  this._events = new EventEmitter();
-  this.on = this._events.on;
-  this.removeListener = this._events.removeListener;
-  this.emit = this._events.emit;
+  this.events = new EventEmitter();
+  this.on = this.events.on;
+  this.removeListener = this.events.removeListener;
+  this.emit = this.events.emit;
 
   // Allow some user initialization
   if (typeof this.init === 'function') {
@@ -34,7 +32,7 @@ function Controller(Ceres, props) {
  * @static
  * @return    {Controller}
  */
-Controller.extend = function(props) {
+Controller.extend = function extend(props) {
   return new Controller(this, props);
 };
 
@@ -50,7 +48,6 @@ module.exports = Controller;
  * @type    {Object}
  */
 Controller.prototype = {
-
   /**
    * Shortcut to model for CRUD controllers
    * @type {[type]}
@@ -77,7 +74,7 @@ Controller.prototype = {
    * @param    {Express.req}    req
    * @param    {Express.res}    res
    */
-  getAll: function() {
+  getAll() {
     this.model
       .readAll()
       .then(this.send)
@@ -90,11 +87,11 @@ Controller.prototype = {
    * @param    {Express.req}    req
    * @param    {Express.res}    res
    */
-  getOne: function(req) {
-    var id = parseInt(req.params.id, 10);
+  getOne(req) {
+    const id = parseInt(req.params.id, 10);
 
     // Ensure we have a valid id and don't accidently return everything
-    if (isNaN(id)) {
+    if (Number.isNaN(id)) {
       this.notFound('Unknown or invalid id');
       return;
     }
@@ -111,12 +108,13 @@ Controller.prototype = {
    * @param    {Express.req}    req
    * @param    {Express.res}    res
    */
-  postCreate: function(req) {
-    this.model.create(req.body)
-      .then(function(result){
+  postCreate(req) {
+    this.model
+      .create(req.body)
+      .then(result => {
         this.controller.emit('created', req, req.body, result);
         return result;
-      }.bind(this))
+      })
       .then(this.send)
       .catch(this.fail);
   },
@@ -127,23 +125,25 @@ Controller.prototype = {
    * @param    {Express.req}    req
    * @param    {Express.res}    res
    */
-  putUpdate: function(req) {
+  putUpdate(req) {
     if (req.params.id) {
       // Update single
-      this.model.update(req.body, req.params.id)
-        .then(function(result){
+      this.model
+        .update(req.body, req.params.id)
+        .then(result => {
           this.controller.emit('updated', req, req.body, result);
           return result;
-        }.bind(this))
+        })
         .then(this.send)
         .catch(this.fail);
     } else {
       // Update multiple
-      this.model.updateAll(req.body)
-        .then(function(result){
+      this.model
+        .updateAll(req.body)
+        .then(result => {
           this.controller.emit('updated', req, req.body, result);
           return result;
-        }.bind(this))
+        })
         .then(this.send)
         .catch(this.fail);
     }
@@ -155,12 +155,13 @@ Controller.prototype = {
    * @param    {Express.req}    req
    * @param    {Express.res}    res
    */
-  deleteOne: function(req) {
-    this.model.del(req.params.id)
-      .then(function(result){
+  deleteOne(req) {
+    this.model
+      .del(req.params.id)
+      .then(result => {
         this.controller.emit('deleted', req, req.params.id);
         return result;
-      }.bind(this))
+      })
       .then(this.noContent)
       .catch(this.fail);
   },
@@ -170,5 +171,5 @@ Controller.prototype = {
    *
    * @return    {Express.router}
    */
-  router: Router
+  router: Router,
 };

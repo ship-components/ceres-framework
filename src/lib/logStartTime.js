@@ -1,4 +1,4 @@
-var moment = require('moment');
+const moment = require('moment');
 
 /**
  * Log the time it took to start
@@ -8,10 +8,10 @@ var moment = require('moment');
 module.exports = function logStartTime(str, ceres) {
   // Calculate how long it took to load
   ceres.loadTime = process.hrtime(ceres.startTime);
-  var loadTimeMs = Math.floor((ceres.loadTime[0] * 1e9 + ceres.loadTime[1]) / 1000000);
-  var loadTimes = moment.duration(loadTimeMs).asSeconds();
+  const loadTimeMs = Math.floor((ceres.loadTime[0] * 1e9 + ceres.loadTime[1]) / 1000000);
+  const loadTimes = moment.duration(loadTimeMs).asSeconds();
   // Log it
-  ceres.log._ceres.info(str, loadTimes, {
-    duration: loadTimeMs
+  ceres.log.internal.info(str, loadTimes, {
+    duration: loadTimeMs,
   });
 };

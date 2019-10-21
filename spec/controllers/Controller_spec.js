@@ -1,168 +1,166 @@
-'use strict';
-var Promise = require('bluebird');
-var ControllerModule = require('../../src/controllers/Controller');
+const Promise = require('bluebird');
+const ControllerModule = require('../../src/controllers/Controller');
 
-describe('Controller', function(){
-  var Controller;
-  it('should export a function', function() {
+describe('Controller', () => {
+  let Controller;
+  it('should export a function', () => {
     expect(typeof ControllerModule).toBe('function');
   });
 
-  beforeEach(function(){
-    var ctx = {};
+  beforeEach(() => {
+    const ctx = {};
     Controller = ControllerModule.bind(ctx, ctx);
   });
 
-  it('should extend itself', function(){
-    var example = 'test';
-    var controller = new Controller({
-      example: example
+  it('should extend itself', () => {
+    const example = 'test';
+    const controller = new Controller({
+      example,
     });
     expect(controller.example).toBe(example);
   });
 
-  it('should have a static extend helper method', function(){
-    var example = 'test';
-    var controller = ControllerModule.extend({
-      example: example
+  it('should have a static extend helper method', () => {
+    const example = 'test';
+    const controller = ControllerModule.extend({
+      example,
     });
     expect(controller.example).toBe(example);
     expect(controller instanceof ControllerModule).toBeTruthy();
   });
 
-  it('should call the init function if found', function() {
-    var spy = jest.fn();
-    new Controller({ // eslint-disable-line
-      init: spy
+  it('should call the init function if found', () => {
+    const spy = jest.fn();
+    Controller({
+      init: spy,
     });
     expect(spy).toHaveBeenCalled();
   });
 
-  it('getAll should call this.model.readAll()', function(){
-    var readAll = jest.fn(function (){
+  it('getAll should call this.model.readAll()', () => {
+    const readAll = jest.fn(() => {
       return Promise.resolve();
     });
-    var controller = new Controller({
+    const controller = new Controller({
       model: {
-        readAll: readAll
-      }
+        readAll,
+      },
     });
     controller.controller = controller;
     controller.getAll();
     expect(readAll).toHaveBeenCalled();
   });
 
-  it('getOne should call this.model.read()', function () {
-    var read = jest.fn(function (id) {
+  it('getOne should call this.model.read()', () => {
+    const read = jest.fn(id => {
       return Promise.resolve(id);
     });
-    var controller = new Controller({
+    const controller = new Controller({
       model: {
-        read: read
-      }
+        read,
+      },
     });
     controller.controller = controller;
-    var id = 1;
+    const id = 1;
     controller.getOne({
       params: {
-        id: id
-      }
+        id,
+      },
     });
     expect(read).toHaveBeenCalledWith(1);
   });
 
-  it('getOne should call this.notFound if id is NaN', function () {
-    var controller = new Controller({});
+  it('getOne should call this.notFound if id is NaN', () => {
+    const controller = new Controller({});
     controller.notFound = jest.fn();
     controller.getOne({
       params: {
-        id: NaN
-      }
+        id: NaN,
+      },
     });
     expect(controller.notFound).toHaveBeenCalled();
   });
 
-  it('postCreate should call this.model.create()', function () {
-    var create = jest.fn(function (body) {
+  it('postCreate should call this.model.create()', () => {
+    const create = jest.fn(body => {
       return Promise.resolve(body);
     });
-    var controller = new Controller({
+    const controller = new Controller({
       model: {
-        create: create
-      }
+        create,
+      },
     });
     controller.controller = controller;
-    var body = {
-      title : 'test'
+    const body = {
+      title: 'test',
     };
     controller.postCreate({
-      body: body
+      body,
     });
     expect(create).toHaveBeenCalledWith(body);
   });
 
-  it('putUpdate should call this.model.update()', function () {
-    var update = jest.fn(function (body) {
+  it('putUpdate should call this.model.update()', () => {
+    const update = jest.fn(body => {
       return Promise.resolve(body);
     });
-    var controller = new Controller({
+    const controller = new Controller({
       model: {
-        update: update
-      }
+        update,
+      },
     });
     controller.controller = controller;
-    var body = {
-      title: 'test'
+    const body = {
+      title: 'test',
     };
-    var id = 1;
+    const id = 1;
     controller.putUpdate({
       params: {
-        id: id
+        id,
       },
-      body: body
+      body,
     });
     expect(update).toHaveBeenCalledWith(body, id);
   });
 
-  it('putUpdate should call this.model.updateAll() when multiple records are passed in', function () {
-    var updateAll = jest.fn(function (body) {
+  it('putUpdate should call this.model.updateAll() when multiple records are passed in', () => {
+    const updateAll = jest.fn(body => {
       return Promise.resolve(body);
     });
-    var controller = new Controller({
+    const controller = new Controller({
       model: {
-        updateAll: updateAll
-      }
+        updateAll,
+      },
     });
     controller.controller = controller;
-    var body = {
+    const body = {
       id: 1,
-      title: 'test'
+      title: 'test',
     };
     controller.putUpdate({
       params: {},
-      body: [body]
+      body: [body],
     });
     expect(updateAll).toHaveBeenCalled();
   });
 
-  it('deleteOne should call this.model.del()', function () {
-    var controller = new Controller({
+  it('deleteOne should call this.model.del()', () => {
+    const controller = new Controller({
       model: {
-        del: function() {}
-      }
+        del() {},
+      },
     });
     controller.controller = controller;
 
-    var spy = jest.spyOn(controller.model, 'del')
-      .mockImplementation(function (id) {
-        return Promise.resolve(id);
-      });
+    const spy = jest.spyOn(controller.model, 'del').mockImplementation(id => {
+      return Promise.resolve(id);
+    });
 
-    var id = 1;
+    const id = 1;
     controller.deleteOne.call(controller, {
       params: {
-        id: id
-      }
+        id,
+      },
     });
     expect(spy).toHaveBeenCalledWith(id);
   });

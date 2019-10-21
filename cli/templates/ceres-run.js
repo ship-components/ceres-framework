@@ -1,20 +1,21 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Run the server
- ******************************************************************************/
+ ***************************************************************************** */
 
-var Ceres = require('ceres-framework');
-var cli = require('ceres-framework/src/lib/CLI');
-var pkg = require(process.cwd() + '/package.json');
+const Ceres = require('ceres-framework');
+const cli = require('ceres-framework/src/lib/CLI');
 
-var program = cli(pkg.version, require('ceres-framework/config/cli').run)
+const pkg = require(`${process.cwd()}/package.json`);
+
+const program = cli(pkg.version, require('ceres-framework/config/cli').run)
   .option('--developer', 'Turn on all developer options')
   .parse(process.argv);
 
-var config = program.opts();
+const config = program.opts();
 
 if (config.developer) {
   // Shortcut
-  config.verbose =true;
+  config.verbose = true;
   config.env = config.env || process.env.NODE_ENV || 'dev';
   process.env.NODE_ENV = config.env;
   config.instances = config.instances || 1;

@@ -4,8 +4,9 @@
  * @param     {Mixed}    obj
  * @return    {Mixed}
  */
-module.exports = function deepCopy(obj) { // eslint-disable-line complexity
-  var copy;
+module.exports = function deepCopy(obj) {
+  // eslint-disable-line complexity
+  let copy;
 
   if (obj === null || typeof obj !== 'object') {
     return obj;
@@ -21,7 +22,7 @@ module.exports = function deepCopy(obj) { // eslint-disable-line complexity
   // Handle Array
   if (obj instanceof Array) {
     copy = [];
-    for (var i = 0, len = obj.length; i < len; i++) {
+    for (let i = 0, len = obj.length; i < len; i += 1) {
       copy[i] = deepCopy(obj[i]);
     }
     return copy;
@@ -30,11 +31,9 @@ module.exports = function deepCopy(obj) { // eslint-disable-line complexity
   // Handle Object
   if (obj instanceof Object) {
     copy = {};
-    for (var key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        copy[key] = deepCopy(obj[key]);
-      }
-    }
+    Object.keys(obj).forEach(key => {
+      copy[key] = deepCopy(obj[key]);
+    });
 
     return copy;
   }

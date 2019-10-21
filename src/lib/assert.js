@@ -1,4 +1,3 @@
-
 /**
  * Ensure a value is not null or throw an erroe
  * @param    {Mixed}    val
@@ -17,6 +16,6 @@ module.exports.assertNotNull = function assertNotNull(val) {
  */
 module.exports.assertDefined = function assertDefined(val, name) {
   if (typeof val === 'undefined') {
-    throw new TypeError((typeof name === 'string' ? name : 'value') + ' is undefined');
+    throw new TypeError(`${typeof name === 'string' ? name : 'value'} is undefined`);
   }
 };

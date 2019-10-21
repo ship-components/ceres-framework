@@ -1,5 +1,5 @@
-var fs = require('fs');
-var base32 = require('base32');
+const fs = require('fs');
+const base32 = require('base32');
 
 /**
  * Creates a random string
@@ -8,14 +8,14 @@ var base32 = require('base32');
  * @return    {String}
  */
 function randomString(options) {
-  var set = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+  let set = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
 
   if (options.symbols === true) {
     set += '!@#$%^&*()<>?/[]{},.:;';
   }
 
-  var key = '';
-  for (var i = 0; i < options.length; i++) {
+  let key = '';
+  for (let i = 0; i < options.length; i += 1) {
     key += set.charAt(Math.floor(Math.random() * set.length));
   }
 
@@ -30,29 +30,35 @@ function randomString(options) {
  */
 function generateKey(options) {
   // Options
-  options = Object.assign({
-    length: 32,
-    name: '',
-    symbols: false,
-    google: false,
-    qrCode: false,
-    type: 'base32'
-  }, options || {});
+  options = Object.assign(
+    {
+      length: 32,
+      name: '',
+      symbols: false,
+      google: false,
+      qrCode: false,
+      type: 'base32',
+    },
+    options || {}
+  );
 
   // Generate the random string
-  var key = randomString(options);
+  let key = randomString(options);
 
   if (options.type === 'ascii') {
     return key;
-  } else if (options.type === 'base32') {
+  }
+  if (options.type === 'base32') {
     // Encode the ascii string into base32 and remove any `=` signs which google
     // doesn't like
-    key = base32.encode(key).toString().replace(/\=/g, '');
+    key = base32
+      .encode(key)
+      .toString()
+      .replace(/=/g, '');
 
     return key;
-  } else {
-    throw new Error('InvalidKeyType');
   }
+  throw new Error('InvalidKeyType');
 }
 
 /**
@@ -63,29 +69,29 @@ function generateKey(options) {
 module.exports = function GenerateSecretKey(pkg, overrides) {
   overrides = overrides || {};
 
-  var options = {
-    rc: '.' + pkg.name + 'rc',
-    length: 64
+  const options = {
+    rc: `.${pkg.name}rc`,
+    length: 64,
   };
 
-  for (var prop in overrides) {
-    if (overrides.hasOwnProperty(prop) && overrides[prop]) {
+  Object.keys(overrides).forEach(prop => {
+    if (overrides[prop]) {
       options[prop] = overrides[prop];
     }
-  }
+  });
 
-  var key = generateKey({
+  const key = generateKey({
     symbols: true,
     type: 'ascii',
-    length: options.length
+    length: options.length,
   });
 
   // Chaining for semantics
   return {
-    save: function(callback) {
-      callback = callback || function() {};
+    save(callback) {
+      callback = callback || function noOp() {};
       try {
-        var rc = {};
+        let rc = {};
 
         // If the file already exists read it so we don't lose anything
         if (fs.existsSync(options.rc)) {
@@ -100,6 +106,6 @@ module.exports = function GenerateSecretKey(pkg, overrides) {
       } catch (e) {
         callback(e);
       }
-    }
+    },
   };
 };
