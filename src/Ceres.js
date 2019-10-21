@@ -101,27 +101,25 @@ Ceres.prototype.connect = function connect() {
   if (this.connected === true) {
     return Promise.resolve(this);
   }
-
   if (typeof this.config !== 'object') {
     return Promise.reject(new Error('Ceres has not been configured yet'));
   }
 
-  const { type } = this.config.db;
-  if (['bookshelf', 'rethinkdb', 'mongodb'].indexOf(type) === -1) {
+  if (
+    typeof this.config.db !== 'object' ||
+    ['bookshelf', 'rethinkdb', 'mongodb'].indexOf(this.config.db.type) === -1
+  ) {
     this.log.internal.debug('Skipping database setup');
     return Promise.bind(this)
-      .then(() => {
-        return setupCache(this);
-      })
+      .then(() => setupCache(this))
       .then(cache => {
         this.Cache = cache;
-        return this;
-      })
-      .then(() => {
         this.connected = true;
         this.emit('connected');
+        return this;
       });
   }
+  const { type } = this.config.db;
 
   this.log.internal.silly('Connecting to %s...', type);
 
@@ -155,19 +153,15 @@ Ceres.prototype.connect = function connect() {
     })
     .then(cache => {
       this.Cache = cache;
-      return this;
-    })
-    .then(() => {
       this.connected = true;
       this.emit('connected');
-    })
-    .then(() => {
       if (this.DatabaseFactory) {
         this.log.internal.info('Using external database factory');
         return Promise.resolve(this.DatabaseFactory(this.config));
       }
-      return this;
-    });
+      return null;
+    })
+    .then(() => this);
 };
 
 /**
@@ -211,7 +205,7 @@ Ceres.prototype.configure = function configure(options) {
     });
     this.log.internal.info('Writing logs to %s', this.config.folders.logs);
 
-    // Fork mode handles this separatly
+    // Fork mode handles this separately
     if (this.config.processManagement !== 'fork') {
       // Log SIGTERM exit events
       process.on('SIGTERM', code => {

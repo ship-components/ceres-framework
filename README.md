@@ -28,7 +28,7 @@ ceres create example
 
 ## History
 
-- 1.3.3 - Fixes the bug where there were double connection to the database, We also added the 'connected' event.
+- 1.3.3 - Fixed a bug causing an infinite setup loop and added the "connected" event
 - 1.3.2 - Disabled throttle by default. Enabled configuration of redis connection for throttle
 - 1.3.1 - Fixed issue where errors would always return html in debug mode and fixed a bug where logs were showing [[Object object]] when they shoudn't
 - 1.3.0 - Added the ability to pass a database factory method for better decoupling of models. Update logging messages so its clearer when this used.
