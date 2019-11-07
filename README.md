@@ -28,6 +28,7 @@ ceres create example
 
 ## History
 
+- 1.3.5 - Fixed bug with default error handler
 - 1.3.4 - Fixed a bug where the wrong value was returned from load when no database is enabled
 - 1.3.3 - Fixed a bug causing an infinite setup loop and added the "connected" event
 - 1.3.2 - Disabled throttle by default. Enabled configuration of redis connection for throttle

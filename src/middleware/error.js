@@ -1,92 +1,6 @@
 const uuidv4 = require('uuid/v4');
 const Youch = require('youch');
-
-/**
- * Common errors and how to detect them
- * @type    {Array}
- */
-const CommonErrors = [
-  {
-    message: /^Forbidden:?(.+)?/i,
-    status: 401,
-    level: 'warn',
-    defaultText: 'Please login first',
-  },
-  {
-    message: /^Permission\s?Denied:?(.+)?/i,
-    status: 403,
-    level: 'warn',
-    defaultText: 'You do not have permission to access this.',
-  },
-  {
-    message: /^Not\s?Found:?(.+)?/i,
-    status: 404,
-    level: 'warn',
-    defaultText: 'Unable to find resource',
-  },
-  {
-    message: /^Bad\s?Request:?(.+)?/i,
-    status: 400,
-    level: 'warn',
-    defaultText: 'Bad Request',
-  },
-  {
-    code: /^EBADCSRFTOKEN$/,
-    status: 400,
-    level: 'warn',
-    defaultText: 'Bad Token',
-  },
-];
-
-/**
- * Parse the error and see if its a common error. If it's common we'll probably
- * change the response status
- * @param    {Error}    err
- * @return   {Object}
- */
-function findCommonError(err, Ceres) {
-  // Attempt to match some common errors so we can apply the right status
-  return CommonErrors.map(commonError => {
-    return Object.keys(commonError).forEach(key => {
-      if (err[key] && commonError[key] instanceof RegExp && commonError[key].test(err[key])) {
-        // Attempt to grab some additional info from the commonError message
-        const parts = err[key].match(commonError[key]);
-        Ceres.log.silly(
-          '[ErrorHandler] Matched %s - error.message.%s like %s',
-          commonError.defaultText,
-          key,
-          commonError[key].toString(),
-          parts
-        );
-        return Object.assign({}, commonError, {
-          message:
-            parts[1] && parts[1].trim().length > 0 ? parts[1].trim() : commonError.defaultText,
-          status: commonError.status,
-        });
-      }
-      if (
-        err[key] &&
-        commonError[key] === err[key] &&
-        ['level', 'defaultText'].indexOf(key) === -1
-      ) {
-        Ceres.log.silly(
-          '[ErrorHandler] Matched %s - error.%s = %s',
-          commonError.defaultText,
-          key,
-          err[key]
-        );
-        // Match other values like `code`
-        return Object.assign({}, commonError, {
-          message: commonError.defaultText,
-          status: commonError.status,
-        });
-      }
-      return undefined;
-    });
-  }).find(error => {
-    return typeof error === 'object';
-  });
-}
+const { findCommonError } = require('../lib/findCommonError');
 
 module.exports = function error(Ceres) {
   // eslint-disable-next-line no-unused-vars, complexity
@@ -111,7 +25,7 @@ module.exports = function error(Ceres) {
     }
 
     // Attempt to match some common errors so we can apply the right status
-    const commonErrorResponse = findCommonError(err, Ceres);
+    const commonErrorResponse = findCommonError(err, Ceres.logger('error'));
     if (commonErrorResponse) {
       ['status', 'message']
         .filter(key => {

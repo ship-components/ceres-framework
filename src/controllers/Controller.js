@@ -167,7 +167,7 @@ Controller.prototype = {
   },
 
   /**
-   * Create a Express Router and overrde any defaults
+   * Create a Express Router and override any defaults
    *
    * @return    {Express.router}
    */
