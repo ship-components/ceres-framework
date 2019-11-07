@@ -29,7 +29,7 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
 
       /**
        * Make res available on this
-       * @type {Express.Responses}
+       * @type {Express.Response}
        */
       res,
 
@@ -74,28 +74,28 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
     Object.assign(context, responses, ctx);
 
     // Start a promise chain so we can catch any errors
-    return Promise.bind(context)
-      .then(() => {
-        // Attempt to resolve the result of the handler. This can be a promise.
-        // Bluebird will handle both promies and direct values
-        return Promise.resolve(handler.call(context, req, res, next, ceres));
-      })
-      .then(body => {
-        if (body === null || typeof body === 'undefined') {
-          // If the body is empty then we can skip sending the response
-          return null;
-        }
-        if (res.writable && !res.headersSent) {
-          // Make sure the request is writable before we try to send it
-          context.send(body);
-          return null;
-        }
-        const err = new Error(
-          'Unable to write response. Please return null if you are handling the response elsewhere.'
-        );
-        err.body = body;
-        throw err;
-      })
-      .catch(next);
+
+    return (
+      Promise.bind(context)
+        // Attempt to resolve the result of the handler
+        .then(() => handler.call(context, req, res, next, ceres))
+        .then(body => {
+          if (body === null || typeof body === 'undefined') {
+            // If the body is empty then we can skip sending the response
+            return;
+          }
+          if (res.writable && !res.headersSent) {
+            // Make sure the request is writable before we try to send it
+            context.send(body);
+            return;
+          }
+          const err = new Error(
+            'Unable to write response. Please return null if you are handling the response elsewhere.'
+          );
+          err.body = body;
+          throw err;
+        })
+        .catch(next)
+    );
   };
 };

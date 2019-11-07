@@ -77,16 +77,13 @@ describe('wrapRoute', () => {
     const expected = {
       results: [],
     };
-    const handler = () => {
-      return new Promise(resolve => {
-        resolve(expected);
-      });
-    };
+    const handler = () => expected;
     const ctx = {
       send: jest.fn(),
     };
     const res = {
       writable: true,
+      headerSent: false,
     };
     const fn = wrapRoute(handler, ctx, ceres);
     fn({}, res, () => {})
