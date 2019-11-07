@@ -2,7 +2,7 @@ const winston = require('winston');
 const mkdirp = require('mkdirp');
 
 /**
- * Default settings for diffent transports
+ * Default settings for different transports
  * @type    {Object}
  */
 const DefaultSettings = {
@@ -42,7 +42,7 @@ function setupTransports(config, name, options) {
   const transports = [];
 
   /**
-   * Level to log. Defaults to info. Can be overriden by the cli
+   * Level to log. Defaults to info. Can be overridden by the cli
    * @type    {String}
    */
   const productionLogLevel = config.logLevel || 'info';
