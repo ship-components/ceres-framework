@@ -46,7 +46,7 @@ module.exports = function bookshelf(config, ceres) {
       return parseInt(value, 10);
     });
 
-    // convert numeric to string since we don't need ultra percision
+    // convert numeric to string since we don't need ultra precision
     pg.types.setTypeParser(1700, value => {
       return parseFloat(value);
     });

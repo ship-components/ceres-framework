@@ -1,5 +1,5 @@
 /**
- * Ensure a value is not null or throw an erroe
+ * Ensure a value is not null or throw an error
  * @param    {Mixed}    val
  * @return   {Undefined}
  */
