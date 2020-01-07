@@ -56,7 +56,7 @@
   "optionalDependencies": {
     "bookshelf": "^0.10.4",
     "express-socket.io-session": "^1.3.1",
-    "knex": "^0.14.6",
+    "knex": "^0.19.5",
     "mongodb": "^2.2.11",
     "pg": ">=7.3.0",
     "pg-live-select": ">=1.0.3",
