@@ -35,6 +35,9 @@ module.exports = function bookshelf(config, ceres) {
     // eslint-disable-next-line import/no-extraneous-dependencies
     db.bookshelf = require('bookshelf')(db.knex);
 
+    // Enable plugins
+    db.bookshelf.plugin(config.db.plugins || ['visibility', 'registry']);
+
     // eslint-disable-next-line import/no-extraneous-dependencies
     const pg = require('pg');
 
