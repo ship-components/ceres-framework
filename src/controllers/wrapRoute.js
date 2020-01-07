@@ -78,16 +78,16 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
     return (
       Promise.bind(context)
         // Attempt to resolve the result of the handler
-        .then(() => handler.call(context, req, res, next, ceres))
+        .then(() => Promise.resolve(handler.call(context, req, res, next, ceres)))
         .then(body => {
           if (body === null || typeof body === 'undefined') {
             // If the body is empty then we can skip sending the response
-            return;
+            return null;
           }
           if (res.writable && !res.headersSent) {
             // Make sure the request is writable before we try to send it
             context.send(body);
-            return;
+            return null;
           }
           const err = new Error(
             'Unable to write response. Please return null if you are handling the response elsewhere.'

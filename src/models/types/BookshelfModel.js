@@ -119,7 +119,7 @@ BookshelfModel.prototype.update = function update(body, id) {
   assertNotNull(this.model);
   assertDefined(id, 'id');
 
-  // Clone so we don't mutate accidently
+  // Clone so we don't mutate accidentally
   Object.assign({}, body);
 
   delete body.id; // Can't update the ID

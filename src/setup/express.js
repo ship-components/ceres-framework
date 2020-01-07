@@ -41,7 +41,7 @@ module.exports = function Server(ceres) {
   ceres.log.internal.silly('Cookie parser enabled');
 
   /** ***************************************************************************
-   * Obfusticate
+   * Obfuscate
    */
   app.disable('x-powered-by');
   ceres.log.internal.silly('Disabled x-powered-by header');
@@ -206,7 +206,7 @@ module.exports = function Server(ceres) {
     ceres.config.middleware.error.forEach(middleware => {
       app.use(middleware);
     });
-    ceres.log.internal.silly('User error middleware configued');
+    ceres.log.internal.silly('User error middleware configured');
   } else {
     const errorMiddleware = require('../middleware/error')(ceres);
     app.use(errorMiddleware);

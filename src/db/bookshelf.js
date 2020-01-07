@@ -35,6 +35,9 @@ module.exports = function bookshelf(config, ceres) {
     // eslint-disable-next-line import/no-extraneous-dependencies
     db.bookshelf = require('bookshelf')(db.knex);
 
+    // Enable plugins
+    db.bookshelf.plugin(config.db.plugins || ['visibility', 'registry']);
+
     // eslint-disable-next-line import/no-extraneous-dependencies
     const pg = require('pg');
 
@@ -43,7 +46,7 @@ module.exports = function bookshelf(config, ceres) {
       return parseInt(value, 10);
     });
 
-    // convert numeric to string since we don't need ultra percision
+    // convert numeric to string since we don't need ultra precision
     pg.types.setTypeParser(1700, value => {
       return parseFloat(value);
     });

@@ -26,7 +26,7 @@ const childSettings = {
 
 /**
  * Fork the application and run it on a specific port. Recursively spawn a new
- * intsance if it crashes
+ * instance if it crashes
  * @param    {Object}    ceres    [description]
  * @param    {Number}    port     [description]
  * @return   {Undefined}
@@ -66,7 +66,7 @@ function spawn(ceres, port, workerIndex) {
 
   // Listen to messages from the parent
   worker.on('message', obj => {
-    ceres.log.internal.error('%s recieved %s', worker.pid, obj);
+    ceres.log.internal.error('%s received %s', worker.pid, obj);
     if (typeof obj === 'object') {
       Object.assign(childSettings, obj);
     }
