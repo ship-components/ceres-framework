@@ -28,6 +28,7 @@ ceres create example
 
 ## History
 
+- 1.4.2 - Fixed issue with package-lock.json being out of sync
 - 1.4.1 - Updated bookshelf version to fix transaction bug
 - 1.4.0 - Added support for Bookshelf.js plugins, fixed issue causing a Promise warning in wrapRoute
 - 1.3.5 - Fixed bug with default error handler, pushed min node version to 8
