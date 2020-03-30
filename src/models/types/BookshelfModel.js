@@ -120,7 +120,7 @@ BookshelfModel.prototype.update = function update(body, id) {
   assertDefined(id, 'id');
 
   // Clone so we don't mutate accidentally
-  Object.assign({}, body);
+  body = { ...body };
 
   delete body.id; // Can't update the ID
   delete body.created_at; // You can only create it once
