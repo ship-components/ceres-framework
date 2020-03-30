@@ -62,11 +62,12 @@ module.exports.findCommonError = function findCommonError(err, logger = undefine
             parts
           );
         }
-        return Object.assign({}, commonError, {
+        return {
+          ...commonError,
           message:
             parts[1] && parts[1].trim().length > 0 ? parts[1].trim() : commonError.defaultText,
           status: commonError.status,
-        });
+        };
       }
       if (
         err[key] &&
@@ -82,10 +83,7 @@ module.exports.findCommonError = function findCommonError(err, logger = undefine
           );
         }
         // Match other values like `code`
-        return Object.assign({}, commonError, {
-          message: commonError.defaultText,
-          status: commonError.status,
-        });
+        return { ...commonError, message: commonError.defaultText, status: commonError.status };
       }
     }
     return null;

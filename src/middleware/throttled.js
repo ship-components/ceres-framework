@@ -63,19 +63,15 @@ module.exports = options => {
    *
    * @type    {Redis}
    */
-  const client = redis.createClient(
-    Object.assign(
-      {
-        host: '127.0.0.1',
-        port: 6379,
-        ttl: 3600,
-        pass: '',
-        db: 0,
-        prefix: options.prefix,
-      },
-      options.redis
-    )
-  );
+  const client = redis.createClient({
+    host: '127.0.0.1',
+    port: 6379,
+    ttl: 3600,
+    pass: '',
+    db: 0,
+    prefix: options.prefix,
+    ...options.redis,
+  });
 
   /**
    * Middleware

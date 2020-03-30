@@ -128,11 +128,12 @@ module.exports = ceres => {
     // CERES_UNIQUE_ID gets automatically assigned to children
     const isMaster = typeof process.env.CERES_UNIQUE_ID !== 'string';
 
-    if (isMaster) {
-      // Master
+    // Forking requires a unique port per instance so ensure we always have an array
+    const ports = ceres.config.port instanceof Array ? ceres.config.port : [ceres.config.port];
 
-      // Ensure we always have an array
-      const ports = ceres.config.port instanceof Array ? ceres.config.port : [ceres.config.port];
+    // If we only have a single port then we don't need to fork
+    if (isMaster && ports.length > 1) {
+      // Master
 
       ceres.log.internal.debug('Master forking %d instances - %s', ports.length, ports.join(', '));
       for (let i = 0; i < ports.length; i += 1) {
@@ -162,7 +163,15 @@ module.exports = ceres => {
 
       resolve();
     } else {
-      // Child
+      // Child or single port node
+
+      // Ensure port is a number the case there is only a single port
+      // mostly for the node inspector or any case where there is
+      // only one port in the config
+      ceres.config.port = Array.isArray(ceres.config.port)
+        ? ceres.config.port[0]
+        : ceres.config.port;
+
       ceres.connect
         .call(ceres, ceres)
         .then(listen.bind(ceres, ceres))

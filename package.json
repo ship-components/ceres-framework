@@ -1,6 +1,6 @@
 {
   "name": "ceres-framework",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Node.js Framework for React Applications",
   "main": "src/index.js",
   "bin": {
@@ -29,15 +29,26 @@
   "engines": {
     "node": ">=8"
   },
+  "lint-staged": {
+    "{cli,src,config}/**/*.js": [
+      "eslint --fix --quiet"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm test -- --coverage=false"
+    }
+  },
   "dependencies": {
     "async": "0.9.2",
     "base32": "0.0.6",
-    "bluebird": "^3.7.1",
+    "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
     "commander": "^2.19.0",
     "compression": "^1.7.4",
     "connect-redis": "^3.4.0",
-    "cookie-parser": "^1.4.4",
+    "cookie-parser": "^1.4.5",
     "ejs": "^2.7.1",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
@@ -45,7 +56,7 @@
     "lodash": "^4.17.15",
     "mkdirp": "^0.5.1",
     "moment": "^2.24.0",
-    "morgan": "^1.9.1",
+    "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "redis": "^2.7.1",
     "response-time": "^2.3.2",
@@ -69,15 +80,17 @@
     "webpack-dev-middleware": "^1.10.2"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.3",
-    "coveralls": "^3.0.7",
-    "eslint": "^6.6.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-config-prettier": "^6.5.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-prettier": "^3.1.1",
+    "babel-eslint": "^10.1.0",
+    "coveralls": "^3.0.11",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-prettier": "^3.1.2",
+    "husky": "^4.2.3",
     "jest": "^24.9.0",
     "jest-junit": "^9.0.0",
+    "lint-staged": "^10.1.0",
     "prettier": "^1.18.2"
   },
   "jest": {

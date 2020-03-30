@@ -151,14 +151,10 @@ module.exports = function Server(ceres) {
    * Throttle all requests
    */
   if (ceres.config.throttle) {
-    const throttle = require('../middleware/throttled')(
-      Object.assign(
-        {
-          logger: ceres.log.internal,
-        },
-        ceres.config.throttle
-      )
-    );
+    const throttle = require('../middleware/throttled')({
+      logger: ceres.log.internal,
+      ...ceres.config.throttle,
+    });
     app.use(throttle);
     ceres.log.internal.silly('Request throttling enabled');
   }
