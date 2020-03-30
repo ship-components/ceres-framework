@@ -59,7 +59,7 @@ Controller.prototype = {
    *
    * @type    {Object}
    */
-  responses: Object.assign({}, Responses),
+  responses: { ...Responses },
 
   /**
    * Default Routes

@@ -1,10 +1,8 @@
 module.exports = function Benchmark(options) {
-  options = Object.assign(
-    {
-      verbose: false,
-    },
-    options
-  );
+  options = {
+    verbose: false,
+    ...options,
+  };
 
   const times = {
     start: Date.now(),

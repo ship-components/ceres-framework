@@ -6,17 +6,15 @@ const Promise = require('bluebird');
  * @param    {Objet}    options
  */
 function RedisCache(options, logger) {
-  this.options = Object.assign(
-    {
-      host: '127.0.0.1',
-      port: 6379,
-      ttl: 3600,
-      pass: '',
-      db: 0,
-      prefix: 'ceres',
-    },
-    options
-  );
+  this.options = {
+    host: '127.0.0.1',
+    port: 6379,
+    ttl: 3600,
+    pass: '',
+    db: 0,
+    prefix: 'ceres',
+    ...options,
+  };
 
   /**
    * Save logger
@@ -110,12 +108,10 @@ RedisCache.prototype.set = function set(key, body, options) {
     return Promise.reject(new TypeError('key is not a string'));
   }
 
-  options = Object.assign(
-    {
-      expires: 60 * 60 * 12,
-    },
-    options
-  );
+  options = {
+    expires: 60 * 60 * 12,
+    ...options,
+  };
 
   if (this.logger) {
     this.logger.silly('Setting %s to', key, body);

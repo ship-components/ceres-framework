@@ -30,17 +30,15 @@ function randomString(options) {
  */
 function generateKey(options) {
   // Options
-  options = Object.assign(
-    {
-      length: 32,
-      name: '',
-      symbols: false,
-      google: false,
-      qrCode: false,
-      type: 'base32',
-    },
-    options || {}
-  );
+  options = {
+    length: 32,
+    name: '',
+    symbols: false,
+    google: false,
+    qrCode: false,
+    type: 'base32',
+    ...(options || {}),
+  };
 
   // Generate the random string
   let key = randomString(options);

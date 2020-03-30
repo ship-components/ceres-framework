@@ -63,7 +63,7 @@ module.exports = function wrapRoute(handler, ctx, ceres) {
      * User overridden responses
      * @type    {Object}
      */
-    let responses = Object.assign({}, Responses, (ctx || {}).responses);
+    let responses = { ...Responses, ...(ctx || {}).responses };
 
     /**
      * Bind req and res to each response

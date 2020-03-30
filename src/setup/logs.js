@@ -50,67 +50,67 @@ function setupTransports(config, name, options) {
   // Setup json logs for machines to ingest
   if (config.logging.json) {
     transports.push(
-      new winston.transports.File(
-        Object.assign({}, DefaultSettings.production, options, {
-          name: 'production-json',
-          filename: `${config.folders.logs}/production.json`,
-          level: productionLogLevel,
-          label: name,
-          json: true,
-          logstash: true,
-        })
-      )
+      new winston.transports.File({
+        ...DefaultSettings.production,
+        ...options,
+        name: 'production-json',
+        filename: `${config.folders.logs}/production.json`,
+        level: productionLogLevel,
+        label: name,
+        json: true,
+        logstash: true,
+      })
     );
 
     // Log errors to a separate file
     transports.push(
-      new winston.transports.File(
-        Object.assign({}, DefaultSettings.errors, options, {
-          name: 'errors-json',
-          filename: `${config.folders.logs}/errors.json`,
-          label: name,
-          json: true,
-          logstash: true,
-        })
-      )
+      new winston.transports.File({
+        ...DefaultSettings.errors,
+        ...options,
+        name: 'errors-json',
+        filename: `${config.folders.logs}/errors.json`,
+        label: name,
+        json: true,
+        logstash: true,
+      })
     );
   }
 
   // Setup human readable logs
   if (config.logging.human) {
     transports.push(
-      new winston.transports.File(
-        Object.assign({}, DefaultSettings.production, options, {
-          name: 'production',
-          filename: `${config.folders.logs}/production.log`,
-          level: productionLogLevel,
-          label: name,
-          json: false,
-        })
-      )
+      new winston.transports.File({
+        ...DefaultSettings.production,
+        ...options,
+        name: 'production',
+        filename: `${config.folders.logs}/production.log`,
+        level: productionLogLevel,
+        label: name,
+        json: false,
+      })
     );
     // Log errors to a separate file
     transports.push(
-      new winston.transports.File(
-        Object.assign({}, DefaultSettings.errors, options, {
-          name: 'errors',
-          filename: `${config.folders.logs}/errors.log`,
-          label: name,
-          json: false,
-        })
-      )
+      new winston.transports.File({
+        ...DefaultSettings.errors,
+        ...options,
+        name: 'errors',
+        filename: `${config.folders.logs}/errors.log`,
+        label: name,
+        json: false,
+      })
     );
   }
 
   // Output to console on dev
   if (config.env !== 'production' || config.verbose) {
     transports.push(
-      new winston.transports.Console(
-        Object.assign({}, DefaultSettings.console, options, {
-          level: config.logLevel || 'silly',
-          label: name,
-        })
-      )
+      new winston.transports.Console({
+        ...DefaultSettings.console,
+        ...options,
+        level: config.logLevel || 'silly',
+        label: name,
+      })
     );
   }
 
